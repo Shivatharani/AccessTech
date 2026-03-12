@@ -4,37 +4,31 @@ from datetime import datetime
 
 from database import insert_data, fetch_data
 from utils.auth_utils import hash_password, verify_password, create_token
+from oauth_google import verify_google_token
 
 router = APIRouter()
-
-
-# -----------------------------
-# Request Models
-# -----------------------------
 
 class SignupRequest(BaseModel):
     name: str
     email: str
     password: str
+    confirm_password: str
     language: str
     level: str
-
 
 class LoginRequest(BaseModel):
     email: str
     password: str
 
-
 class GoogleLogin(BaseModel):
     token: str
 
 
-# -----------------------------
-# Signup API
-# -----------------------------
-
 @router.post("/signup")
 def signup(user: SignupRequest):
+
+    if user.password != user.confirm_password:
+        raise HTTPException(status_code=400, detail="Passwords do not match")
 
     existing = fetch_data("users", "email", user.email)
 
@@ -56,10 +50,6 @@ def signup(user: SignupRequest):
     return {"message": "Signup successful"}
 
 
-# -----------------------------
-# Login API
-# -----------------------------
-
 @router.post("/login")
 def login(user: LoginRequest, request: Request):
 
@@ -75,7 +65,6 @@ def login(user: LoginRequest, request: Request):
 
     token = create_token(user.email)
 
-    # store login activity
     insert_data("login_activity", {
         "email": user.email,
         "login_time": datetime.utcnow().isoformat(),
@@ -91,21 +80,19 @@ def login(user: LoginRequest, request: Request):
     }
 
 
-# -----------------------------
-# Google Login (Temporary for testing)
-# -----------------------------
-
 @router.post("/google-login")
 def google_login(data: GoogleLogin):
 
-    email = data.token  # temporary simulation
+    idinfo = verify_google_token(data.token)
+
+    email = idinfo["email"]
+    name = idinfo.get("name", "Google User")
 
     users = fetch_data("users", "email", email)
 
     if not users:
-
         insert_data("users", {
-            "name": "Google User",
+            "name": name,
             "email": email,
             "provider": "google",
             "language": "English",
