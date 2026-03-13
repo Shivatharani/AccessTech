@@ -44,7 +44,7 @@ def signup(user: SignupRequest):
         "language": user.language,
         "level": user.level,
         "provider": "manual",
-        "created_at": datetime.utcnow().isoformat()
+        "created_at": datetime.utcnow().isoformat() + "Z"
     })
 
     return {"message": "Signup successful"}
@@ -67,7 +67,7 @@ def login(user: LoginRequest, request: Request):
 
     insert_data("login_activity", {
         "email": user.email,
-        "login_time": datetime.utcnow().isoformat(),
+        "login_time": datetime.utcnow().isoformat() + "Z",
         "ip_address": request.client.host,
         "device": request.headers.get("user-agent")
     })
@@ -81,7 +81,7 @@ def login(user: LoginRequest, request: Request):
 
 
 @router.post("/google-login")
-def google_login(data: GoogleLogin):
+def google_login(data: GoogleLogin, request: Request):
 
     idinfo = verify_google_token(data.token)
 
@@ -97,9 +97,27 @@ def google_login(data: GoogleLogin):
             "provider": "google",
             "language": "English",
             "level": "Beginner",
-            "created_at": datetime.utcnow().isoformat()
+            "created_at": datetime.utcnow().isoformat() + "Z"
         })
 
-    token = create_token(email)
+    insert_data("login_activity", {
+        "email": email,
+        "login_time": datetime.utcnow().isoformat() + "Z",
+        "ip_address": request.client.host,
+        "device": request.headers.get("user-agent")
+    })
 
-    return {"access_token": token}
+    token = create_token(email)
+    
+    user_data_list = fetch_data("users", "email", email)
+    user_data = user_data_list[0] if user_data_list else {
+        "language": "English",
+        "level": "Beginner"
+    }
+
+    return {
+        "access_token": token,
+        "email": email,
+        "language": user_data["language"],
+        "level": user_data["level"]
+    }

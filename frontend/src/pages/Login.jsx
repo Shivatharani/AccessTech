@@ -1,101 +1,180 @@
 import { useState } from "react"
 import API from "../services/api"
 import { useNavigate, Link } from "react-router-dom"
-
 import { GoogleLogin } from "@react-oauth/google"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Globe, Signal, ArrowLeft } from "lucide-react"
+import { useTranslation } from "react-i18next"
+import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 export default function Login() {
 
  const nav = useNavigate()
+ const { t, i18n } = useTranslation()
 
  const [showPassword,setShowPassword] = useState(false)
 
  const [form,setForm] = useState({
   email:"",
-  password:""
+  password:"",
+  language: "English",
+  level: "Beginner"
  })
 
+  const changeLanguage = (langStr) => {
+    let code = "en";
+    if (langStr === "Tamil") code = "ta";
+    if (langStr === "Hindi") code = "hi";
+    i18n.changeLanguage(code);
+  }
+
  const login = async () => {
-
-  const res = await API.post("/auth/login",form)
-
-  localStorage.setItem("token",res.data.access_token)
-  localStorage.setItem("email",form.email)
-
-  nav("/tutor")
-
+  try {
+   const res = await API.post("/auth/login", {
+     email: form.email,
+     password: form.password
+   })
+ 
+   localStorage.setItem("token",res.data.access_token)
+   localStorage.setItem("email",form.email)
+ 
+   localStorage.setItem("language", form.language)
+   localStorage.setItem("level", form.level)
+   changeLanguage(form.language)
+   
+   toast.success("Login Successful!")
+   nav("/tutor")
+  } catch (err) {
+    toast.error(err.response?.data?.detail || "Invalid credentials. Please try again.")
+  }
  }
 
  const handleGoogle = async (credentialResponse) => {
+  try {
+   const res = await API.post("/auth/google-login",{
+    token:credentialResponse.credential
+   })
+ 
+   localStorage.setItem("token",res.data.access_token)
+   localStorage.setItem("email", res.data.email)
+   
+   if (res.data.language) {
+     localStorage.setItem("language", res.data.language)
+     changeLanguage(res.data.language)
+   }
+   if (res.data.level) {
+     localStorage.setItem("level", res.data.level)
+   }
 
-  const res = await API.post("/auth/google-login",{
-   token:credentialResponse.credential
-  })
-
-  localStorage.setItem("token",res.data.access_token)
-
-  nav("/tutor")
-
+   toast.success("Google Login Successful!")
+   nav("/tutor")
+  } catch(err) {
+   toast.error("Google login failed.")
+  }
  }
 
  return(
 
- <div className="h-screen flex items-center justify-center bg-gray-50">
+ <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-950 dark:to-indigo-950 transition-colors duration-300">
 
-  <div className="bg-white shadow-xl rounded-2xl p-10 w-[400px]">
-
-   <h2 className="text-2xl font-bold mb-6 text-center">
-    Welcome Back
-   </h2>
-
-   <input
-   className="border p-3 rounded w-full mb-4"
-   placeholder="Email"
-   onChange={(e)=>setForm({...form,email:e.target.value})}
-   />
-
-   <div className="relative">
-
-    <input
-    type={showPassword ? "text":"password"}
-    className="border p-3 rounded w-full"
-    placeholder="Password"
-    onChange={(e)=>setForm({...form,password:e.target.value})}
-    />
-
-    <button
-    className="absolute right-3 top-3"
-    onClick={()=>setShowPassword(!showPassword)}
-    >
-    {showPassword ? <EyeOff size={18}/> : <Eye size={18}/>}
-    </button>
-
-   </div>
-
-   <button
-   onClick={login}
-   className="bg-blue-600 text-white w-full py-3 rounded mt-4"
+  <div className="bg-white dark:bg-gray-900 shadow-2xl rounded-2xl p-10 w-[450px] border border-gray-100 dark:border-gray-800 transition-colors duration-300 relative">
+    
+   <button 
+     onClick={() => nav(-1)} 
+     className="absolute top-6 left-6 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
    >
-   Login
+     <ArrowLeft size={24} />
    </button>
 
-   <div className="mt-4 flex justify-center">
+   <div className="mb-8 text-center mt-4">
+    <h2 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mb-2 transition-colors">
+     {t('welcome')}
+    </h2>
+    <p className="text-gray-500 dark:text-gray-400">{t('login')} to continue</p>
+   </div>
+
+   <div className="space-y-4">
+     <Input
+     className="bg-gray-50 dark:bg-gray-800 focus-visible:ring-indigo-400 dark:focus-visible:ring-indigo-500 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700 h-12 transition-colors"
+     placeholder={t('email')}
+     onChange={(e)=>setForm({...form,email:e.target.value})}
+     />
+
+    <div className="relative">
+     <Input
+     type={showPassword ? "text":"password"}
+     className="bg-gray-50 dark:bg-gray-800 focus-visible:ring-indigo-400 dark:focus-visible:ring-indigo-500 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700 h-12 pr-12 transition-colors"
+     placeholder={t('password')}
+     onChange={(e)=>setForm({...form,password:e.target.value})}
+     />
+     <button
+     className="absolute right-4 top-3.5 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+     onClick={()=>setShowPassword(!showPassword)}
+     >
+     {showPassword ? <EyeOff size={20}/> : <Eye size={20}/>}
+     </button>
+    </div>
+
+    {/* Language Selector */}
+    <div className="flex relative">
+      <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400">
+        <Globe size={18} />
+      </div>
+      <select
+        className="border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-900 p-3 pl-11 rounded-xl w-full focus:ring-2 focus:ring-indigo-400 outline-none transition-all appearance-none cursor-pointer"
+        value={form.language}
+        onChange={(e)=>setForm({...form, language:e.target.value})}
+      >
+        <option value="English">English</option>
+        <option value="Tamil">தமிழ் (Tamil)</option>
+        <option value="Hindi">हिंदी (Hindi)</option>
+      </select>
+    </div>
+
+    {/* Level Selector */}
+    <div className="flex relative">
+      <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400">
+        <Signal size={18} />
+      </div>
+      <select
+        className="border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-900 p-3 pl-11 rounded-xl w-full focus:ring-2 focus:ring-indigo-400 outline-none transition-all appearance-none cursor-pointer"
+        value={form.level}
+        onChange={(e)=>setForm({...form, level:e.target.value})}
+      >
+        <option value="Beginner">{t('beginner')}</option>
+        <option value="Intermediate">{t('intermediate')}</option>
+        <option value="Advanced">{t('advanced')}</option>
+      </select>
+    </div>
+   </div>
+
+   <Button
+   onClick={login}
+   className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white w-full py-6 rounded-xl font-semibold shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 mt-6 text-md"
+   >
+   {t('login')}
+   </Button>
+
+   <div className="mt-6 flex justify-center border-t border-gray-100 dark:border-gray-800 pt-6 transition-colors">
     <GoogleLogin
      onSuccess={handleGoogle}
-     onError={()=>alert("Google login failed")}
+     onError={()=>toast.error("Google login failed")}
+     theme="filled_blue"
+     shape="pill"
+     text="signin_with"
     />
    </div>
 
-   <p className="text-center mt-4">
+   <p className="text-center mt-6 text-gray-600 dark:text-gray-400">
 
-   Don't have an account?
+   {t('dont_have_account')}
 
    <Link
    to="/signup"
-   className="text-blue-600 ml-1"
+   className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline ml-2"
    >
-   Signup
+   {t('signup')}
    </Link>
 
    </p>

@@ -15,6 +15,10 @@ class AskRequest(BaseModel):
     email: str
     topic: str
 
+class QuizRequest(BaseModel):
+    topic: str
+    language: str
+
 
 class QuizSubmit(BaseModel):
     email: str
@@ -90,9 +94,20 @@ def ask_ai(data: AskRequest):
         "topic": data.topic,
         "language": language,
         "level": level,
-        "response": ai_response,
-        "quiz": quiz
+        "response": ai_response
     }
+
+# -----------------------------
+# Generate Interactive Quiz
+# -----------------------------
+@router.post("/generate-quiz")
+def get_quiz(data: QuizRequest):
+    quiz_data = generate_quiz(data.topic, data.language)
+    
+    if not quiz_data:
+        raise HTTPException(status_code=500, detail="Failed to generate quiz JSON from AI")
+        
+    return {"quiz": quiz_data}
 
 
 # -----------------------------
@@ -110,3 +125,11 @@ def submit_quiz(data: QuizSubmit):
     return {
         "message": "Quiz stored successfully"
     }
+
+# -----------------------------
+# Get History
+# -----------------------------
+@router.get("/history")
+def get_history(email: str):
+    history = fetch_data("history", "email", email)
+    return {"history": history}

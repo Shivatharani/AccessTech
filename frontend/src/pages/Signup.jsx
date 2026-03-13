@@ -1,7 +1,10 @@
 import { useState } from "react"
-import API from "../services/api"
 import { useNavigate, Link } from "react-router-dom"
-import { Eye,EyeOff } from "lucide-react"
+import API from "../services/api"
+import { Eye, EyeOff, ArrowLeft } from "lucide-react"
+import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 export default function Signup(){
 
@@ -20,108 +23,117 @@ export default function Signup(){
  })
 
  const signup = async()=>{
-
-  await API.post("/auth/signup",form)
-
-  alert("Signup successful")
-
-  nav("/")
+  try {
+   await API.post("/auth/signup",form)
+   toast.success("Signup successful! Please login.")
+   nav("/login")
+  } catch (err) {
+   toast.error(err.response?.data?.detail || "Signup failed.")
+  }
 
  }
 
  return(
 
- <div className="h-screen flex items-center justify-center bg-gray-50">
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-950 dark:to-indigo-950 transition-colors duration-300">
+ 
+  <div className="bg-white dark:bg-gray-900 shadow-2xl rounded-2xl p-10 w-[450px] border border-gray-100 dark:border-gray-800 transition-colors duration-300 relative">
 
- <div className="bg-white shadow-xl rounded-2xl p-10 w-[420px]">
+  <button 
+    onClick={() => nav(-1)} 
+    className="absolute top-6 left-6 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+  >
+    <ArrowLeft size={24} />
+  </button>
+ 
+  <div className="mb-8 text-center mt-4">
+   <h2 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mb-2 transition-colors">
+    Create Account
+   </h2>
+   <p className="text-gray-500 dark:text-gray-400">Join AccessTech today</p>
+  </div>
+ 
+  <div className="space-y-4">
+   <Input
+   className="bg-gray-50 dark:bg-gray-800 focus-visible:ring-indigo-400 dark:focus-visible:ring-indigo-500 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700 h-12 transition-colors"
+   placeholder="Name"
+   onChange={(e)=>setForm({...form,name:e.target.value})}
+   />
+  
+   <Input
+   className="bg-gray-50 dark:bg-gray-800 focus-visible:ring-indigo-400 dark:focus-visible:ring-indigo-500 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700 h-12 transition-colors"
+   placeholder="Email"
+   onChange={(e)=>setForm({...form,email:e.target.value})}
+   />
+  
+   <div className="relative">
+    <Input
+    type={showPassword ? "text":"password"}
+    className="bg-gray-50 dark:bg-gray-800 focus-visible:ring-indigo-400 dark:focus-visible:ring-indigo-500 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700 h-12 pr-12 transition-colors"
+    placeholder="Password"
+    onChange={(e)=>setForm({...form,password:e.target.value})}
+    />
+    <button
+    className="absolute right-4 top-3.5 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+    onClick={()=>setShowPassword(!showPassword)}
+    >
+    {showPassword ? <EyeOff size={20}/> : <Eye size={20}/>}
+    </button>
+   </div>
+  
+   <div className="relative">
+    <Input
+    type={showConfirm ? "text":"password"}
+    className="bg-gray-50 dark:bg-gray-800 focus-visible:ring-indigo-400 dark:focus-visible:ring-indigo-500 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700 h-12 pr-12 transition-colors"
+    placeholder="Confirm Password"
+    onChange={(e)=>setForm({...form,confirm_password:e.target.value})}
+    />
+    <button
+    className="absolute right-4 top-3.5 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+    onClick={()=>setShowConfirm(!showConfirm)}
+    >
+    {showConfirm ? <EyeOff size={20}/> : <Eye size={20}/>}
+    </button>
+   </div>
+  
+   <div className="grid grid-cols-2 gap-4">
+    <select
+    className="border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-900 px-3 py-3 rounded-xl w-full focus:ring-2 focus:ring-indigo-400 outline-none transition-all cursor-pointer text-sm"
+    onChange={(e)=>setForm({...form,language:e.target.value})}
+    >
+    <option>English</option>
+    <option>Tamil</option>
+    <option>Hindi</option>
+    </select>
+   
+    <select
+    className="border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-900 px-3 py-3 rounded-xl w-full focus:ring-2 focus:ring-indigo-400 outline-none transition-all cursor-pointer text-sm"
+    onChange={(e)=>setForm({...form,level:e.target.value})}
+    >
+    <option>Beginner</option>
+    <option>Intermediate</option>
+    <option>Advanced</option>
+    </select>
+   </div>
+  </div>
+ 
+  <Button
+  onClick={signup}
+  className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white w-full py-6 rounded-xl font-semibold shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 mt-8 text-md"
+  >
+  Signup
+  </Button>
 
- <h2 className="text-2xl font-bold mb-6 text-center">
- Create Account
- </h2>
-
- <input
- className="border p-3 rounded w-full mb-3"
- placeholder="Name"
- onChange={(e)=>setForm({...form,name:e.target.value})}
- />
-
- <input
- className="border p-3 rounded w-full mb-3"
- placeholder="Email"
- onChange={(e)=>setForm({...form,email:e.target.value})}
- />
-
- <div className="relative mb-3">
-
- <input
- type={showPassword ? "text":"password"}
- className="border p-3 rounded w-full"
- placeholder="Password"
- onChange={(e)=>setForm({...form,password:e.target.value})}
- />
-
- <button
- className="absolute right-3 top-3"
- onClick={()=>setShowPassword(!showPassword)}
- >
- {showPassword ? <EyeOff size={18}/> : <Eye size={18}/>}
- </button>
-
- </div>
-
- <div className="relative mb-3">
-
- <input
- type={showConfirm ? "text":"password"}
- className="border p-3 rounded w-full"
- placeholder="Confirm Password"
- onChange={(e)=>setForm({...form,confirm_password:e.target.value})}
- />
-
- <button
- className="absolute right-3 top-3"
- onClick={()=>setShowConfirm(!showConfirm)}
- >
- {showConfirm ? <EyeOff size={18}/> : <Eye size={18}/>}
- </button>
-
- </div>
-
- <select
- className="border p-3 rounded w-full mb-3"
- onChange={(e)=>setForm({...form,language:e.target.value})}
- >
- <option>English</option>
- <option>Tamil</option>
- <option>Hindi</option>
- </select>
-
- <select
- className="border p-3 rounded w-full mb-4"
- onChange={(e)=>setForm({...form,level:e.target.value})}
- >
- <option>Beginner</option>
- <option>Intermediate</option>
- <option>Advanced</option>
- </select>
-
- <button
- onClick={signup}
- className="bg-green-600 text-white w-full py-3 rounded"
- >
- Signup
- </button>
-
- <p className="text-center mt-4">
-
- Already have account?
-
- <Link
- to="/"
- className="text-blue-600 ml-1"
- >
- Login
- </Link>
+  <p className="text-center mt-6 text-gray-600 dark:text-gray-400">
+ 
+  Already have account?
+ 
+  <Link
+  to="/login"
+  className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline ml-2"
+  >
+  Login
+  </Link>
 
  </p>
 

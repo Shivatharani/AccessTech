@@ -1,371 +1,152 @@
-# AccessTech – Adaptive Multilingual AI Learning Platform (Backend)
+# AccessTech
 
-This repository contains the **FastAPI backend** for the AccessTech platform.
-The backend provides APIs for:
+AccessTech is an AI-powered multilingual learning platform. It transforms natural language prompts into personalized tutoring sessions and dynamic, interactive quizzes using LLaMa-3.1 via Groq. Designed with a clean aesthetic, AccessTech supports multi-language capabilities, a robust global Dark Mode, and deep user analytics.
 
-* User Authentication
-* Google Login
-* AI Tutor (multilingual)
-* Quiz Generation
-* Learning Progress Tracking
-* Dashboard Analytics
+## Features
 
-The backend uses:
+### 1. AI-Powered Tutor and Quiz Engine
+- **Personalized Tutor:** Ask any educational topic, and the Groq LLM synthesizes detailed, engaging explanations.
+- **Dynamic Interactive Quizzes:** Convert any topic into a 10-question multiple-choice quiz. The AI returns strictly structured JSON objects to feed a UI that tracks, validates, and stores scores.
 
-* **FastAPI** – API framework
-* **Supabase** – Database
-* **Groq AI** – AI tutor content generation
+### 2. Global Multilingual Support
+- Native support for English, Tamil, and Hindi.
+- Users select their language and proficiency tier (Beginner, Intermediate, Advanced) upon Authentication, and the AI actively teaches them in their chosen dialect.
 
----
+### 3. Deep Analytics Dashboard
+- Visualized data using Recharts.
+- AreaChart maps quiz score trendlines over time.
+- BarChart evaluates discrete engagement metrics.
+- Standardized UTC/Local Timezone conversion tracks precise login times backed by Supabase logging.
 
-# Project Structure
+### 4. UI/UX and Native Dark Mode
+- Built on Tailwind CSS, enhanced with Shadcn UI components and localized Sonner toast notifications.
+- Explicit Tailwind dark classes implemented across the entire application, allowing seamless toggling.
 
-```
-backend/
-│
-├── routes/
-│   ├── auth.py
-│   ├── ai.py
-│   └── dashboard.py
-│
-├── services/
-│   ├── groq_service.py
-│   └── quiz_service.py
-│
-├── utils/
-│   └── auth_utils.py
-│
-├── database.py
-├── oauth_google.py
-├── main.py
-├── requirements.txt
-└── .env
-```
+### 5. Authentication Ecosystem
+- Custom JWT-based Email/Password Registration.
+- Native Google Workspace OAuth Integration. Securely binds federated Gmail tokens to map user history and preferences.
 
 ---
 
-# 1. Clone the Repository
+## Technology Stack
 
-```
-git clone https://github.com/<your-team-repo>/accesstech.git
-```
+**Frontend Framework:**
+- React (Vite)
+- Tailwind CSS
+- React Router DOM
+- Radix UI / Shadcn
+- Recharts (Data Visualization)
+- react-i18next (Multilingual)
+- next-themes (Dark Mode)
 
-Navigate to backend folder:
+**Backend Architecture:**
+- Python FastAPI
+- Pydantic (Data Validation)
+- Groq SDK (AI Interfacing)
+- Google OAuth2 (Token Parsing verification)
+- Passlib (Bcrypt Password Hashing)
+- PyJWT (Token formulation)
 
-```
-cd accesstech/backend
-```
-
----
-
-# 2. Create Virtual Environment
-
-Create environment:
-
-```
-python -m venv venv
-```
-
-Activate environment:
-
-### Windows
-
-```
-venv\Scripts\activate
-```
-
-### Mac/Linux
-
-```
-source venv/bin/activate
-```
+**Database / Storage:**
+- Supabase (PostgreSQL)
 
 ---
 
-# 3. Install Dependencies
+## Running the Application
 
-Install required packages:
+Both the Frontend and Backend are decoupled servers. You must have both running simultaneously.
 
-```
-pip install -r requirements.txt
-```
-
----
-
-# 4. Create Environment Variables
-
-Create a file:
-
-```
-.env
-```
-
-Add the following values:
-
-```
+### 1. Environment Setup
+You will need a `.env` file in the **backend/** directory containing your API Secrets:
+```env
 SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_key
-
-GROQ_API_KEY=your_groq_api_key
-
-JWT_SECRET=your_secret_key
-
-GOOGLE_CLIENT_ID=your_google_client_id
+SUPABASE_KEY=your_supabase_service_role_key
+JWT_SECRET=your_jwt_signature_secret
+GROQ_API_KEY=your_groq_llama_key
+GOOGLE_CLIENT_ID=your_oauth_client_id
 ```
 
----
+### 2. Backend Initialization (FastAPI)
+```bash
+# Navigate to the backend directory
+cd backend
 
-# 5. Run the Backend Server
+# Create and activate your virtual environment (if not already done)
+python -m venv venv
+# On Windows
+venv\Scripts\activate
+# On Mac/Linux
+source venv/bin/activate
 
-Start the FastAPI server:
+# Install requirements
+pip install -r requirements.txt
 
-```
+# Boot the API server (Hot-reload enabled)
 uvicorn main:app --reload
 ```
+The server will run on http://127.0.0.1:8000.
 
-Server will run at:
+### 3. Frontend Initialization (React / Vite)
+```bash
+# Navigate to the frontend directory
+cd frontend
 
-```
-http://127.0.0.1:8000
-```
+# Install NodeJS dependencies
+npm install
 
-Swagger documentation:
-
+# Start the Vite development server
+npm run dev
 ```
-http://127.0.0.1:8000/docs
-```
+The webapp will typically run on http://localhost:5173.
 
 ---
 
-# 6. Database Tables (Supabase)
+## Project Architecture Overview
 
-The project uses the following tables.
+### Frontend Structure
+- **components:** Generic building blocks (Navbar, ThemeToggle).
+- **pages:** Dedicated views (Home, Login, Signup, Tutor, Quiz, Dashboard).
+- **services:** The unified Axios wrapper pointing to the backend API.
+- **i18n.js:** The core translation dictionary bridging UI text to English, Tamil, and Hindi.
 
-## users
-
-Stores user profile.
-
-| column   | description       |
-| -------- | ----------------- |
-| name     | user name         |
-| email    | user email        |
-| password | hashed password   |
-| language | selected language |
-| level    | learning level    |
-| provider | manual/google     |
+### Backend Structure
+- **main.py:** The FastAPI entry point booting CORS configurations and the Router inclusions.
+- **routes:** Feature-segregated API channels (Authentication, AI logic, Dashboard aggregation).
+- **services:** Core logic scripts (e.g., controlling the LLaMa-3 prompt behaviors to coerce strictly formatted JSON quiz models).
+- **database.py:** The dedicated Supabase Python Client controller enabling direct select and insert data fetching.
 
 ---
 
-## history
-
-Stores AI questions asked by user.
-
-| column   |
-| -------- |
-| email    |
-| question |
-| response |
-
----
-
-## login_activity
-
-Tracks login history.
-
-| column     |
-| ---------- |
-| email      |
-| login_time |
-| ip_address |
-| device     |
-
----
-
-## progress
-
-Tracks learning progress.
-
-| column          |
-| --------------- |
-| email           |
-| total_questions |
-| last_topic      |
-| current_level   |
-| average_score   |
-| quiz_attempts   |
-
----
-
-## quiz
-
-Stores quiz results.
-
-| column |
-| ------ |
-| email  |
-| topic  |
-| score  |
-
----
-
-# 7. API Endpoints
-
-## Signup
-
-```
-POST /auth/signup
-```
-
-Register a new user.
-
-Example request:
-
-```
-{
-"name":"Shiva",
-"email":"shiva@gmail.com",
-"password":"123456",
-"language":"Tamil",
-"level":"Beginner"
-}
-```
-
----
-
-## Login
-
-```
-POST /auth/login
-```
-
-Authenticate user.
-
-Example request:
-
-```
-{
-"email":"shiva@gmail.com",
-"password":"123456"
-}
-```
-
-Stores login activity.
-
----
-
-## Google Login
-
-```
-POST /auth/google-login
-```
-
-Login using Google account.
-
----
-
-## Ask AI Tutor
-
-```
-POST /ai/ask
-```
-
-Request AI explanation for a topic.
-
-Example request:
-
-```
-{
-"email":"shiva@gmail.com",
-"topic":"Machine Learning"
-}
-```
-
-This API:
-
-* generates AI explanation
-* generates quiz
-* stores history
-* updates learning progress
-
----
-
-## Submit Quiz
-
-```
-POST /ai/submit-quiz
-```
-
-Submit quiz results.
-
-Example request:
-
-```
-{
-"email":"shiva@gmail.com",
-"topic":"Machine Learning",
-"score":4
-}
-```
-
-Stores quiz result.
-
----
-
-## Dashboard Analytics
-
-```
-GET /dashboard/analytics
-```
-
-Example:
-
-```
-/dashboard/analytics?email=shiva@gmail.com
-```
-
-Returns:
-
-* total questions asked
-* login activity
-* quiz performance
-* history
-* chart data
-
----
-
-# 8. Testing APIs
-
-Use **Postman** or **Swagger UI**.
-
-Recommended order:
-
-1. Signup
-2. Login
-3. Ask AI
-4. Ask AI again
-5. Submit Quiz
-6. Dashboard Analytics
-
----
-
-# 9. Tech Stack
-
-Backend Framework: FastAPI
-Database: Supabase
-AI Model: Groq (Llama 3.1)
-Authentication: JWT
-API Testing: Postman
-
----
-
-# 10. Future Development
-
-Planned improvements:
-
-* Adaptive learning level upgrade
-* AI performance analytics
-* Advanced dashboard charts
-* Real Google OAuth login
-* Frontend integration
-
----
+## API Endpoints
+
+The FastAPI backend securely exposes the following routes for client interaction:
+
+### Authentication (/auth)
+- **POST `/auth/signup`**
+  Registers a new local user into the database.
+  - Requires: `name`, `email`, `password`, `confirm_password`, `language`, `level`.
+- **POST `/auth/login`**
+  Authenticates an existing user and returns a secure JWT.
+  - Requires: `email`, `password`.
+- **POST `/auth/google-login`**
+  Validates a Google OAuth JWT token to log the user in.
+  - Requires: `token`.
+
+### AI Core (/ai)
+- **POST `/ai/ask`**
+  Generates a specific Tutor response and tracks history.
+  - Requires: `email`, `topic`.
+- **POST `/ai/generate-quiz`**
+  Forces LLaMa-3 to return a strictly formulated 10-Question JSON object.
+  - Requires: `topic`, `language`.
+- **POST `/ai/submit-quiz`**
+  Commits an interactive quiz score to the database.
+  - Requires: `email`, `topic`, `score`.
+- **GET `/ai/history?email=`**
+  Retrieves all previously generated Tutor sessions for the user.
+  - Requires: The `email` as a URL Query Parameter.
+
+### Analytics Dashboard (/dashboard)
+- **GET `/dashboard/analytics?email=`**
+  Aggregates user metrics (scores, logins, history) for Recharts UI rendering.
+  - Requires: The `email` as a URL Query Parameter.

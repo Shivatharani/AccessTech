@@ -16,6 +16,7 @@ def dashboard(email: str):
     total_logins = len(logins)
 
     quiz_scores = [q["score"] for q in quiz if "score" in q]
+    quiz_trend = [{"name": f"Quiz {i+1}", "score": q["score"]} for i, q in enumerate(quiz) if "score" in q]
 
     avg_score = sum(quiz_scores)/len(quiz_scores) if quiz_scores else 0
 
@@ -29,7 +30,6 @@ def dashboard(email: str):
         "login_activity": logins,
 
         "charts": {
-            "questions_chart": total_questions,
-            "quiz_chart": quiz_scores
+            "quiz_trend": quiz_trend
         }
     }

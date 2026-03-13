@@ -20,11 +20,43 @@
   }
 
   * {
-    @apply border-gray-200;
+    @apply border-gray-200 transition-colors duration-300;
   }
 
   body {
-    @apply bg-white text-black;
+    @apply bg-white text-black transition-colors duration-300;
+  }
+
+  /* Global Dark Mode Overrides for Hardcoded Light Themes */
+  .dark body {
+    @apply bg-gray-950 text-white;
+  }
+  .dark .bg-white {
+    @apply bg-gray-900 border-gray-800 text-white !important;
+  }
+  .dark .bg-gray-50 {
+    @apply bg-gray-950 !important;
+  }
+  .dark .text-gray-900, .dark .text-gray-800 {
+    @apply text-gray-100 !important;
+  }
+  .dark .text-gray-700, .dark .text-gray-600, .dark .text-gray-500 {
+    @apply text-gray-300 !important;
+  }
+  .dark .border-gray-100, .dark .border-gray-200 {
+    @apply border-gray-800 !important;
+  }
+  .dark .bg-indigo-50 {
+    @apply bg-indigo-950/40 text-indigo-300 border-indigo-900/50 !important;
+  }
+  .dark .bg-purple-50 {
+    @apply bg-purple-950/40 text-purple-300 border-purple-900/50 !important;
+  }
+  .dark .bg-emerald-50 {
+    @apply bg-emerald-950/40 text-emerald-300 border-emerald-900/50 !important;
+  }
+  .dark .bg-blue-50 {
+    @apply bg-blue-950/40 text-blue-300 border-blue-900/50 !important;
   }
 
   html {
