@@ -63,4 +63,18 @@
     font-family: "Geist Variable", sans-serif;
   }
 
+  html.font-dyslexic * {
+  font-family: 'OpenDyslexic', sans-serif !important;
+}
+  html.high-contrast {
+  background-color: black !important;
+  color: white !important;
+}
+
+html.high-contrast * {
+  background-color: black !important;
+  color: white !important;
+  border-color: white !important;
+}
+
 }

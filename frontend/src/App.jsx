@@ -7,12 +7,15 @@ import Tutor from "./pages/Tutor"
 import Dashboard from "./pages/Dashboard"
 import Quiz from "./pages/Quiz"
 import { Toaster } from "@/components/ui/sonner"
+import AccessibilityPanel from "./components/AccessibilityPanel";
 
 function App(){
 
  return(
 
   <BrowserRouter>
+   <AccessibilityPanel />
+
 
    <Routes>
 
