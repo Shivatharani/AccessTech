@@ -20,4 +20,4 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/auth")
 app.include_router(ai.router, prefix="/ai")
 app.include_router(dashboard.router, prefix="/dashboard")
-app.include_router(contact.router, prefix="/contact")
+app.include_router(contact.router, prefix="/contact")

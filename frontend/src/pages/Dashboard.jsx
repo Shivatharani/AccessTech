@@ -1,81 +1,130 @@
 import {useEffect,useState} from "react";
 import API from "../services/api";
 import Navbar from "../components/Navbar";
-import {AreaChart,Area,BarChart,Bar,XAxis,YAxis,Tooltip, ResponsiveContainer, CartesianGrid, Legend} from "recharts";
+import {AreaChart,Area,BarChart,Bar,XAxis,YAxis,Tooltip, ResponsiveContainer, CartesianGrid} from "recharts";
 import { useTranslation } from "react-i18next";
-import { Activity, BookOpen, Clock, Target, ArrowLeft } from "lucide-react";
+import { Activity, BookOpen, Clock, Target, ArrowLeft, Code2, Map, Sparkles, Zap, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard(){
 
  const { t } = useTranslation()
+ const nav = useNavigate()
  const [chartData,setChartData]=useState([])
  const [stats,setStats]=useState(null)
  const [lastLogin, setLastLogin] = useState(null)
+ const username = localStorage.getItem("email")?.split('@')[0] || "User"
 
  useEffect(()=>{
-
   const email=localStorage.getItem("email")
-
   API.get(`/dashboard/analytics?email=${email}`)
   .then(res=>{
-
-   // Populate the quiz trend line chart
    if (res.data.charts && res.data.charts.quiz_trend) {
      setChartData(res.data.charts.quiz_trend)
    }
-
    setStats({
      qCount: res.data.total_questions,
      lCount: res.data.total_logins,
      avgScore: res.data.avg_quiz_score
    })
-
    if (res.data.login_activity && res.data.login_activity.length > 0) {
      const sorted = res.data.login_activity.sort((a,b) => new Date(b.login_time) - new Date(a.login_time));
      let rawTime = sorted[0].login_time;
-     if (!rawTime.endsWith("Z")) {
-       rawTime += "Z";
-     }
+     if (!rawTime.endsWith("Z")) rawTime += "Z";
      const latest = new Date(rawTime);
-     setLastLogin(latest.toLocaleString(undefined, {
-       dateStyle: 'medium',
-       timeStyle: 'short'
-     }));
+     setLastLogin(latest.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }));
    }
-
   })
-
  },[t])
 
+ const tools = [
+  {
+    title: t('luminatutor'),
+    path: "/tutor",
+    icon: <span className="text-3xl pt-1">✨</span>,
+    color: "indigo",
+    desc: "Your intelligent AI tutor for any topic."
+  },
+  {
+    title: t('pathpilot'),
+    path: "/mentor",
+    icon: <Map className="w-8 h-8" />,
+    color: "sky",
+    desc: "Your career navigation co-pilot."
+  },
+  {
+    title: t('termcrystal'),
+    path: "/dictionary",
+    icon: <Sparkles className="w-8 h-8" />,
+    color: "emerald",
+    desc: "Crystal-clear definitions for complex terms."
+  },
+  {
+    title: t('syntaxsage'),
+    path: "/codehelper",
+    icon: <Code2 className="w-8 h-8" />,
+    color: "amber",
+    desc: "Wise, line-by-line code explanations."
+  },
+  {
+    title: t('quiz'),
+    path: "/quiz",
+    icon: <Target className="w-8 h-8" />,
+    color: "rose",
+    desc: "Test your knowledge with adaptive assessments."
+  }
+ ]
+
   return(
- 
    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 font-sans transition-colors duration-300">
- 
     <Navbar/>
  
-    <div className="p-6 md:p-10 max-w-7xl mx-auto">
- 
-      <div className="flex justify-between items-end mb-8">
-        <div className="flex items-center gap-4">
-          <button onClick={() => window.history.back()} className="p-2 bg-white dark:bg-gray-900 rounded-full shadow-sm border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors">
-            <ArrowLeft size={20} />
-          </button>
-          <div>
-            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 transition-colors duration-300">
-             {t('dashboard')}
-            </h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-2 transition-colors duration-300">Activity overview and performance metrics</p>
-          </div>
+    <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-12">
+      {/* Welcome Header */}
+      <div className="bg-white dark:bg-gray-900 p-8 md:p-12 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden transition-all">
+        <div className="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-64 h-64 bg-purple-500/10 dark:bg-purple-500/5 rounded-full blur-3xl"></div>
+        <div className="relative z-10">
+          <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-gray-100 tracking-tight mb-2">
+            Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">{username}</span>! 👋
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 font-medium">What would you like to explore today?</p>
         </div>
         {lastLogin && (
-          <div className="flex flex-col items-end">
-            <div className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-900/50 border border-indigo-100 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">
-              <Clock size={16} />
-              {t('last_login')}
+          <div className="relative z-10 flex items-center gap-3 bg-gray-50 dark:bg-gray-950 px-5 py-3 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+            <Clock className="text-indigo-500" size={20} />
+            <div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Last Login</p>
+              <p className="text-gray-900 dark:text-gray-100 font-mono text-sm">{lastLogin}</p>
             </div>
-            <span className="text-gray-500 dark:text-gray-400 mt-1 font-mono text-sm transition-colors duration-300">{lastLogin}</span>
           </div>
         )}
+      </div>
+
+      {/* Tools Portal Grid */}
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
+            <Zap className="text-yellow-500" />
+            Your AI Toolset
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            {tools.map((tool, idx) => (
+                <div 
+                    key={idx} 
+                    onClick={() => nav(tool.path)}
+                    className={`bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-xl hover:border-${tool.color}-300 dark:hover:border-${tool.color}-700/50 cursor-pointer transition-all duration-300 group flex flex-col h-full`}
+                >
+                    <div className={`w-14 h-14 bg-${tool.color}-50 dark:bg-${tool.color}-900/30 text-${tool.color}-600 dark:text-${tool.color}-400 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-sm`}>
+                        {tool.icon}
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{tool.title}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 flex-1">{tool.desc}</p>
+                    <div className={`flex items-center text-sm font-bold text-${tool.color}-600 dark:text-${tool.color}-400 group-hover:translate-x-2 transition-transform`}>
+                        Open Tool <ChevronRight size={16} className="ml-1" />
+                    </div>
+                </div>
+            ))}
+        </div>
       </div>
 
      {/* Stat Cards */}

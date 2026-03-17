@@ -37,7 +37,11 @@ const en = {
     "hero_subtitle": "Learn anything in your native language with an intelligent tutor.",
     "get_started": "Get Started",
     "quiz": "Quiz",
-    "submit_quiz": "Submit Quiz"
+    "submit_quiz": "Submit Quiz",
+    "luminatutor": "LuminaTutor",
+    "pathpilot": "PathPilot",
+    "termcrystal": "TermCrystal",
+    "syntaxsage": "SyntaxSage"
   }
 };
 
@@ -77,7 +81,11 @@ const ta = {
     "hero_subtitle": "அறிவார்ந்த ஆசிரியருடன் உங்கள் தாய்மொழியில் எதையும் கற்றுக்கொள்ளுங்கள்.",
     "get_started": "தொடங்குங்கள்",
     "quiz": "வினாடி வினா",
-    "submit_quiz": "சமர்ப்பி"
+    "submit_quiz": "சமர்ப்பி",
+    "luminatutor": "லுமினா டியூட்டர்",
+    "pathpilot": "பாதை பைலட்",
+    "termcrystal": "டெர்ம் கிரிஸ்டல்",
+    "syntaxsage": "சின்டாக்ஸ் சேஜ்"
   }
 };
 
@@ -117,7 +125,11 @@ const hi = {
     "hero_subtitle": "एक बुद्धिमान शिक्षक के साथ अपनी मातृभाषा में कुछ भी सीखें।",
     "get_started": "शुरू करें",
     "quiz": "प्रश्नोत्तरी",
-    "submit_quiz": "जमा करें"
+    "submit_quiz": "जमा करें",
+    "luminatutor": "लुमिना ट्यूटर",
+    "pathpilot": "पाथपायलट",
+    "termcrystal": "टर्मक्रिस्टल",
+    "syntaxsage": "सिंटैक्स सेज"
   }
 };
 
@@ -137,10 +149,10 @@ i18n
       ta: ta,
       hi: hi
     },
-    lng: mapLangToCode(savedLanguage), 
+    lng: mapLangToCode(savedLanguage),
     fallbackLng: 'en',
     interpolation: {
-      escapeValue: false, 
+      escapeValue: false,
     }
   });
 

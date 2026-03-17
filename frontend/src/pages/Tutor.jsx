@@ -130,32 +130,38 @@ export default function Tutor(){
     {/* Main Content */}
     <main className="flex-1 p-6 md:p-10 overflow-y-auto h-[calc(100vh-64px)] relative w-full">
 
-     <div className="flex items-center gap-4 mb-8">
+     <div className="flex items-center gap-4 mb-10 border-b pb-4 border-indigo-100 dark:border-indigo-900/30">
         <button onClick={() => nav(-1)} className="p-2 bg-white dark:bg-gray-900 rounded-full shadow-sm border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors">
           <ArrowLeft size={20} />
         </button>
         <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2 bg-white dark:bg-gray-900 rounded-md shadow-sm border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800">
           <Menu size={20} />
         </button>
-        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 transition-colors">
-          {t('tutor')}
+        <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-500 transition-colors flex items-center gap-3 tracking-tight">
+          <span className="text-indigo-500 text-5xl leading-none -mt-2">✨</span>
+          LuminaTutor
         </h1>
      </div>
 
-     <div className="flex items-center bg-white dark:bg-gray-900 p-2 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 mb-8 max-w-3xl focus-within:ring-2 focus-within:ring-indigo-400 dark:focus-within:ring-indigo-500 transition-all">
-      <input
-       className="flex-1 px-4 py-2 outline-none text-gray-800 dark:text-gray-100 bg-transparent h-12 transition-colors"
-       placeholder={t('enter_topic')}
-       value={topic}
-       onChange={e=>setTopic(e.target.value)}
-       onKeyDown={(e) => e.key === 'Enter' && askAI()}
-      />
-      <Button
-       onClick={askAI}
-       className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-8 h-12 rounded-lg font-semibold shadow-md ml-2 transition-colors"
-      >
-       {t('ask_ai')}
-      </Button>
+     <div className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-sm border border-indigo-100 dark:border-indigo-900/30 mb-8 max-w-4xl transition-all">
+       <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">
+         What would you like to learn today?
+       </h2>
+       <div className="flex items-center bg-gray-50 dark:bg-gray-950 p-2 rounded-xl border border-gray-200 dark:border-gray-800 focus-within:ring-2 focus-within:ring-indigo-400 dark:focus-within:ring-indigo-500 transition-all">
+        <input
+         className="flex-1 px-4 py-3 outline-none text-gray-800 dark:text-gray-100 bg-transparent text-lg transition-colors"
+         placeholder={t('enter_topic')}
+         value={topic}
+         onChange={e=>setTopic(e.target.value)}
+         onKeyDown={(e) => e.key === 'Enter' && askAI()}
+        />
+        <Button
+         onClick={askAI}
+         className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-8 h-12 rounded-lg font-bold shadow-md ml-2 transition-colors text-md"
+        >
+         {t('ask_ai')}
+        </Button>
+       </div>
      </div>
 
      {response && (
