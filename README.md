@@ -64,9 +64,16 @@ SUPABASE_KEY=your_supabase_service_role_key
 JWT_SECRET=your_jwt_signature_secret
 GROQ_API_KEY=your_groq_llama_key
 GOOGLE_CLIENT_ID=your_oauth_client_id
+
+# SMTP Configuration
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your_email@gmail.com
+SMTP_PASSWORD=your_app_password
+CONTACT_RECEIVER_EMAIL=supportaccesstech@gmail.com
 ```
 
-### 2. Backend Initialization (FastAPI)
+### 2. Backend Initialization (FastAPI) 
 ```bash
 # Navigate to the backend directory
 cd backend
@@ -147,6 +154,11 @@ The FastAPI backend securely exposes the following routes for client interaction
   - Requires: The `email` as a URL Query Parameter.
 
 ### Analytics Dashboard (/dashboard)
-- **GET `/dashboard/analytics?email=`**
+- GET `/dashboard/analytics?email=`
   Aggregates user metrics (scores, logins, history) for Recharts UI rendering.
   - Requires: The `email` as a URL Query Parameter.
+
+### Contact (/contact)
+- **POST `/contact`**
+  Handles contact form submissions and sends an email to support.
+  - Requires: `name`, `email`, `message`.
