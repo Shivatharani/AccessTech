@@ -6,7 +6,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY = "accesstech-secret"
 
 def hash_password(password):
-    return pwd_context.hash(password)
+    return pwd_context.hash(password[:72])
 
 def verify_password(password, hashed):
     return pwd_context.verify(password, hashed)

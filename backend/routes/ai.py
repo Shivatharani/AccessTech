@@ -127,9 +127,112 @@ def submit_quiz(data: QuizSubmit):
     }
 
 # -----------------------------
+# PathPilot (Career Mentor)
+# -----------------------------
+class MentorRequest(BaseModel):
+    email: str
+    goal: str
+
+@router.post("/mentor")
+def ask_mentor(data: MentorRequest):
+    users = fetch_data("users", "email", data.email)
+    if not users:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user = users[0]
+    language = user.get("language", "English")
+    level = user.get("level", "Beginner")
+
+    from services.groq_service import generate_mentor_response
+    ai_response = generate_mentor_response(
+        goal=data.goal,
+        language=language,
+        level=level
+    )
+
+    insert_data("history", {
+        "email": data.email,
+        "question": f"Career Goal: {data.goal}",
+        "response": ai_response
+    })
+
+    return {"response": ai_response}
+
+# -----------------------------
+# TermCrystal (Dictionary)
+# -----------------------------
+class DictionaryRequest(BaseModel):
+    email: str
+    term: str
+
+@router.post("/dictionary")
+def ask_dictionary(data: DictionaryRequest):
+    users = fetch_data("users", "email", data.email)
+    if not users:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user = users[0]
+    language = user.get("language", "English")
+    level = user.get("level", "Beginner")
+
+    from services.groq_service import generate_dictionary
+    ai_response = generate_dictionary(
+        term=data.term,
+        language=language,
+        level=level
+    )
+
+    insert_data("history", {
+        "email": data.email,
+        "question": f"Term: {data.term}",
+        "response": ai_response
+    })
+
+    return {"response": ai_response}
+
+# -----------------------------
+# SyntaxSage (Code Helper)
+# -----------------------------
+class CodeHelperRequest(BaseModel):
+    email: str
+    code_snippet: str
+    mode: str
+    query: str
+
+@router.post("/codehelper")
+def ask_code_helper(data: CodeHelperRequest):
+    users = fetch_data("users", "email", data.email)
+    if not users:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user = users[0]
+    language = user.get("language", "English")
+    level = user.get("level", "Beginner")
+
+    from services.groq_service import generate_code_explanation
+    ai_response = generate_code_explanation(
+        code=data.code_snippet,
+        mode=data.mode,
+        query=data.query,
+        language=language,
+        level=level
+    )
+
+    insert_data("history", {
+        "email": data.email,
+        "question": f"Code ({data.mode}): {data.query[:50]}...",
+        "response": ai_response
+    })
+
+    return {"response": ai_response}
+
+
+# -----------------------------
 # Get History
 # -----------------------------
 @router.get("/history")
 def get_history(email: str):
     history = fetch_data("history", "email", email)
     return {"history": history}
+
+

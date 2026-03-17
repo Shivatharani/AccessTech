@@ -29,7 +29,7 @@ export default function Login() {
     i18n.changeLanguage(code);
   }
 
- const login = async () => {
+  const login = async () => {
   try {
    const res = await API.post("/auth/login", {
      email: form.email,
@@ -39,12 +39,11 @@ export default function Login() {
    localStorage.setItem("token",res.data.access_token)
    localStorage.setItem("email",form.email)
  
-   localStorage.setItem("language", form.language)
    localStorage.setItem("level", form.level)
-   changeLanguage(form.language)
+   // Language is already set via the global LanguageSwitcher
    
    toast.success("Login Successful!")
-   nav("/tutor")
+   nav("/dashboard")
   } catch (err) {
     toast.error(err.response?.data?.detail || "Invalid credentials. Please try again.")
   }
@@ -59,16 +58,12 @@ export default function Login() {
    localStorage.setItem("token",res.data.access_token)
    localStorage.setItem("email", res.data.email)
    
-   if (res.data.language) {
-     localStorage.setItem("language", res.data.language)
-     changeLanguage(res.data.language)
-   }
    if (res.data.level) {
      localStorage.setItem("level", res.data.level)
    }
 
    toast.success("Google Login Successful!")
-   nav("/tutor")
+   nav("/dashboard")
   } catch(err) {
    toast.error("Google login failed.")
   }
@@ -114,22 +109,6 @@ export default function Login() {
      >
      {showPassword ? <EyeOff size={20}/> : <Eye size={20}/>}
      </button>
-    </div>
-
-    {/* Language Selector */}
-    <div className="flex relative">
-      <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400">
-        <Globe size={18} />
-      </div>
-      <select
-        className="border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-900 p-3 pl-11 rounded-xl w-full focus:ring-2 focus:ring-indigo-400 outline-none transition-all appearance-none cursor-pointer"
-        value={form.language}
-        onChange={(e)=>setForm({...form, language:e.target.value})}
-      >
-        <option value="English">English</option>
-        <option value="Tamil">தமிழ் (Tamil)</option>
-        <option value="Hindi">हिंदी (Hindi)</option>
-      </select>
     </div>
 
     {/* Level Selector */}
