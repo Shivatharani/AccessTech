@@ -7,7 +7,11 @@ export default {
     "./src/**/*.{js,jsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        dyslexic: ['OpenDyslexic', 'sans-serif'],
+      },
+    },
   },
   plugins: [animate],
 }
