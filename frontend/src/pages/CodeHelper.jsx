@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import API from "../services/api";
 import Navbar from "../components/Navbar";
 import { useTranslation } from "react-i18next";
-import { User, History as HistoryIcon, Clock, Menu, X, ArrowLeft, Code2, Terminal, HelpCircle } from "lucide-react";
+import { User, History as HistoryIcon, Clock, Menu, X, ArrowLeft, Code2, Terminal, HelpCircle, FileText, Brain, Search, Beaker, AlertTriangle, Zap, Sparkles, Baby, RefreshCcw, CheckCircle2, ChevronDown, ChevronUp, Copy, Plus, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -54,7 +54,17 @@ export default function CodeHelper() {
           mode: mode,
           query: query || "explain every line from basics"
       });
-      setResponse(res.data.response);
+      
+      let parsedResponse = res.data.response;
+      if (typeof parsedResponse === "string") {
+        try {
+          parsedResponse = JSON.parse(parsedResponse);
+        } catch (e) {
+          console.error("Failed to parse JSON response");
+        }
+      }
+      
+      setResponse(parsedResponse);
       toast.success("Code explanation ready!", { id: tid });
       fetchHistory();
     } catch (err) {
@@ -62,170 +72,439 @@ export default function CodeHelper() {
     }
   };
 
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Code copied to clipboard!");
+  };
+
+  const resetAnalysis = () => {
+    setQuery("");
+    setResponse(null);
+    setCodeSnippet("");
+    toast.info("Ready for a new analysis.");
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col transition-colors duration-300">
       {/* Dark theme forced for CodeHelper for 'IDE' feel, but respecting dark mode classes slightly */}
       <Navbar />
       <div className="flex flex-1 overflow-hidden relative">
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black/80 z-40 md:hidden transition-colors duration-300"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-        <aside className={`fixed md:relative z-50 w-80 bg-zinc-900 border-r border-zinc-800 flex flex-col h-[calc(100vh-64px)] overflow-y-auto transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-          <div className="p-6 border-b border-zinc-800 bg-zinc-900/50 flex justify-between items-start">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-amber-500/20 text-amber-500 rounded-full flex items-center justify-center font-bold text-xl">
-                <Code2 size={24} />
-              </div>
-              <div>
-                <h3 className="font-bold text-zinc-100 truncate w-40" title={email}>{email}</h3>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-full font-mono">{lang}</span>
-                  <span className="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-full font-mono">{lvl}</span>
-                </div>
-              </div>
+        {/* Collapsible Sidebar (Drawer) */}
+        <div
+          className={`fixed inset-0 bg-black/60 z-40 transition-opacity duration-300 md:hidden ${sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          onClick={() => setSidebarOpen(false)}
+        />
+        <aside 
+          className={`fixed left-0 top-16 bottom-0 z-50 w-80 bg-zinc-900 border-r border-zinc-800 flex flex-col transform transition-transform duration-500 ease-in-out shadow-2xl ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        >
+          <div className="p-6 border-b border-zinc-800 bg-zinc-900/50 flex justify-between items-center">
+            <div className="flex items-center gap-3">
+               <HistoryIcon size={20} className="text-amber-500" />
+               <span className="font-bold text-zinc-100 uppercase tracking-widest text-sm font-mono">History</span>
             </div>
-            <button onClick={() => setSidebarOpen(false)} className="md:hidden text-zinc-500 hover:text-zinc-300 transition-colors">
-              <X size={20} />
+            <button onClick={() => setSidebarOpen(false)} className="text-zinc-500 hover:text-zinc-300 transition-colors bg-zinc-800 p-1.5 rounded-lg">
+              <X size={18} />
             </button>
           </div>
-          <div className="p-6 flex-1">
-            <div className="flex items-center gap-2 text-zinc-300 font-bold mb-4 font-mono">
-              <HistoryIcon size={18} className="text-amber-500" />
-              Snippets History
-            </div>
-            {history.length === 0 ? (
-              <p className="text-sm text-zinc-600 italic">No code analyzed yet.</p>
-            ) : (
-              <div className="space-y-4">
-                {history.map((item, idx) => {
+          <div className="p-6 flex-1 overflow-y-auto custom-scrollbar">
+            <button
+              onClick={resetAnalysis}
+              className="w-full mb-6 flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-500 text-zinc-950 py-3 rounded-xl font-bold shadow-lg transition-all active:scale-95 text-sm"
+            >
+              <Plus size={18} />
+              New Analysis
+            </button>
+            
+            <div className="space-y-4">
+              {history.length === 0 ? (
+                <p className="text-sm text-zinc-600 italic text-center py-10 font-mono">No history found.</p>
+              ) : (
+                history.map((item, idx) => {
                     const match = item.question.match(/Code \((.*?)\): (.*?)$/);
                     const parsedMode = match ? match[1] : "Unknown";
                     const parsedQuery = match ? match[2] : item.question;
 
                     return (
-                        <div key={idx} className="bg-zinc-800/50 p-3 rounded-lg border border-zinc-700/50 shadow-sm cursor-pointer hover:bg-zinc-800 transition-colors"
+                        <div key={idx} className="bg-zinc-800/50 p-4 rounded-xl border border-zinc-700/50 shadow-sm cursor-pointer hover:bg-zinc-800 hover:border-amber-500/30 transition-all group"
                         onClick={() => {
-                            // Extract just the query part if possible, code snippet isn't preserved in history fully in this minimal implementation
                             setQuery(parsedQuery.replace('...', ''));
                             setMode(parsedMode);
-                            setResponse(item.response);
+                            let parsedResp = item.response;
+                            if (typeof parsedResp === "string") {
+                                try { parsedResp = JSON.parse(parsedResp); } catch(e) {}
+                            }
+                            setResponse(parsedResp);
                             setCodeSnippet("// Code snippet hidden from history view. Result below is based on past analysis.");
                             setSidebarOpen(false);
                         }}>
-                        <div className="flex justify-between items-start mb-1">
-                            <span className="text-xs font-mono text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded">{parsedMode}</span>
-                        </div>
-                        <p className="text-sm font-medium text-zinc-300 line-clamp-2 truncate">{parsedQuery}</p>
+                          <div className="flex justify-between items-center mb-2">
+                             <span className="text-[10px] font-mono text-amber-500 font-bold uppercase tracking-widest bg-amber-500/10 px-2 py-0.5 rounded">{parsedMode}</span>
+                             <Clock size={12} className="text-zinc-600" />
+                          </div>
+                          <p className="text-xs font-medium text-zinc-400 line-clamp-2 leading-relaxed group-hover:text-zinc-200 transition-colors uppercase tracking-tight">{parsedQuery}</p>
                         </div>
                     )
-                })}
-              </div>
-            )}
+                })
+              )}
+            </div>
           </div>
         </aside>
         
-        <main className="flex-1 p-4 md:p-8 overflow-y-auto h-[calc(100vh-64px)] relative w-full flex flex-col">
-          <div className="flex items-center gap-4 mb-6 border-b pb-4 border-zinc-800">
-             <button onClick={() => nav(-1)} className="p-2 bg-zinc-900 rounded-lg border border-zinc-700 text-zinc-400 hover:text-amber-500 hover:bg-zinc-800 transition-colors">
-              <ArrowLeft size={20} />
-             </button>
-             <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2 bg-zinc-900 rounded-lg border border-zinc-700 text-zinc-400 transition-colors hover:bg-zinc-800">
-              <Menu size={20} />
-             </button>
-             <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500 flex items-center gap-3 tracking-tight font-mono">
-                <Terminal className="text-amber-500 w-8 h-8" />
-                SyntaxSage
-             </h1>
-          </div>
-          
-          <div className="flex flex-col lg:flex-row gap-6 mb-8 flex-1 min-h-[500px]">
-             
-             {/* IDE Input Form */}
-             <div className="flex-1 flex flex-col bg-zinc-900 rounded-2xl border border-zinc-800 shadow-xl overflow-hidden">
-                <div className="bg-zinc-950 px-4 py-3 border-b border-zinc-800 flex justify-between items-center">
-                    <div className="flex gap-2">
-                        <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500"></div>
-                        <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500"></div>
-                        <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500"></div>
-                    </div>
-                    <select 
-                        value={mode} 
-                        onChange={e => setMode(e.target.value)}
-                        className="bg-zinc-800 text-zinc-300 text-xs font-mono font-bold py-1 px-3 rounded outline-none border border-zinc-700 hover:border-zinc-600 transition-colors"
-                    >
-                        {MODES.map(m => <option key={m} value={m}>{m}</option>)}
-                    </select>
-                </div>
-                
-                <textarea
-                    className="flex-1 w-full bg-zinc-900 text-amber-50/90 font-mono p-4 outline-none resize-none text-sm leading-relaxed custom-scrollbar placeholder:text-zinc-600 focus:bg-zinc-900/80 transition-colors"
-                    placeholder="// Paste your code snippet here..."
-                    spellCheck="false"
-                    value={codeSnippet}
-                    onChange={e => setCodeSnippet(e.target.value)}
-                ></textarea>
-                
-                <div className="bg-zinc-950 p-4 border-t border-zinc-800">
-                    <div className="flex items-center gap-3 bg-zinc-900 rounded-lg p-1 border border-zinc-800 focus-within:border-amber-500/50 transition-colors">
-                        <HelpCircle size={18} className="text-zinc-500 ml-3" />
-                        <input 
-                            className="flex-1 bg-transparent text-zinc-300 text-sm outline-none placeholder:text-zinc-600"
-                            placeholder="Ask a specific question (or leave blank for a line-by-line explanation)"
-                            value={query}
-                            onChange={e => setQuery(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && askCodeHelper()}
-                        />
-                        <Button 
-                            onClick={askCodeHelper}
-                            className="bg-amber-600 hover:bg-amber-500 text-zinc-950 font-bold px-6 rounded-md hover:scale-105 transition-all shadow-lg shadow-amber-900/30"
+        <main className="flex-1 p-6 md:p-12 overflow-y-auto h-[calc(100vh-64px)] relative w-full flex flex-col items-center">
+          <div className="w-full max-w-6xl">
+            {/* Header section with toggle */}
+            <div className="flex items-center justify-between mb-10 border-b pb-6 border-zinc-800">
+               <div className="flex items-center gap-6">
+                  <button onClick={() => nav(-1)} className="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-zinc-400 hover:text-amber-500 hover:bg-zinc-800 transition-all shadow-md active:scale-90">
+                    <ArrowLeft size={20} />
+                  </button>
+                  <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-zinc-400 hover:text-amber-500 hover:bg-zinc-800 transition-all shadow-md active:scale-90 relative">
+                    <Menu size={20} />
+                    {history.length > 0 && <span className="absolute -top-1 -right-1 w-3 h-3 bg-amber-500 rounded-full border-2 border-zinc-950"></span>}
+                  </button>
+                  <div>
+                    <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500 flex items-center gap-4 tracking-tighter font-mono">
+                        <Terminal className="text-amber-500 w-10 h-10" />
+                        SyntaxSage
+                    </h1>
+                    <p className="text-zinc-500 text-sm font-mono mt-1 tracking-widest uppercase">Expert AI Code Intelligence</p>
+                  </div>
+               </div>
+               
+               <div className="hidden md:flex items-center gap-4 bg-zinc-900 p-2 rounded-2xl border border-zinc-800">
+                  <div className="flex flex-col items-end px-4">
+                     <span className="text-zinc-100 font-bold text-sm tracking-tight">{email}</span>
+                     <div className="flex gap-2">
+                        <span className="text-[10px] uppercase font-mono text-zinc-500">{lang}</span>
+                        <span className="text-[10px] uppercase font-mono text-zinc-500">{lvl}</span>
+                     </div>
+                  </div>
+                  <div className="w-10 h-10 bg-amber-500/20 text-amber-500 rounded-xl flex items-center justify-center font-bold">
+                    <Code2 size={24} />
+                  </div>
+               </div>
+            </div>
+            
+            {/* Main Content Area - Vertical Flow */}
+            <div className="space-y-12 pb-24">
+               
+               {/* IDE Input Form - Full Width */}
+               <div className="bg-zinc-900 rounded-3xl border border-zinc-800 shadow-2xl overflow-hidden group transition-all duration-500 hover:border-amber-500/20">
+                  <div className="bg-zinc-950 px-6 py-4 border-b border-zinc-800 flex justify-between items-center">
+                      <div className="flex gap-2.5">
+                          <div className="w-3.5 h-3.5 rounded-full bg-red-500/20 border border-red-500/40"></div>
+                          <div className="w-3.5 h-3.5 rounded-full bg-yellow-500/20 border border-yellow-500/40"></div>
+                          <div className="w-3.5 h-3.5 rounded-full bg-green-500/20 border border-green-500/40"></div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <button 
+                          onClick={() => handleCopy(codeSnippet)} 
+                          className="text-zinc-500 hover:text-amber-500 transition-colors p-2 hover:bg-zinc-800 rounded-lg"
+                          title="Copy Code"
                         >
-                            Analyze
-                        </Button>
+                          <Copy size={18} />
+                        </button>
+                        <div className="h-6 w-[1px] bg-zinc-800" />
+                        <select 
+                            value={mode} 
+                            onChange={e => setMode(e.target.value)}
+                            className="bg-zinc-800 text-zinc-100 text-xs font-mono font-black py-2 px-4 rounded-xl outline-none border border-zinc-700 hover:border-amber-500/50 transition-all cursor-pointer uppercase tracking-widest shadow-inner drop-shadow-md"
+                        >
+                            {MODES.map(m => <option key={m} value={m}>{m}</option>)}
+                        </select>
+                      </div>
+                  </div>
+                  
+                  <div className="relative min-h-[350px] flex">
+                    <div className="w-12 bg-zinc-950/50 border-r border-zinc-800/50 flex flex-col pt-6 font-mono text-[10px] text-zinc-700 items-center select-none">
+                      {Array.from({length: 15}).map((_, i) => <div key={i} className="h-6">{i + 1}</div>)}
                     </div>
-                </div>
-             </div>
-             
-             {/* Response Area */}
-             <div className="flex-1 bg-zinc-900 rounded-2xl border border-zinc-800 shadow-xl overflow-hidden flex flex-col">
-                <div className="bg-zinc-950 px-4 py-3 border-b border-zinc-800 flex items-center gap-2">
-                    <Code2 size={16} className="text-amber-500" />
-                    <span className="text-xs font-mono text-zinc-400 font-semibold uppercase tracking-wider">Sage Output</span>
-                </div>
-                <div className="flex-1 overflow-y-auto p-6 focus-within:outline-none custom-scrollbar">
-                    {!response ? (
-                        <div className="h-full flex flex-col items-center justify-center text-zinc-600 gap-4 opacity-50">
-                            <Terminal size={48} className="text-zinc-700" />
-                            <p className="font-mono text-sm">Awaiting code analysis...</p>
-                        </div>
-                    ) : (
-                        <div className="prose prose-invert prose-amber max-w-none prose-pre:bg-zinc-950 prose-pre:border prose-pre:border-zinc-800 prose-headings:font-mono prose-a:text-amber-500 transition-colors animate-in fade-in duration-500">
-                            {response}
-                        </div>
-                    )}
-                </div>
-             </div>
+                    <textarea
+                        className="flex-1 bg-zinc-900/40 text-amber-50/90 font-mono p-6 outline-none resize-none text-base leading-relaxed custom-scrollbar placeholder:text-zinc-700 focus:bg-zinc-900/60 transition-all font-medium h-[400px]"
+                        placeholder="// Paste your code snippet here..."
+                        spellCheck="false"
+                        value={codeSnippet}
+                        onChange={e => setCodeSnippet(e.target.value)}
+                    ></textarea>
+                  </div>
+                  
+                  <div className="bg-zinc-950 p-6 border-t border-zinc-800">
+                      <div className="flex flex-col md:flex-row items-center gap-4 bg-zinc-900 rounded-2xl p-2 border border-zinc-800 focus-within:border-amber-500/50 focus-within:ring-4 focus-within:ring-amber-500/5 transition-all shadow-inner">
+                          <div className="flex-1 flex items-center w-full">
+                            <HelpCircle size={20} className="text-zinc-600 ml-4 flex-shrink-0" />
+                            <input 
+                                className="flex-1 bg-transparent text-zinc-100 text-base outline-none placeholder:text-zinc-700 px-4 py-4 font-medium"
+                                placeholder="Ask a specific question (or leave blank for a line-by-line explanation)"
+                                value={query}
+                                onChange={e => setQuery(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && askCodeHelper()}
+                            />
+                          </div>
+                          <Button 
+                              onClick={askCodeHelper}
+                              className="w-full md:w-auto bg-amber-600 hover:bg-amber-500 text-zinc-950 font-black px-10 py-7 rounded-xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-amber-900/20 text-lg uppercase tracking-widest flex gap-3 group"
+                          >
+                              <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                              Analyze
+                          </Button>
+                      </div>
+                  </div>
+               </div>
+               
+               {/* Response Area - Full Width Below Editor */}
+               <div id="results-area" className="w-full">
+                  {!response ? (
+                      <div className="py-32 flex flex-col items-center justify-center text-zinc-700 gap-6 opacity-40 border-2 border-dashed border-zinc-800 rounded-3xl group hover:opacity-100 transition-opacity">
+                          <div className="w-24 h-24 bg-zinc-900 rounded-3xl flex items-center justify-center border border-zinc-800 shadow-xl overflow-hidden group-hover:rotate-12 transition-transform duration-500">
+                            <Terminal size={48} className="text-zinc-700 group-hover:text-amber-500 transition-colors" />
+                          </div>
+                          <div className="text-center">
+                            <p className="font-mono text-lg font-bold uppercase tracking-widest">Awaiting Command</p>
+                            <p className="text-sm italic mt-1 bg-zinc-800/50 px-3 py-1 rounded-lg">Pulse code to engage SyntaxSage...</p>
+                          </div>
+                      </div>
+                  ) : typeof response === 'object' ? (
+                      <div className="space-y-12 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+                          {/* Sage Output Header */}
+                          <div className="flex items-center gap-4 bg-amber-500/10 p-4 rounded-2xl border border-amber-500/20 w-fit">
+                            <Code2 size={24} className="text-amber-500" />
+                            <span className="text-sm font-mono text-amber-500 font-black uppercase tracking-[0.3em]">Sage Analysis Report</span>
+                          </div>
+
+                          {/* 1. Summary & 2. Intelligence */}
+                          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                              <div className="lg:col-span-8 bg-zinc-900/80 backdrop-blur-md p-10 rounded-[2.5rem] border border-zinc-800 shadow-2xl relative overflow-hidden group">
+                                  <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full -mr-32 -mt-32 blur-3xl transition-opacity group-hover:opacity-100 opacity-50"></div>
+                                  <div className="flex items-center gap-4 text-amber-500 mb-6 uppercase tracking-[0.2em] text-xs font-black font-mono">
+                                      <FileText size={22} className="drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+                                      Code Summary
+                                  </div>
+                                  <p className="text-zinc-100 text-2xl font-bold leading-tight tracking-tight">
+                                      {response.summary}
+                                  </p>
+                              </div>
+                              <div className="lg:col-span-4 bg-zinc-800/40 p-10 rounded-[2.5rem] border border-zinc-700/20 flex flex-col justify-center">
+                                  <div className="flex items-center gap-4 text-amber-500 mb-6 uppercase tracking-[0.2em] text-xs font-black font-mono">
+                                      <Brain size={22} />
+                                      Intelligence
+                                  </div>
+                                  <p className="text-zinc-400 text-lg leading-relaxed italic border-l-4 border-amber-500/30 pl-6 py-2">
+                                      {response.intelligence}
+                                  </p>
+                              </div>
+                          </div>
+
+                          {/* 3. Line-by-line Explanation */}
+                          <div className="bg-zinc-900 rounded-[2.5rem] border border-zinc-800 overflow-hidden shadow-2xl transition-all hover:border-zinc-700">
+                              <div className="bg-zinc-950/80 px-10 py-8 border-b border-zinc-800 flex items-center justify-between">
+                                  <div className="flex items-center gap-4 text-zinc-100 uppercase tracking-[0.2em] text-xs font-black font-mono">
+                                      <Search size={22} className="text-amber-500 shadow-amber-500/20" />
+                                      Logical Breakdown
+                                  </div>
+                                  <div className="text-[10px] font-mono text-zinc-600 bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800">
+                                    {response.line_by_line?.length || 0} LINES ANALYZED
+                                  </div>
+                              </div>
+                              <div className="overflow-x-auto">
+                                  <table className="w-full text-left border-collapse">
+                                      <thead>
+                                          <tr className="bg-zinc-950/50">
+                                              <th className="px-10 py-5 text-[10px] font-black font-mono text-zinc-600 uppercase tracking-widest border-b border-zinc-800">Line</th>
+                                              <th className="px-10 py-5 text-[10px] font-black font-mono text-zinc-600 uppercase tracking-widest border-b border-zinc-800">Code Architecture</th>
+                                              <th className="px-10 py-5 text-[10px] font-black font-mono text-zinc-600 uppercase tracking-widest border-b border-zinc-800">Cognitive Explanation</th>
+                                          </tr>
+                                      </thead>
+                                      <tbody className="divide-y divide-zinc-800/50">
+                                          {response.line_by_line?.map((item, idx) => (
+                                              <tr key={idx} className="hover:bg-zinc-800/20 transition-all group">
+                                                  <td className="px-10 py-6 font-mono text-zinc-600 text-sm group-hover:text-amber-500 transition-colors font-black">#{item.line}</td>
+                                                  <td className="px-10 py-6 font-mono text-amber-500/90 text-[13px] whitespace-pre bg-zinc-950/20">{item.code}</td>
+                                                  <td className="px-10 py-6 text-zinc-300 text-[15px] leading-relaxed font-medium transition-colors group-hover:text-white">
+                                                    <span className="opacity-60 inline-block mr-2 text-amber-600">→</span>
+                                                    {item.explanation}
+                                                  </td>
+                                              </tr>
+                                          ))}
+                                      </tbody>
+                                  </table>
+                              </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                              {/* 4. Dry Run Execution */}
+                              <div className="bg-zinc-900/60 border border-zinc-800 p-10 rounded-[2.5rem] shadow-2xl relative group overflow-hidden">
+                                  <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                  <div className="flex items-center gap-4 text-blue-400 mb-8 uppercase tracking-[0.2em] text-xs font-black font-mono">
+                                      <Beaker size={22} className="rotate-12" />
+                                      Execution Walkthrough
+                                  </div>
+                                  <div className="bg-zinc-950/80 p-6 rounded-2xl font-mono text-[13px] text-blue-100/70 leading-relaxed border border-blue-900/20 whitespace-pre-wrap min-h-[200px] shadow-inner drop-shadow-xl relative z-10">
+                                      {response.dry_run}
+                                  </div>
+                              </div>
+
+                              {/* 5. Bug Detection */}
+                              <div className="bg-zinc-900/60 border border-zinc-800 p-10 rounded-[2.5rem] shadow-2xl relative group overflow-hidden">
+                                  <div className="absolute inset-0 bg-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                  <div className="flex items-center gap-4 text-red-500 mb-8 uppercase tracking-[0.2em] text-xs font-black font-mono">
+                                      <AlertTriangle size={22} className="animate-pulse" />
+                                      Vulnerabilities & Logic
+                                  </div>
+                                  <ul className="space-y-6 relative z-10">
+                                      {response.bugs?.map((bug, idx) => (
+                                          <li key={idx} className="flex gap-4 text-[15px] text-zinc-400 leading-relaxed group/item hover:text-zinc-200 transition-all">
+                                              <div className="mt-1.5 w-2 h-2 rounded-full bg-red-500/40 ring-4 ring-red-500/10 flex-shrink-0 group-hover/item:scale-150 transition-transform" />
+                                              {bug}
+                                          </li>
+                                      ))}
+                                      {(!response.bugs || response.bugs.length === 0) && (
+                                          <li className="flex flex-col items-center justify-center py-10 gap-3 text-zinc-500 italic">
+                                              <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center border border-emerald-500/20">
+                                                <CheckCircle2 size={24} className="text-emerald-500" />
+                                              </div>
+                                              Clean Compile Unit: No critical bugs detected.
+                                          </li>
+                                      )}
+                                  </ul>
+                              </div>
+                          </div>
+
+                          {/* 6. Complexity Analysis */}
+                          <div className="bg-gradient-to-br from-zinc-900 to-black p-12 rounded-[2.5rem] border border-zinc-800 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col items-center text-center">
+                              <div className="flex items-center gap-4 text-zinc-500 mb-10 uppercase tracking-[0.3em] text-xs font-black font-mono">
+                                  <Zap size={22} className="text-yellow-500 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]" />
+                                  Algorithmic Complexity
+                              </div>
+                              <div className="flex flex-col md:flex-row gap-12 w-full justify-center items-center mb-10">
+                                  <div className="relative group">
+                                     <div className="absolute inset-0 bg-yellow-500/10 rounded-3xl blur-2xl group-hover:bg-yellow-500/20 transition-all"></div>
+                                      <div className="relative bg-zinc-950 px-10 py-12 rounded-[2rem] border border-zinc-800 flex flex-col items-center justify-center w-52 border-b-8 border-b-yellow-500 shadow-2xl transition-transform hover:-translate-y-2 duration-500">
+                                          <span className="text-[10px] uppercase font-black font-mono text-zinc-600 mb-2 tracking-widest">Runtime</span>
+                                          <span className="text-4xl font-black font-mono text-yellow-400 drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]">{response.complexity?.time}</span>
+                                      </div>
+                                  </div>
+                                  <div className="relative group">
+                                      <div className="absolute inset-0 bg-blue-500/10 rounded-3xl blur-2xl group-hover:bg-blue-500/20 transition-all"></div>
+                                      <div className="relative bg-zinc-950 px-10 py-12 rounded-[2rem] border border-zinc-800 flex flex-col items-center justify-center w-52 border-b-8 border-b-blue-500 shadow-2xl transition-transform hover:-translate-y-2 duration-500">
+                                          <span className="text-[10px] uppercase font-black font-mono text-zinc-600 mb-2 tracking-widest">Memory</span>
+                                          <span className="text-4xl font-black font-mono text-blue-400 drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]">{response.complexity?.space}</span>
+                                      </div>
+                                  </div>
+                              </div>
+                              <p className="text-zinc-400 text-lg font-mono leading-relaxed max-w-2xl px-6 py-4 bg-zinc-950/50 rounded-2xl border border-zinc-800">
+                                  <span className="text-amber-500 mr-2 uppercase text-xs font-black">Expert Reasoning:</span>
+                                  {response.complexity?.explanation}
+                              </p>
+                          </div>
+
+                          {/* 7. Code Improvements & 8. ELI10 */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                              <div className="bg-emerald-500/[0.03] border border-emerald-500/10 p-10 rounded-[2.5rem] relative overflow-hidden group">
+                                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent"></div>
+                                  <div className="flex items-center gap-4 text-emerald-400 mb-8 uppercase tracking-[0.2em] text-xs font-black font-mono">
+                                      <Sparkles size={22} className="group-hover:rotate-45 transition-transform duration-700" />
+                                      Optimization Log
+                                  </div>
+                                  <ul className="space-y-6">
+                                      {response.improvements?.map((imp, idx) => (
+                                          <li key={idx} className="flex gap-4 text-[15px] text-zinc-400 leading-relaxed hover:text-zinc-100 transition-colors">
+                                              <div className="mt-1 flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex-shrink-0">
+                                                <Sparkles size={12} className="text-emerald-500" />
+                                              </div>
+                                              {imp}
+                                          </li>
+                                      ))}
+                                  </ul>
+                              </div>
+                              <div className="bg-purple-500/[0.03] border border-purple-500/10 p-10 rounded-[2.5rem] relative overflow-hidden group">
+                                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
+                                  <div className="flex items-center gap-4 text-purple-400 mb-8 uppercase tracking-[0.2em] text-xs font-black font-mono">
+                                      <Baby size={22} className="group-hover:scale-125 transition-transform" />
+                                      Explain Like I'm 10
+                                  </div>
+                                  <div className="relative">
+                                    <span className="absolute -top-6 -left-4 text-6xl text-purple-500/10 font-serif">“</span>
+                                    <p className="text-zinc-300 text-xl font-medium leading-[1.6] pl-2 italic relative z-10">
+                                        {response.eli10}
+                                    </p>
+                                    <span className="absolute -bottom-10 -right-4 text-6xl text-purple-500/10 font-serif rotate-180">“</span>
+                                  </div>
+                              </div>
+                          </div>
+
+                          {/* 9. Equivalent Code */}
+                          <div className="bg-zinc-950 rounded-[3rem] border border-zinc-800 overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.8)] relative group">
+                              <div className="absolute inset-0 bg-gradient-to-b from-amber-500/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                              <div className="bg-zinc-900/80 backdrop-blur-md px-10 py-8 border-b border-zinc-800 flex items-center justify-between">
+                                  <div className="flex items-center gap-4 text-zinc-100 uppercase tracking-[0.3em] text-xs font-black font-mono">
+                                      <RefreshCcw size={22} className="text-amber-500 animate-slow-spin" />
+                                      Universal Equivalents
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse"></span>
+                                    <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest font-black">Multi-Language Kernel</span>
+                                  </div>
+                              </div>
+                              <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-zinc-800/50">
+                                  {['python', 'java', 'c'].map((lang) => (
+                                      <div key={lang} className="p-10 hover:bg-white/[0.01] transition-all flex flex-col h-full">
+                                          <div className="flex justify-between items-center mb-6">
+                                             <span className="text-[11px] uppercase font-black font-mono text-zinc-500 tracking-[0.3em] flex items-center gap-2">
+                                               <div className={`w-1.5 h-1.5 rounded-full ${lang === 'python' ? 'bg-blue-400' : lang === 'java' ? 'bg-orange-400' : 'bg-zinc-400'}`}></div>
+                                               {lang}
+                                             </span>
+                                             <button 
+                                              onClick={() => handleCopy(response.equivalents?.[lang])}
+                                              className="text-zinc-600 hover:text-amber-500 transition-all p-2 bg-zinc-900 rounded-xl hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+                                              title={`Copy ${lang} Code`}
+                                             >
+                                               <Copy size={14} />
+                                             </button>
+                                          </div>
+                                          <div className="flex-1 bg-black/40 p-6 rounded-2xl border border-zinc-800/80 group/code relative shadow-inner">
+                                            <pre className="text-[13px] font-mono text-amber-50/70 overflow-x-auto custom-scrollbar leading-relaxed">
+                                                <code>{response.equivalents?.[lang]}</code>
+                                            </pre>
+                                          </div>
+                                      </div>
+                                  ))}
+                              </div>
+                          </div>
+                      </div>
+                  ) : (
+                      <div className="prose prose-invert prose-amber max-w-none prose-pre:bg-zinc-950 prose-pre:border prose-pre:border-zinc-800 prose-headings:font-mono prose-a:text-amber-500 transition-colors animate-in fade-in duration-500">
+                          {response}
+                      </div>
+                  )}
+               </div>
+            </div>
           </div>
         </main>
       </div>
       
-      {/* Global styles specifically applied when this component mounts for sweet scrollbars */}
+      {/* Global styles specifically applied when this component mounts for sweet scrollbars & animations */}
       <style>{`
         .custom-scrollbar::-webkit-scrollbar {
             width: 8px;
             height: 8px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: #18181b; 
+            background: #000000; 
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #27272a; 
-            border-radius: 4px;
+            border-radius: 20px;
+            border: 2px solid #000000;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: #3f3f46; 
+        }
+        @keyframes slow-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-slow-spin {
+          animation: slow-spin 8s linear infinite;
         }
       `}</style>
     </div>
