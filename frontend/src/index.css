@@ -58,23 +58,47 @@
   .dark .bg-blue-50 {
     @apply bg-blue-950/40 text-blue-300 border-blue-900/50 !important;
   }
-
-  html {
-    font-family: "Geist Variable", sans-serif;
-  }
-
-  html.font-dyslexic * {
-  font-family: 'OpenDyslexic', sans-serif !important;
-}
-  html.high-contrast {
-  background-color: black !important;
-  color: white !important;
 }
 
-html.high-contrast * {
+/* ============================================================
+   DYSLEXIA MODE - MINIMALIST (FONT & SPACING ONLY)
+   ============================================================ */
+
+body.dyslexia-mode * {
+  /* 1. Dynamic Typography synced via AuthContext */
+  font-family: var(--dyslexia-font, "'OpenDyslexic', 'Lexend', sans-serif") !important;
+  font-weight: 500 !important; /* Semibold for character distinction */
+  
+  /* 2. Readability Spacing (Strict & Helpful) */
+  letter-spacing: 0.08em !important;
+  word-spacing: 0.15em !important;
+  line-height: 2 !important; /* Double spacing for line flow */
+  text-shadow: none !important;
+}
+
+/* Highly distinct headings */
+body.dyslexia-mode h1, 
+body.dyslexia-mode h2, 
+body.dyslexia-mode h3 {
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  margin-bottom: 0.75em !important;
+}
+
+/* 3. Larger font size (Clearly Noticeable) */
+body.dyslexia-mode p, 
+body.dyslexia-mode li,
+body.dyslexia-mode a,
+body.dyslexia-mode button,
+body.dyslexia-mode input,
+body.dyslexia-mode textarea,
+body.dyslexia-mode span:not(.lucide) {
+  font-size: 1.15em !important; /* Approx 22px */
+}
+
+/* High contrast compatibility (separate from Dyslexia Mode) */
+html.high-contrast, html.high-contrast body, html.high-contrast * {
   background-color: black !important;
   color: white !important;
   border-color: white !important;
-}
-
 }

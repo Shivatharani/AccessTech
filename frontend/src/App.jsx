@@ -11,6 +11,8 @@ import Dashboard from "./pages/Dashboard"
 import Quiz from "./pages/Quiz"
 import { Toaster } from "@/components/ui/sonner"
 import AccessibilityPanel from "./components/AccessibilityPanel";
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
 
 function App(){
 
@@ -23,14 +25,14 @@ function App(){
    <Routes>
 
     <Route path="/" element={<Home/>}/>
-    <Route path="/login" element={<Login/>}/>
-    <Route path="/signup" element={<Signup/>}/>
-    <Route path="/tutor" element={<Tutor/>}/>
-    <Route path="/mentor" element={<Mentor/>}/>
-    <Route path="/dictionary" element={<Dictionary/>}/>
-    <Route path="/codehelper" element={<CodeHelper/>}/>
-    <Route path="/dashboard" element={<Dashboard/>}/>
-    <Route path="/quiz" element={<Quiz/>}/>
+    <Route path="/login" element={<PublicRoute><Login/></PublicRoute>}/>
+    <Route path="/signup" element={<PublicRoute><Signup/></PublicRoute>}/>
+    <Route path="/tutor" element={<ProtectedRoute><Tutor/></ProtectedRoute>}/>
+    <Route path="/mentor" element={<ProtectedRoute><Mentor/></ProtectedRoute>}/>
+    <Route path="/dictionary" element={<ProtectedRoute><Dictionary/></ProtectedRoute>}/>
+    <Route path="/codehelper" element={<ProtectedRoute><CodeHelper/></ProtectedRoute>}/>
+    <Route path="/dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>}/>
+    <Route path="/quiz" element={<ProtectedRoute><Quiz/></ProtectedRoute>}/>
 
    </Routes>
 

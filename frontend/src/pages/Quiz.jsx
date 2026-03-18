@@ -31,16 +31,16 @@ export default function Quiz() {
 
   const fetchQuiz = async () => {
     try {
-      const tid = toast.loading(`Generating 10 questions on ${topic}...`);
+      const tid = toast.loading(`${t('generating_questions')} ${topic}...`);
       const res = await API.post("/ai/generate-quiz", {
         topic: topic,
         language: lang
       });
       setQuestions(res.data.quiz);
       setLoading(false);
-      toast.success("Ready to begin!", { id: tid });
+      toast.success(t('ready_begin'), { id: tid });
     } catch (err) {
-      toast.error("Failed to load quiz. Please try again later.");
+      toast.error(t('send_error'));
       nav(-1);
     }
   };
@@ -53,9 +53,9 @@ export default function Quiz() {
     const isCorrect = index === questions[currentIndex].answer;
     if (isCorrect) {
       setScore(s => s + 1);
-      toast.success("Correct!");
+      toast.success(t('correct'));
     } else {
-      toast.error("Incorrect!");
+      toast.error(t('incorrect'));
     }
   };
 
@@ -77,9 +77,9 @@ export default function Quiz() {
         topic,
         score
       });
-      toast.success("Quiz score submitted to Dashboard!");
+      toast.success(t('submit_quiz'));
     } catch (err) {
-      toast.error("Failed to submit score, but you completed the quiz!");
+      toast.error(t('send_error'));
     }
   };
 
@@ -88,7 +88,7 @@ export default function Quiz() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center transition-colors duration-300">
         <div className="flex flex-col items-center animate-pulse">
           <div className="w-16 h-16 border-4 border-indigo-200 dark:border-indigo-900 border-t-indigo-600 dark:border-t-indigo-500 rounded-full animate-spin mb-4"></div>
-          <h2 className="text-xl font-bold text-gray-700 dark:text-gray-300 transition-colors">Brewing your custom quiz...</h2>
+          <h2 className="text-xl font-bold text-gray-700 dark:text-gray-300 transition-colors">{t('brewing_quiz')}</h2>
         </div>
       </div>
     );
@@ -105,25 +105,25 @@ export default function Quiz() {
             <ArrowLeft size={20} />
           </button>
           <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 transition-colors">
-            {topic} Mastery
+            {topic} {t('mastery')}
           </h1>
           <div className="px-4 py-2 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-full font-bold text-sm transition-colors">
-            {t('score') || 'Score'}: {score}
+            {t('score')}: {score}
           </div>
         </div>
 
         {quizFinished ? (
           <div className="bg-white dark:bg-gray-900 p-10 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 text-center w-full animate-in zoom-in duration-500 transition-colors">
-            <h2 className="text-4xl font-black mb-4 dark:text-gray-100">Quiz Completed!</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 transition-colors">You scored <span className="font-bold text-indigo-600 dark:text-indigo-400">{score} out of {questions.length}</span>.</p>
+            <h2 className="text-4xl font-black mb-4 dark:text-gray-100">{t('quiz_completed')}</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 transition-colors">{t('you_scored')} <span className="font-bold text-indigo-600 dark:text-indigo-400">{score} {t('out_of')} {questions.length}</span>.</p>
             <Button size="lg" onClick={() => nav("/tutor")} className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white rounded-xl transition-colors">
-              Return to Tutor
+              {t('return_to_tutor')}
             </Button>
           </div>
         ) : questions.length > 0 ? (
           <div className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 w-full animate-in fade-in slide-in-from-bottom-4 duration-500 transition-colors cursor-default">
             <div className="mb-6 flex justify-between items-center border-b border-gray-100 dark:border-gray-800 pb-4 transition-colors">
-              <span className="text-sm font-semibold text-gray-400 dark:text-gray-500 tracking-wider uppercase">Question {currentIndex + 1} of {questions.length}</span>
+              <span className="text-sm font-semibold text-gray-400 dark:text-gray-500 tracking-wider uppercase">{t('quiz')} {currentIndex + 1} {t('out_of')} {questions.length}</span>
             </div>
 
             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-8 leading-relaxed transition-colors">
@@ -164,7 +164,7 @@ export default function Quiz() {
             {showAnswer && (
               <div className="flex justify-end animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <Button onClick={handleNext} size="lg" className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white rounded-xl font-bold px-8 transition-colors">
-                  {currentIndex === questions.length - 1 ? "Finish Quiz" : "Next Question"}
+                  {currentIndex === questions.length - 1 ? t('finish_quiz') : t('next_question')}
                 </Button>
               </div>
             )}

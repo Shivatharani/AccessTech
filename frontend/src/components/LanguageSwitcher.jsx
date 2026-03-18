@@ -1,27 +1,32 @@
 import { Globe } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import API from "../services/api";
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();
+  const { user, token, language, updateSettings } = useContext(AuthContext);
 
-  const changeLanguage = (e) => {
+  const changeLanguage = async (e) => {
     const langStr = e.target.value;
-    let code = "en";
-    if (langStr === "Tamil") code = "ta";
-    if (langStr === "Hindi") code = "hi";
+    updateSettings(langStr, null);
     
-    i18n.changeLanguage(code);
-    localStorage.setItem("language", langStr);
-    
-    // Optional: trigger a small global dispatch if we had complex state relying on this, 
-    // but i18n handles most of React's re-renders automatically.
+    // Persist to backend if logged in
+    if (user && token) {
+      try {
+        await API.post("/auth/update-profile", {
+          email: user,
+          language: langStr
+        });
+      } catch (err) {
+        console.error("Failed to sync language to backend");
+      }
+    }
   };
 
   const getCurrentValue = () => {
-    const currentLang = localStorage.getItem("language");
-    if (currentLang === "Tamil") return "Tamil";
-    if (currentLang === "Hindi") return "Hindi";
-    return "English";
+    return language || "English";
   };
 
   return (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import API from "../services/api";
 import Navbar from "../components/Navbar";
 import { useTranslation } from "react-i18next";
@@ -6,18 +6,16 @@ import { User, History as HistoryIcon, Clock, Menu, X, ArrowLeft, Book, Sparkles
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Dictionary() {
   const { t } = useTranslation();
   const nav = useNavigate();
+  const { user: email, language: lang, level: lvl } = useContext(AuthContext);
   const [term, setTerm] = useState("");
   const [response, setResponse] = useState("");
   const [history, setHistory] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const email = localStorage.getItem("email") || "User";
-  const lang = localStorage.getItem("language") || "English";
-  const lvl = localStorage.getItem("level") || "Beginner";
 
   useEffect(() => {
     if (email !== "User") {
@@ -37,19 +35,19 @@ export default function Dictionary() {
 
   const askDictionary = async () => {
     if (!term) {
-      toast.error("Please enter a term first.");
+      toast.error(t('search_term_placeholder'));
       return;
     }
 
-    const tid = toast.loading("Crystallizing the definition...");
+    const tid = toast.loading(t('crystallizing'));
 
     try {
       const res = await API.post("/ai/dictionary", { email, term });
       setResponse(res.data.response);
-      toast.success("Definition found!", { id: tid });
+      toast.success(t('definition_found'), { id: tid });
       fetchHistory();
     } catch (err) {
-      toast.error("Failed to get definition.", { id: tid });
+      toast.error(t('send_error'), { id: tid });
     }
   };
 
@@ -84,10 +82,10 @@ export default function Dictionary() {
           <div className="p-6 flex-1">
             <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold mb-4 transition-colors">
               <HistoryIcon size={18} className="text-emerald-600 dark:text-emerald-400" />
-              Search History
+              {t('search_history')}
             </div>
             {history.length === 0 ? (
-              <p className="text-sm text-slate-500 dark:text-slate-400 italic transition-colors">No terms searched yet.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 italic transition-colors">{t('no_terms')}</p>
             ) : (
               <div className="space-y-4">
                 {history.map((item, idx) => (
@@ -100,7 +98,7 @@ export default function Dictionary() {
                     <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 line-clamp-2 transition-colors">{item.question.replace('Term: ', '')}</p>
                     <div className="flex items-center gap-1 mt-2 text-xs text-slate-400 dark:text-slate-500 transition-colors">
                       <Clock size={12} />
-                      <span>Past Search</span>
+                      <span>{t('past_search')}</span>
                     </div>
                   </div>
                 ))}
@@ -121,7 +119,7 @@ export default function Dictionary() {
              
              <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-600 dark:from-emerald-400 dark:to-teal-500 transition-colors flex items-center gap-3 tracking-tight">
                 <Sparkles className="text-emerald-500 w-10 h-10" />
-                TermCrystal
+                {t('termcrystal') || "TermCrystal"}
              </h1>
              <div className="w-10 md:hidden"></div> {/*Spacer*/}
           </div>
@@ -132,7 +130,7 @@ export default function Dictionary() {
              </div>
              <input
                  className="flex-1 px-4 py-4 outline-none text-slate-800 dark:text-slate-100 bg-transparent h-14 transition-colors text-xl font-medium"
-                 placeholder="Search any confusing technical term..."
+                 placeholder={t('search_term_placeholder') || "Search any confusing technical term..."}
                  value={term}
                  onChange={e => setTerm(e.target.value)}
                  onKeyDown={(e) => e.key === 'Enter' && askDictionary()}
@@ -141,7 +139,7 @@ export default function Dictionary() {
                  onClick={askDictionary}
                  className="bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white px-8 h-14 rounded-full font-bold shadow-md transition-colors text-lg mr-1"
              >
-                 Define
+                 {t('define') || "Define"}
              </Button>
           </div>
           

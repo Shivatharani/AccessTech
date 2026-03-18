@@ -13,9 +13,9 @@ export const AccessibilityProvider = ({ children }) => {
 
     // 🔹 Dyslexia Mode
     if (dyslexiaMode) {
-      root.classList.add("font-dyslexic");
+      document.body.classList.add("dyslexia-mode");
     } else {
-      root.classList.remove("font-dyslexic");
+      document.body.classList.remove("dyslexia-mode");
     }
 
     // 🔹 Font Size

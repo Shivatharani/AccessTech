@@ -1,5 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 import { BookOpen, LogOut, Code2, Map, Sparkles } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -8,9 +10,10 @@ export default function Navbar() {
 
   const { t } = useTranslation()
   const nav = useNavigate()
+  const { logout } = useContext(AuthContext)
 
   const handleLogout = () => {
-    localStorage.removeItem("token")
+    logout()
     nav("/login")
   }
 

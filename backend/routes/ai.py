@@ -11,9 +11,12 @@ router = APIRouter()
 # -----------------------------
 # Request Models
 # -----------------------------
+from typing import Optional
+
 class AskRequest(BaseModel):
     email: str
     topic: str
+    image: Optional[str] = None  # Base64 string
 
 class QuizRequest(BaseModel):
     topic: str
@@ -45,7 +48,8 @@ def ask_ai(data: AskRequest):
     ai_response = generate_content(
         topic=data.topic,
         language=language,
-        level=level
+        level=level,
+        image=data.image
     )
 
     # store history
@@ -234,5 +238,8 @@ def ask_code_helper(data: CodeHelperRequest):
 def get_history(email: str):
     history = fetch_data("history", "email", email)
     return {"history": history}
+
+
+
 
 

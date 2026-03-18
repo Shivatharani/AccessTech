@@ -7,6 +7,8 @@ load_dotenv()
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 
+if not GOOGLE_CLIENT_ID:
+    print("WARNING: GOOGLE_CLIENT_ID is not set in environment!")
 
 def verify_google_token(token):
 
@@ -15,10 +17,13 @@ def verify_google_token(token):
         idinfo = id_token.verify_oauth2_token(
             token,
             requests.Request(),
-            GOOGLE_CLIENT_ID
+            GOOGLE_CLIENT_ID,
+            clock_skew_in_seconds=60
         )
 
         return idinfo
 
-    except ValueError:
-        raise Exception("Invalid Google token")
+    except ValueError as ve:
+        raise Exception(f"Invalid Google token: {str(ve)}")
+    except Exception as e:
+        raise Exception(f"Unexpected error during token verification: {str(e)}")

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Globe, Brain, Zap, Mail, Phone, MapPin, Loader2 } from 'lucide-react';
+import { BookOpen, Globe, Brain, Zap, Mail, Phone, MapPin, Loader2, Mic } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "../components/ThemeToggle";
@@ -48,19 +48,19 @@ export default function Home() {
       if (response.ok) {
         setSubmitStatus({
           type: 'success',
-          message: data.message || 'Your message has been sent successfully!'
+          message: data.message || t('send_success')
         });
         setFormData({ name: '', email: '', message: '' });
       } else {
         setSubmitStatus({
           type: 'error',
-          message: data.detail || 'Something went wrong. Please try again later.'
+          message: data.detail || t('send_error')
         });
       }
     } catch (error) {
       setSubmitStatus({
         type: 'error',
-        message: 'Failed to connect to the server. Please check your connection.'
+        message: t('network_error')
       });
     } finally {
       setIsSubmitting(false);
@@ -105,7 +105,7 @@ export default function Home() {
           <div className="relative z-10 max-w-5xl mx-auto flex flex-col items-center">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-100/80 dark:bg-indigo-900/50 backdrop-blur-sm border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold text-sm mb-8 animate-fade-in-up">
               <span className="flex h-2.5 w-2.5 rounded-full bg-indigo-500 dark:bg-indigo-400 animate-pulse"></span>
-              {t('hero_subtitle', 'Revolutionary AI Learning Experience')}
+              {t('hero_subtitle')}
             </div>
 
             <h1 className="text-6xl md:text-8xl font-black tracking-tight text-gray-900 dark:text-white mb-8 leading-tight drop-shadow-sm transition-colors duration-300">
@@ -115,7 +115,7 @@ export default function Home() {
             </h1>
 
             <p className="text-2xl text-gray-600 dark:text-gray-300 mb-12 max-w-3xl leading-relaxed font-medium transition-colors duration-300">
-              A single platform integrating multilingual support, adaptive intelligence, and an engaging ecosystem to maximize your potential.
+              {t('hero_desc')}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 mb-16 w-full justify-center">
@@ -131,9 +131,12 @@ export default function Home() {
                 size="lg"
                 variant="outline"
                 onClick={() => navigate('/login')}
-                className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-2 border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-200 text-xl font-bold rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800 hover:scale-105 transition-all duration-300 flex items-center gap-3 h-16 px-10"
+                className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-2 border-indigo-600 dark:border-indigo-500 text-indigo-700 dark:text-indigo-300 text-xl font-bold rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/50 hover:scale-105 transition-all duration-300 flex items-center gap-3 h-16 px-10 animate-pulse"
               >
-                {t('login')}
+                <div className="flex items-center gap-2">
+                  <Globe className="w-6 h-6" />
+                  {t('login') || "Login"}
+                </div>
               </Button>
             </div>
           </div>
@@ -148,32 +151,32 @@ export default function Home() {
               <div className="w-14 h-14 bg-indigo-100 dark:bg-indigo-900/50 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-6 group-hover:scale-110 transition-transform">
                 <span className="text-2xl pt-1">✨</span>
               </div>
-              <h3 className="text-xl font-bold mb-3 dark:text-white">LuminaTutor</h3>
-              <p className="text-gray-600 dark:text-gray-400">Illuminates any topic in your native language with tailored explanations.</p>
+              <h3 className="text-xl font-bold mb-3 dark:text-white">{t('luminatutor')}</h3>
+              <p className="text-gray-600 dark:text-gray-400">{t('tutor_desc')}</p>
             </div>
             {/* Feature 2: PathPilot */}
             <div className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-sm border border-sky-100 dark:border-sky-900/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
               <div className="w-14 h-14 bg-sky-100 dark:bg-sky-900/50 rounded-xl flex items-center justify-center text-sky-600 dark:text-sky-400 mb-6 group-hover:scale-110 transition-transform">
                 <Globe className="w-7 h-7" />
               </div>
-              <h3 className="text-xl font-bold mb-3 dark:text-white">PathPilot</h3>
-              <p className="text-gray-600 dark:text-gray-400">Your career navigation co-pilot. Get clear roadmaps and skill requirements.</p>
+              <h3 className="text-xl font-bold mb-3 dark:text-white">{t('pathpilot')}</h3>
+              <p className="text-gray-600 dark:text-gray-400">{t('pathpilot_desc')}</p>
             </div>
             {/* Feature 3: TermCrystal */}
             <div className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-sm border border-emerald-100 dark:border-emerald-900/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
               <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-900/50 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-6 group-hover:scale-110 transition-transform">
                 <Brain className="w-7 h-7" />
               </div>
-              <h3 className="text-xl font-bold mb-3 dark:text-white">TermCrystal</h3>
-              <p className="text-gray-600 dark:text-gray-400">Crystal-clear definitions for complex technical terms, with real analogies.</p>
+              <h3 className="text-xl font-bold mb-3 dark:text-white">{t('termcrystal')}</h3>
+              <p className="text-gray-600 dark:text-gray-400">{t('termcrystal_desc')}</p>
             </div>
             {/* Feature 4: SyntaxSage */}
             <div className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-sm border border-amber-100 dark:border-amber-900/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group md:col-span-3 lg:col-span-1 lg:max-w-none md:max-w-md md:mx-auto lg:mx-0">
               <div className="w-14 h-14 bg-amber-100 dark:bg-amber-900/50 rounded-xl flex items-center justify-center text-amber-600 dark:text-amber-400 mb-6 group-hover:scale-110 transition-transform">
                 <Zap className="w-7 h-7" />
               </div>
-              <h3 className="text-xl font-bold mb-3 dark:text-white">SyntaxSage</h3>
-              <p className="text-gray-600 dark:text-gray-400">Wise, line-by-line code wisdom. Paste code and get it explained from basics.</p>
+              <h3 className="text-xl font-bold mb-3 dark:text-white">{t('syntaxsage')}</h3>
+              <p className="text-gray-600 dark:text-gray-400">{t('syntaxsage_desc')}</p>
             </div>
           </div>
         </section>
@@ -187,7 +190,7 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold mb-8 relative z-10">{t('contact')}</h2>
             <div className="grid md:grid-cols-2 gap-8 relative z-10">
               <div className="flex flex-col gap-6">
-                <p className="text-indigo-100 dark:text-gray-300 text-lg">Have questions about AccessTech? We're here to help you get started on your learning journey.</p>
+                <p className="text-indigo-100 dark:text-gray-300 text-lg">{t('contact_desc')}</p>
                 <div className="flex items-center gap-4 text-indigo-50 dark:text-gray-400 hover:text-white transition-colors">
                   <Mail className="w-6 h-6 text-indigo-300 dark:text-indigo-500" />
                   <span>supportaccesstech@gmail.com</span>
@@ -198,7 +201,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center gap-4 text-indigo-50 dark:text-gray-400 hover:text-white transition-colors">
                   <MapPin className="w-6 h-6 text-indigo-300 dark:text-indigo-500" />
-                  <span>Chennai, Tamil Nadu, India</span>
+                  <span>{t('address')}</span>
                 </div>
               </div>
               <div className="bg-white/10 dark:bg-gray-800/50 p-6 rounded-2xl backdrop-blur-sm border border-white/20 dark:border-gray-700">
@@ -222,7 +225,7 @@ export default function Home() {
                     className="bg-white/90 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus-visible:ring-indigo-400 placeholder-gray-500 h-12 dark:border-gray-700"
                   />
                   <textarea
-                    placeholder="Message"
+                    placeholder={t('message')}
                     id="message"
                     rows="3"
                     value={formData.message}
@@ -238,15 +241,15 @@ export default function Home() {
                     {isSubmitting ? (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        Sending...
+                        {t('sending')}
                       </>
-                    ) : 'Send Message'}
+                    ) : t('send_message')}
                   </Button>
 
                   {submitStatus.message && (
                     <div className={`mt-2 p-3 rounded-lg text-sm font-medium ${submitStatus.type === 'success' ? 'bg-green-500/20 text-green-200' : 'bg-red-500/20 text-red-200'
                       }`}>
-                      {submitStatus.message}
+                      {submitStatus.type === 'success' ? t('send_success') : t('send_error')}
                     </div>
                   )}
                 </form>
@@ -258,7 +261,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="py-8 text-center text-gray-500 dark:text-gray-400 text-sm border-t border-gray-100 dark:border-gray-800">
-        <p>&copy; {new Date().getFullYear()} AccessTech. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} {t('footer_rights')}</p>
       </footer>
     </div>
   );

@@ -41,11 +41,11 @@ export default function CodeHelper() {
 
   const askCodeHelper = async () => {
     if (!codeSnippet) {
-      toast.error("Please paste some code first.");
+      toast.error(t('paste_code_placeholder'));
       return;
     }
 
-    const tid = toast.loading("SyntaxSage is analyzing your code...");
+    const tid = toast.loading(t('analyzing_code'));
 
     try {
       const res = await API.post("/ai/codehelper", { 
@@ -55,10 +55,10 @@ export default function CodeHelper() {
           query: query || "explain every line from basics"
       });
       setResponse(res.data.response);
-      toast.success("Code explanation ready!", { id: tid });
+      toast.success(t('roadmap_success'), { id: tid });
       fetchHistory();
     } catch (err) {
-      toast.error("Failed to analyze code.", { id: tid });
+      toast.error(t('send_error'), { id: tid });
     }
   };
 
@@ -94,10 +94,10 @@ export default function CodeHelper() {
           <div className="p-6 flex-1">
             <div className="flex items-center gap-2 text-zinc-300 font-bold mb-4 font-mono">
               <HistoryIcon size={18} className="text-amber-500" />
-              Snippets History
+              {t('snippets_history')}
             </div>
             {history.length === 0 ? (
-              <p className="text-sm text-zinc-600 italic">No code analyzed yet.</p>
+              <p className="text-sm text-zinc-600 italic">{t('no_code_analyzed')}</p>
             ) : (
               <div className="space-y-4">
                 {history.map((item, idx) => {
@@ -137,7 +137,7 @@ export default function CodeHelper() {
              </button>
              <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500 flex items-center gap-3 tracking-tight font-mono">
                 <Terminal className="text-amber-500 w-8 h-8" />
-                SyntaxSage
+                {t('syntaxsage')}
              </h1>
           </div>
           
@@ -162,7 +162,7 @@ export default function CodeHelper() {
                 
                 <textarea
                     className="flex-1 w-full bg-zinc-900 text-amber-50/90 font-mono p-4 outline-none resize-none text-sm leading-relaxed custom-scrollbar placeholder:text-zinc-600 focus:bg-zinc-900/80 transition-colors"
-                    placeholder="// Paste your code snippet here..."
+                    placeholder={t('paste_code_placeholder')}
                     spellCheck="false"
                     value={codeSnippet}
                     onChange={e => setCodeSnippet(e.target.value)}
@@ -173,7 +173,7 @@ export default function CodeHelper() {
                         <HelpCircle size={18} className="text-zinc-500 ml-3" />
                         <input 
                             className="flex-1 bg-transparent text-zinc-300 text-sm outline-none placeholder:text-zinc-600"
-                            placeholder="Ask a specific question (or leave blank for a line-by-line explanation)"
+                            placeholder={t('ask_code_question')}
                             value={query}
                             onChange={e => setQuery(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && askCodeHelper()}
@@ -182,7 +182,7 @@ export default function CodeHelper() {
                             onClick={askCodeHelper}
                             className="bg-amber-600 hover:bg-amber-500 text-zinc-950 font-bold px-6 rounded-md hover:scale-105 transition-all shadow-lg shadow-amber-900/30"
                         >
-                            Analyze
+                            {t('analyze')}
                         </Button>
                     </div>
                 </div>
@@ -192,13 +192,13 @@ export default function CodeHelper() {
              <div className="flex-1 bg-zinc-900 rounded-2xl border border-zinc-800 shadow-xl overflow-hidden flex flex-col">
                 <div className="bg-zinc-950 px-4 py-3 border-b border-zinc-800 flex items-center gap-2">
                     <Code2 size={16} className="text-amber-500" />
-                    <span className="text-xs font-mono text-zinc-400 font-semibold uppercase tracking-wider">Sage Output</span>
+                    <span className="text-xs font-mono text-zinc-400 font-semibold uppercase tracking-wider">{t('sage_output')}</span>
                 </div>
                 <div className="flex-1 overflow-y-auto p-6 focus-within:outline-none custom-scrollbar">
                     {!response ? (
                         <div className="h-full flex flex-col items-center justify-center text-zinc-600 gap-4 opacity-50">
                             <Terminal size={48} className="text-zinc-700" />
-                            <p className="font-mono text-sm">Awaiting code analysis...</p>
+                            <p className="font-mono text-sm">{t('awaiting_analysis')}</p>
                         </div>
                     ) : (
                         <div className="prose prose-invert prose-amber max-w-none prose-pre:bg-zinc-950 prose-pre:border prose-pre:border-zinc-800 prose-headings:font-mono prose-a:text-amber-500 transition-colors animate-in fade-in duration-500">

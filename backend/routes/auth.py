@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 from database import insert_data, fetch_data
 from utils.auth_utils import hash_password, verify_password, create_token
@@ -22,6 +23,11 @@ class LoginRequest(BaseModel):
 
 class GoogleLogin(BaseModel):
     token: str
+
+class UpdateProfileRequest(BaseModel):
+    email: str
+    language: Optional[str] = None
+    level: Optional[str] = None
 
 
 @router.post("/signup")
@@ -83,7 +89,10 @@ def login(user: LoginRequest, request: Request):
 @router.post("/google-login")
 def google_login(data: GoogleLogin, request: Request):
 
-    idinfo = verify_google_token(data.token)
+    try:
+        idinfo = verify_google_token(data.token)
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"Google authentication failed: {str(e)}")
 
     email = idinfo["email"]
     name = idinfo.get("name", "Google User")
@@ -121,3 +130,21 @@ def google_login(data: GoogleLogin, request: Request):
         "language": user_data["language"],
         "level": user_data["level"]
     }
+
+@router.post("/update-profile")
+def update_profile(data: UpdateProfileRequest):
+    users = fetch_data("users", "email", data.email)
+    if not users:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    update_fields = {}
+    if data.language:
+        update_fields["language"] = data.language
+    if data.level:
+        update_fields["level"] = data.level
+        
+    if update_fields:
+        from database import update_data
+        update_data("users", "email", data.email, update_fields)
+        
+    return {"message": "Profile updated successfully"}
