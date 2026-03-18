@@ -168,6 +168,8 @@ def ask_mentor(data: MentorRequest):
 class DictionaryRequest(BaseModel):
     email: str
     term: str
+    level: str = None
+    language: str = None
 
 @router.post("/dictionary")
 def ask_dictionary(data: DictionaryRequest):
@@ -176,8 +178,8 @@ def ask_dictionary(data: DictionaryRequest):
         raise HTTPException(status_code=404, detail="User not found")
     
     user = users[0]
-    language = user.get("language", "English")
-    level = user.get("level", "Beginner")
+    language = data.language or user.get("language", "English")
+    level = data.level or user.get("level", "Beginner")
 
     from services.groq_service import generate_dictionary
     ai_response = generate_dictionary(
