@@ -17,6 +17,8 @@ class AskRequest(BaseModel):
     email: str
     topic: str
     image: Optional[str] = None  # Base64 string
+    language: Optional[str] = None
+    level: Optional[str] = None
 
 class QuizRequest(BaseModel):
     topic: str
@@ -41,9 +43,8 @@ def ask_ai(data: AskRequest):
         raise HTTPException(status_code=404, detail="User not found")
 
     user = users[0]
-
-    language = user["language"]
-    level = user["level"]
+    language = data.language or user.get("language", "English")
+    level = data.level or user.get("level", "Beginner")
 
     ai_response = generate_content(
         topic=data.topic,
@@ -55,7 +56,7 @@ def ask_ai(data: AskRequest):
     # store history
     insert_data("history", {
         "email": data.email,
-        "question": data.topic,
+        "question": f"Tutor: {data.topic}",
         "response": ai_response
     })
 
@@ -136,6 +137,8 @@ def submit_quiz(data: QuizSubmit):
 class MentorRequest(BaseModel):
     email: str
     goal: str
+    language: Optional[str] = None
+    level: Optional[str] = None
 
 @router.post("/mentor")
 def ask_mentor(data: MentorRequest):
@@ -144,19 +147,23 @@ def ask_mentor(data: MentorRequest):
         raise HTTPException(status_code=404, detail="User not found")
     
     user = users[0]
-    language = user.get("language", "English")
-    level = user.get("level", "Beginner")
+    language = data.language or user.get("language", "English")
+    level = data.level or user.get("level", "Beginner")
 
-    from services.groq_service import generate_mentor_response
-    ai_response = generate_mentor_response(
-        goal=data.goal,
-        language=language,
-        level=level
-    )
+    try:
+        from services.groq_service import generate_mentor_response
+        ai_response = generate_mentor_response(
+            goal=data.goal,
+            language=language,
+            level=level
+        )
+    except Exception as e:
+        print(f"Error in Mentor AI: {e}")
+        return {"error": "Failed to generate mentor response.", "details": str(e)}
 
     insert_data("history", {
         "email": data.email,
-        "question": f"Career Goal: {data.goal}",
+        "question": f"Mentor: {data.goal}",
         "response": ai_response
     })
 
@@ -168,8 +175,8 @@ def ask_mentor(data: MentorRequest):
 class DictionaryRequest(BaseModel):
     email: str
     term: str
-    level: str = None
-    language: str = None
+    level: Optional[str] = None
+    language: Optional[str] = None
 
 @router.post("/dictionary")
 def ask_dictionary(data: DictionaryRequest):
@@ -181,16 +188,20 @@ def ask_dictionary(data: DictionaryRequest):
     language = data.language or user.get("language", "English")
     level = data.level or user.get("level", "Beginner")
 
-    from services.groq_service import generate_dictionary
-    ai_response = generate_dictionary(
-        term=data.term,
-        language=language,
-        level=level
-    )
+    try:
+        from services.groq_service import generate_dictionary
+        ai_response = generate_dictionary(
+            term=data.term,
+            language=language,
+            level=level
+        )
+    except Exception as e:
+        print(f"Error in Dictionary AI: {e}")
+        return {"error": "Failed to generate dictionary definition.", "details": str(e)}
 
     insert_data("history", {
         "email": data.email,
-        "question": f"Term: {data.term}",
+        "question": f"Dictionary: {data.term}",
         "response": ai_response
     })
 
@@ -204,6 +215,8 @@ class CodeHelperRequest(BaseModel):
     code_snippet: str
     mode: str
     query: str
+    language: Optional[str] = None
+    level: Optional[str] = None
 
 @router.post("/codehelper")
 def ask_code_helper(data: CodeHelperRequest):
@@ -212,23 +225,38 @@ def ask_code_helper(data: CodeHelperRequest):
         raise HTTPException(status_code=404, detail="User not found")
     
     user = users[0]
-    language = user.get("language", "English")
-    level = user.get("level", "Beginner")
+    language = data.language or user.get("language", "English")
+    level = data.level or user.get("level", "Beginner")
 
     from services.groq_service import generate_code_explanation
-    ai_response = generate_code_explanation(
-        code=data.code_snippet,
-        mode=data.mode,
-        query=data.query,
-        language=language,
-        level=level
-    )
+    try:
+        ai_response = generate_code_explanation(
+            code=data.code_snippet,
+            mode=data.mode,
+            query=data.query,
+            language=language,
+            level=level
+        )
+    except Exception as e:
+        print(f"Error generating code explanation: {e}")
+        return {
+            "error": "The AI failed to generate a valid response. Please try again with a simpler code snippet or a different query.",
+            "details": str(e)
+        }
 
-    insert_data("history", {
-        "email": data.email,
-        "question": f"Code ({data.mode}): {data.query[:50]}...",
-        "response": ai_response
-    })
+    try:
+        import json
+        q_str = str(data.query or '')
+        insert_data("history", {
+            "email": data.email,
+            "question": f"Code ({data.mode}): {q_str[:50]}",
+            "response": json.dumps({
+                "explanation": ai_response,
+                "code": data.code_snippet
+            })
+        })
+    except Exception as e:
+        print(f"Failed to store history: {e}")
 
     return {"response": ai_response}
 

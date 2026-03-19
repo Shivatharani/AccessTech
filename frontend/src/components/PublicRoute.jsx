@@ -6,7 +6,7 @@ const PublicRoute = ({ children }) => {
   const { token } = useContext(AuthContext);
 
   if (token && token !== "null" && token !== "undefined") {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/welcome" replace />;
   }
 
   return children;

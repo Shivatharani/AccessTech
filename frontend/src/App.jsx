@@ -9,6 +9,7 @@ import Dictionary from "./pages/Dictionary"
 import CodeHelper from "./pages/CodeHelper"
 import Dashboard from "./pages/Dashboard"
 import Quiz from "./pages/Quiz"
+import Welcome from "./pages/Welcome"
 import { Toaster } from "@/components/ui/sonner"
 import AccessibilityPanel from "./components/AccessibilityPanel";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -33,6 +34,7 @@ function App(){
     <Route path="/codehelper" element={<ProtectedRoute><CodeHelper/></ProtectedRoute>}/>
     <Route path="/dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>}/>
     <Route path="/quiz" element={<ProtectedRoute><Quiz/></ProtectedRoute>}/>
+    <Route path="/welcome" element={<ProtectedRoute><Welcome/></ProtectedRoute>}/>
 
    </Routes>
 

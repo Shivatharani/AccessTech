@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useContext } from "react";
+import { useSearchParams } from "react-router-dom";
 import API from "../services/api";
 import Navbar from "../components/Navbar";
 import { useTranslation } from "react-i18next";
-import { User, History as HistoryIcon, Clock, LogOut, Menu, X, ArrowLeft, Camera, Image as ImageIcon, Trash2, Mic, MicOff, Volume2 } from "lucide-react";
+import { User, History as HistoryIcon, Clock, LogOut, Menu, X, ArrowLeft, Camera, Image as ImageIcon, Trash2, Mic, MicOff, Volume2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,7 @@ export default function Tutor(){
 
   const { t } = useTranslation()
   const nav = useNavigate()
+  const [searchParams] = useSearchParams()
   const { user: email, token, language, level } = useContext(AuthContext)
   
   const { activeTopic } = useAssistant()
@@ -32,14 +34,17 @@ export default function Tutor(){
   const canvasRef = useRef(null)
 
   useEffect(() => {
-    if (activeTopic) {
-      setTopic(activeTopic);
+    const urlTopic = searchParams.get("topic");
+    const targetTopic = urlTopic || activeTopic;
+    
+    if (targetTopic) {
+      setTopic(targetTopic);
       // Automatically trigger askAI after a short delay to allow UI to update
       setTimeout(() => {
-        askAI(activeTopic);
+        askAI(targetTopic);
       }, 500);
     }
-  }, [activeTopic]);
+  }, [activeTopic, searchParams]);
 
   useEffect(() => {
     if (email) {
@@ -50,7 +55,8 @@ export default function Tutor(){
   const fetchHistory = async () => {
     try {
       const res = await API.get(`/ai/history?email=${email}`)
-      setHistory(res.data.history.reverse()) // Show newest first
+      const tutorHistory = res.data.history.filter(h => h.question.startsWith('Tutor: ')).reverse()
+      setHistory(tutorHistory)
     } catch {
       console.error("Failed to fetch history")
     }
@@ -204,16 +210,18 @@ export default function Tutor(){
      const res=await API.post("/ai/ask",{
       email: email || "User",
       topic: currentTopic,
-      image: image || null
+      image: image || null,
+      language, 
+      level
      })
    
      setResponse(res.data.response)
      setTopic(currentTopic)
      setImage(null) // Clear image after successful ask
-     toast.success("Lesson generated successfully!", { id: tid })
+     toast.success(t('lesson_generated'), { id: tid })
      fetchHistory()
     } catch {
-      toast.error("Failed to generate lesson.", { id: tid })
+      toast.error(t('failed_generate_lesson'), { id: tid })
     }
   }
 
@@ -248,8 +256,23 @@ export default function Tutor(){
                   </div>
                 </div>
             </div>
-            <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+             <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
               <X size={20} />
+            </button>
+          </div>
+          
+          <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+            <button
+              onClick={() => {
+                setTopic("");
+                setResponse("");
+                setImage(null);
+                setSidebarOpen(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold shadow-md transition-all active:scale-95"
+            >
+              <Plus size={18} />
+              {t('new_chat')}
             </button>
           </div>
           
@@ -265,11 +288,11 @@ export default function Tutor(){
                 {history.map((item, idx) => (
                   <div key={idx} className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border border-gray-100 dark:border-gray-800 shadow-sm cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors"
                     onClick={() => {
-                      setTopic(item.question);
+                      setTopic(item.question.replace('Tutor: ', ''));
                       setResponse(item.response);
                       setSidebarOpen(false);
                     }}>
-                    <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 line-clamp-2 transition-colors">{item.question}</p>
+                    <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 line-clamp-2 transition-colors">{item.question.replace('Tutor: ', '')}</p>
                     <div className="flex items-center gap-1 mt-2 text-xs text-gray-400 dark:text-gray-500 transition-colors">
                       <Clock size={12} />
                       <span>{t('previously_asked')}</span>

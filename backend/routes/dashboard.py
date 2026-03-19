@@ -21,14 +21,17 @@ def dashboard(email: str):
     avg_score = sum(quiz_scores)/len(quiz_scores) if quiz_scores else 0
 
     return {
-
         "total_questions": total_questions,
         "total_logins": total_logins,
         "avg_quiz_score": avg_score,
-
+        "module_usage": {
+            "Tutor": sum(1 for h in history if h.get("question", "").startswith("Tutor:")),
+            "Mentor": sum(1 for h in history if h.get("question", "").startswith("Mentor:")),
+            "Dictionary": sum(1 for h in history if h.get("question", "").startswith("Dictionary:")),
+            "SyntaxSage": sum(1 for h in history if h.get("question", "").startswith("Code (")),
+        },
         "history": history,
         "login_activity": logins,
-
         "charts": {
             "quiz_trend": quiz_trend
         }

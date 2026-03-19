@@ -3,7 +3,7 @@ import { AuthContext } from "../context/AuthContext"
 import API from "../services/api"
 import { useNavigate, Link } from "react-router-dom"
 import { GoogleLogin } from "@react-oauth/google"
-import { Eye, EyeOff, Globe, Signal, ArrowLeft } from "lucide-react"
+import { Eye, EyeOff, Globe, Activity, ArrowLeft } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -42,7 +42,7 @@ export default function Login() {
       contextLogin(form.email, res.data.access_token, res.data.language || form.language, res.data.level || form.level)
       
       toast.success(t('login_success'))
-      nav("/dashboard")
+      nav("/welcome")
     } catch (err) {
       toast.error(err.response?.data?.detail || t('invalid_credentials'))
     }
@@ -58,7 +58,7 @@ export default function Login() {
       if (res.data.access_token) {
         contextLogin(res.data.email, res.data.access_token, res.data.language, res.data.level)
         toast.success(t('login_success'))
-        nav("/dashboard")
+        nav("/welcome")
       } else {
         throw new Error("No access token received")
       }
@@ -113,7 +113,7 @@ export default function Login() {
 
           <div className="flex relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400">
-              <Signal size={18} />
+              <Activity size={18} />
             </div>
             <select
               className="border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-900 p-3 pl-11 rounded-xl w-full focus:ring-2 focus:ring-indigo-400 outline-none transition-all appearance-none cursor-pointer"

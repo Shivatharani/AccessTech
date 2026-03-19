@@ -1,23 +1,30 @@
-import { Globe } from "lucide-react";
+import { Globe, ChevronDown, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useContext } from "react";
+import { useContext, useState, useRef, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import API from "../services/api";
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();
   const { user, token, language, updateSettings } = useContext(AuthContext);
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-  const changeLanguage = async (e) => {
-    const langStr = e.target.value;
-    updateSettings(langStr, null);
+  const languages = [
+    { code: "English", label: "English", native: "English" },
+    { code: "Tamil", label: "Tamil", native: "தமிழ்" },
+    { code: "Hindi", label: "Hindi", native: "हिंदी" }
+  ];
+
+  const handleLanguageChange = async (langCode) => {
+    updateSettings(langCode, null);
+    setIsOpen(false);
     
-    // Persist to backend if logged in
     if (user && token) {
       try {
         await API.post("/auth/update-profile", {
           email: user,
-          language: langStr
+          language: langCode
         });
       } catch (err) {
         console.error("Failed to sync language to backend");
@@ -25,30 +32,50 @@ export function LanguageSwitcher() {
     }
   };
 
-  const getCurrentValue = () => {
-    return language || "English";
-  };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const currentLang = languages.find(l => l.code === (language || "English"));
 
   return (
-    <div className="flex relative items-center">
-      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-indigo-500 dark:text-indigo-400">
-        <Globe size={16} />
-      </div>
-      <select
-        className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border border-indigo-100 dark:border-gray-800 hover:border-indigo-300 dark:hover:border-indigo-700 text-gray-700 dark:text-gray-200 text-sm focus:ring-2 focus:ring-indigo-400 outline-none rounded-full py-1.5 pl-9 pr-6 transition-all appearance-none cursor-pointer font-medium shadow-sm hover:shadow"
-        value={getCurrentValue()}
-        onChange={changeLanguage}
+    <div className="relative inline-block text-left" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 px-4 py-2 bg-zinc-900/50 hover:bg-zinc-800/80 border border-zinc-700/50 hover:border-amber-500/50 rounded-full transition-all duration-300 text-sm font-medium text-zinc-300 group shadow-lg"
       >
-        <option value="English">English</option>
-        <option value="Tamil">தமிழ்</option>
-        <option value="Hindi">हिंदी</option>
-      </select>
-      {/* Custom arrow wrapper for the appearance-none select */}
-      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 dark:text-gray-400">
-        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-        </svg>
-      </div>
+        <Globe size={16} className={`text-amber-500 transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
+        <span className="hidden sm:inline-block font-mono tracking-tight">{currentLang?.native}</span>
+        <ChevronDown size={14} className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-3 w-48 rounded-2xl bg-zinc-950 border border-zinc-800 shadow-[0_10px_40px_rgba(0,0,0,0.8)] overflow-hidden z-[100] animate-in fade-in zoom-in-95 duration-200 origin-top-right">
+          <div className="py-2">
+            {languages.map((lang) => (
+              <button
+                key={lang.code}
+                onClick={() => handleLanguageChange(lang.code)}
+                className={`w-full flex items-center justify-between px-5 py-3 text-sm transition-all hover:bg-amber-500/10 group ${
+                  language === lang.code ? 'text-amber-500 bg-amber-500/5' : 'text-zinc-400 hover:text-zinc-100'
+                }`}
+              >
+                <div className="flex flex-col items-start">
+                  <span className="font-bold tracking-tight">{lang.native}</span>
+                  <span className="text-[10px] text-zinc-500 group-hover:text-zinc-400 font-mono uppercase">{lang.label}</span>
+                </div>
+                {language === lang.code && <Check size={16} className="text-amber-500" />}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 
+
+
 export default function Home() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -75,7 +77,7 @@ export default function Home() {
           <img src="/logo.png" alt="AccessTech Logo" className="h-10 w-10 object-contain drop-shadow-md" />
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-purple-600 dark:from-indigo-400 dark:to-purple-400">AccessTech</span>
         </div>
-    <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4">
           <LanguageSwitcher />
           <ThemeToggle />
           <Button
@@ -131,7 +133,7 @@ export default function Home() {
                 size="lg"
                 variant="outline"
                 onClick={() => navigate('/login')}
-                className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-2 border-indigo-600 dark:border-indigo-500 text-indigo-700 dark:text-indigo-300 text-xl font-bold rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/50 hover:scale-105 transition-all duration-300 flex items-center gap-3 h-16 px-10 animate-pulse"
+                className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border-2 border-indigo-600 dark:border-indigo-500 text-indigo-700 dark:text-indigo-300 text-xl font-bold rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/50 hover:scale-105 transition-all duration-300 flex items-center gap-3 h-16 px-10"
               >
                 <div className="flex items-center gap-2">
                   <Globe className="w-6 h-6" />

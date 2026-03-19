@@ -25,11 +25,13 @@ export default function Navbar() {
       </Link>
 
       <div className="flex items-center space-x-4 lg:space-x-6 text-sm font-medium">
+        <Link to="/welcome" className="hidden md:block hover:text-indigo-600 transition-colors uppercase tracking-widest font-black text-[10px]">{t('welcome', 'Welcome')}</Link>
         <Link to="/dashboard" className="hidden md:block hover:text-indigo-600 transition-colors">{t('dashboard')}</Link>
         <Link to="/tutor" className="hidden lg:flex items-center gap-1 hover:text-indigo-600 transition-colors"><span className="text-xl">✨</span> <span className="hidden xl:block">{t('luminatutor')}</span></Link>
         <Link to="/mentor" className="hidden lg:flex items-center gap-1 hover:text-sky-600 transition-colors"><Map size={16} className="text-sky-500" /> <span className="hidden xl:block">{t('pathpilot')}</span></Link>
         <Link to="/dictionary" className="hidden lg:flex items-center gap-1 hover:text-emerald-600 transition-colors"><Sparkles size={16} className="text-emerald-500" /> <span className="hidden xl:block">{t('termcrystal')}</span></Link>
         <Link to="/codehelper" className="hidden lg:flex items-center gap-1 hover:text-amber-600 transition-colors"><Code2 size={16} className="text-amber-500" /> <span className="hidden xl:block">{t('syntaxsage')}</span></Link>
+        <Link to="/quiz" className="hidden lg:flex items-center gap-1 hover:text-purple-600 transition-colors"><BookOpen size={16} className="text-purple-500" /> <span className="hidden xl:block">{t('quiz', 'Quiz')}</span></Link>
         
         <LanguageSwitcher />
         <ThemeToggle />

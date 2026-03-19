@@ -17,7 +17,7 @@ Rules:
 - Beginner: very simple, analogies, real-life examples
 - Intermediate: technical + examples
 - Advanced: deep details
-Output only in {language}. Keep it encouraging and human-centric."""
+Output only in {language}. IGNORE the language of the user's question; always respond ONLY in {language}. Keep it encouraging and human-centric."""
 
         chat = client.chat.completions.create(
             model="meta-llama/llama-4-scout-17b-16e-instruct",
@@ -37,7 +37,7 @@ Rules:
 - Beginner: very simple, analogies, real-life examples
 - Intermediate: technical + examples
 - Advanced: deep details
-Output only in {language}. Keep it encouraging and human-centric."""
+Output only in {language}. IGNORE the language of the user's input; ALWAYS respond ONLY in {language}. Keep it encouraging and human-centric."""
         chat = client.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=[{"role": "user", "content": prompt}]
@@ -49,80 +49,53 @@ def generate_mentor_response(goal, language, level):
 
     prompt = f"""
 You are PathPilot, an expert AI career mentor.
-User goal: {goal}
-User level: {level}
-Language: {language}
+Goal: {goal} | Level: {level}
+EVERY SINGLE WORD in your response MUST be in {language}.
 
-Generate a comprehensive, highly structured career guide.
-You MUST respond ONLY with a valid JSON object. Do not include any markdown formatting, code blocks like ```json, or conversational text. Output raw JSON only.
-
-Structure your JSON exactly like this:
+You MUST return ONLY a valid JSON object with EXACTLY this structure:
 {{
   "overview": {{
-    "role": "What the job is",
-    "daily_tasks": "What people in that role actually do daily",
-    "industries": ["Industry 1", "Industry 2", "Industry 3"],
-    "salary_range": "Typical global average salary range",
-    "future_demand": "Future demand and growth outlook"
+    "role": "Role in {language}",
+    "daily_tasks": "Tasks in {language}",
+    "industries": ["Industries in {language}"],
+    "salary_range": "Salary in {language}",
+    "future_demand": "Outlook in {language}"
   }},
   "skills": {{
-    "technical": ["Skill 1", "Skill 2"],
-    "soft": ["Skill 1", "Skill 2"]
+    "technical": ["Technical in {language}"],
+    "soft": ["Soft in {language}"]
   }},
   "roadmap": [
-    {{
-      "phase": "Phase 1: Fundamentals",
-      "description": "What to learn here in detail",
-      "time_estimate": "e.g., 2-4 weeks"
-    }},
-    {{
-      "phase": "Phase 2: Core Skills",
-      "description": "...",
-      "time_estimate": "..."
-    }}
+    {{"phase": "Phase in {language}", "description": "Details in {language}", "time_estimate": "Time in {language}"}}
   ],
   "learning_resources": {{
-    "youtube": [
-      {{"name": "Channel Name", "link": "https://youtube.com/..."}}
-    ],
-    "free_courses": [
-      {{"name": "Course Name", "link": "https://..."}}
-    ],
-    "paid_courses": [
-      {{"name": "Course Name", "link": "https://..."}}
-    ],
-    "books": ["Book 1", "Book 2"],
-    "practice_websites": [
-      {{"name": "Site Name", "link": "https://..."}}
-    ]
+    "youtube": [{{"name": "Name", "link": "URL"}}],
+    "free_courses": [{{"name": "Name", "link": "URL"}}],
+    "paid_courses": [{{"name": "Name", "link": "URL"}}],
+    "books": ["Books in {language}"],
+    "practice_websites": [{{"name": "Name", "link": "URL"}}]
   }},
-  "projects": [
-    {{"level": "Beginner", "name": "Project Name", "description": "What to build and why"}}
-  ],
-  "certifications": [
-    {{"name": "Cert Name", "link": "https://..."}}
-  ],
+  "projects": [{{"level": "Level", "name": "Name", "description": "Description in {language}"}}],
+  "certifications": [{{"name": "Name", "link": "URL"}}],
   "job_preparation": {{
-    "resume_tips": ["Tip 1", "Tip 2"],
-    "portfolio_tips": ["Tip 1"],
-    "interview_prep": ["Tip 1"]
+    "resume_tips": ["Tips in {language}"],
+    "portfolio_tips": ["Tips in {language}"],
+    "interview_prep": ["Tips in {language}"]
   }},
-  "job_roles": ["Role 1", "Role 2"],
+  "job_roles": ["Roles in {language}"],
   "industry_trends": {{
-    "trending_tools": ["Tool 1"],
-    "new_technologies": ["Tech 1"],
-    "market_demand": "Description of current market"
+    "trending_tools": ["Tools in {language}"],
+    "new_technologies": ["Tech in {language}"],
+    "market_demand": "Market in {language}"
   }},
-  "motivation": "A highly encouraging, personalized message to keep the user motivated."
+  "motivation": "Message in {language}"
 }}
 
-Use real, accurate URLs for resources and certifications if possible (e.g., Coursera, Udemy, YouTube channels).
-Make the content empowering, clear, and perfectly tailored for a {level} learner.
-Respond ONLY with the JSON object.
+CRITICAL: Output ONLY valid JSON. Use double quotes. Strictly use {language}.
 """
 
     chat = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
+        model="llama-3.3-70b-versatile",
         messages=[{"role": "user", "content": prompt}],
         response_format={"type": "json_object"}
     )
@@ -159,36 +132,26 @@ Each phase should include:
 # === NEW: TermCrystal (Dictionary) ===
 def generate_dictionary(term, language, level):
     prompt = f"""
-You are TermCrystal, an expert at explaining complex technical terms clearly.
-Generate a structured explanation for the term '{term}' in {language} for a {level} user.
-
-Rules for Levels:
-- Kid: Use simple 5-year-old language, playful emojis, and relatable analogies (toys, playground, etc.).
-- Beginner: Simple language, avoid jargon, use clear real-world examples.
-- Intermediate: Use technical context but explain core concepts, provide professional examples.
-- Expert: Deep technical details, specific use cases in architecture/system design, technical nuance.
-
-Return ONLY a valid JSON object with the following structure:
+You are TermCrystal, a helpful AI definer.
+Explain '{term}' strictly in {language} for a {level} user.
+ONLY return a valid JSON:
 {{
   "term": "{term}",
-  "pronunciation": "Phonetic pronunciation (e.g., /kən-trol-er/)",
-  "definition": "Clear, concise definition",
-  "visual_explanation": "A text-based description of what this looks like visually (e.g., 'Imagine a traffic light directing cars...')",
-  "real_life_example": "A concrete real-world example",
-  "analogy": "A relatable analogy to explain the concept",
-  "where_used": "Common industries or technical areas where this is used",
+  "pronunciation": "Pronunciation in {language}",
+  "definition": "Definition in {language}",
+  "real_life_example": "Example in {language}",
+  "analogy": "Analogy in {language}",
+  "where_used": "Industries in {language}",
   "related_terms": [
-    {{"term": "Term 1", "def": "Short definition"}},
-    {{"term": "Term 2", "def": "Short definition"}},
-    {{"term": "Term 3", "def": "Short definition"}}
+    {{"term": "T1", "def": "D1 in {language}"}},
+    {{"term": "T2", "def": "D2 in {language}"}}
   ],
-  "why_it_matters": "Why this concept is important to understand"
+  "why_it_matters": "Why in {language}"
 }}
-
-Respond ONLY with raw JSON. No markdown, no code blocks.
+CRITICAL: Output JSON ONLY. No markdown. Translate everything to {language}.
 """
     chat = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
+        model="llama-3.3-70b-versatile",
         messages=[{"role": "user", "content": prompt}],
         response_format={"type": "json_object"}
     )
@@ -197,41 +160,28 @@ Respond ONLY with raw JSON. No markdown, no code blocks.
 # === NEW: SyntaxSage (Code Helper) ===
 def generate_code_explanation(code, mode, query, language, level):
     prompt = f"""
-You are SyntaxSage, a world-class AI code architect and mentor.
-Analyze the following {mode} code snippet for a {level} user who speaks {language}.
-
-User Question/Focus: {query or 'Provide a full 9-point intelligence analysis'}
-
-Code:
-{code}
-
-You MUST return ONLY a valid JSON object with EXACTLY this structure:
+You are SyntaxSage. Analyze this code strictly in {language} for a {level} user.
+ONLY return a valid JSON:
 {{
-  "summary": "A high-level 2-sentence summary of what the code does",
-  "intelligence": "Deep logic analysis: what is the core algorithm or pattern?",
+  "summary": "Summary in {language}",
+  "intelligence": "Logic in {language}",
   "line_by_line": [
-    {{"line": 1, "code": "line of code", "explanation": "detailed explanation"}}
+    {{"line": 1, "code": "code", "explanation": "explanation in {language}"}}
   ],
-  "dry_run": "A step-by-step walkthrough of how the code executes with a sample input",
-  "bugs": ["List any potential bugs, edge cases, or security risks"],
-  "complexity": {{
-    "time": "e.g., O(n)",
-    "space": "e.g., O(1)",
-    "explanation": "Brief reasoning for complexity"
-  }},
-  "improvements": ["List 2-3 ways to make this code more 'clean', efficient, or 'pythonic'"],
-  "eli10": "Explain the concept like I'm 10 years old (use a non-tech analogy)",
+  "dry_run": "Walkthrough in {language}",
+  "bugs": ["Bugs in {language}"],
   "equivalents": {{
-    "python": "Equivalent Python code",
-    "java": "Equivalent Java code",
-    "c": "Equivalent C code"
+    "python": "Code",
+    "java": "Code",
+    "c": "Code"
   }}
 }}
-
-Respond ONLY with raw JSON. No markdown, no code blocks like ```json.
+CRITICAL: Output JSON ONLY. No markdown. Translate everything to {language}.
+Code: {code}
+Query: {query or 'Full analysis'}
 """
     chat = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
+        model="llama-3.3-70b-versatile",
         messages=[{"role": "user", "content": prompt}],
         response_format={"type": "json_object"}
     )

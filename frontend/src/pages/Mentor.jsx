@@ -1,16 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import API from "../services/api";
 import Navbar from "../components/Navbar";
 import { useTranslation } from "react-i18next";
-import { 
-  User, History as HistoryIcon, Clock, Menu, X, ArrowLeft, 
-  Briefcase, Map, Target, CheckCircle2, Circle, PlayCircle, 
-  BookOpen, Award, TrendingUp, ThumbsUp, ExternalLink, 
-  Code, Star, CheckSquare, Square, Shield, Medal, Trophy, Crown, ArrowRight
-} from "lucide-react";
+import { User, History as HistoryIcon, Clock, Menu, X, ArrowLeft, Map, Target, TrendingUp, Star, Code, ThumbsUp, ChevronRight, CheckCircle2, PlayCircle, BookOpen, ExternalLink, Award, Sparkles, Brain, Rocket, Lightbulb, Shield, Medal, Trophy, Crown, CheckSquare, Square, Plus, Briefcase, Circle, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Mentor() {
   const { t } = useTranslation();
@@ -24,9 +20,7 @@ export default function Mentor() {
   // Progress tracking state
   const [progress, setProgress] = useState({});
 
-  const email = localStorage.getItem("email") || "User";
-  const lang = localStorage.getItem("language") || "English";
-  const lvl = localStorage.getItem("level") || "Beginner";
+  const { user: email, language: lang, level: lvl } = useContext(AuthContext);
 
   useEffect(() => {
     if (email !== "User") {
@@ -59,13 +53,13 @@ export default function Mentor() {
     if (!progress[`step_${idx}`]) {
       // User is trying to mark as completed
       if (idx > 0 && !progress[`step_${idx - 1}`]) {
-        toast.error(`Warning: Please mark Phase ${idx} as completed first!`);
+        toast.error(t('complete_phase_error', { idx: idx }));
         return;
       }
     } else {
       // User is trying to unmark
       if (idx < parsedData.roadmap.length - 1 && progress[`step_${idx + 1}`]) {
-        toast.error(`Warning: Please uncheck Phase ${idx + 2} first!`);
+        toast.error(t('uncheck_phase_error', { idx: idx + 2 }));
         return;
       }
     }
@@ -84,13 +78,13 @@ export default function Mentor() {
     
     setProgress(newProg);
     localStorage.setItem(`pathpilot_progress_${email}_${goal}`, JSON.stringify(newProg));
-    if (!isMastered) toast.success("Domain Mastered! Congratulations! 🎉");
+    if (!isMastered) toast.success(t('domain_mastered'));
   };
 
   const fetchHistory = async () => {
     try {
       const res = await API.get(`/ai/history?email=${email}`);
-      const mentorHistory = res.data.history.filter(h => h.question.startsWith('Career Goal:')).reverse();
+      const mentorHistory = res.data.history.filter(h => h.question.startsWith('Mentor: ')).reverse();
       setHistory(mentorHistory);
     } catch (err) {
       console.error("Failed to fetch history", err);
@@ -119,16 +113,26 @@ export default function Mentor() {
       return;
     }
 
-    const tid = toast.loading("Charting your career path... This may take a moment.");
+    const tid = toast.loading(t('generating_roadmap'));
 
     try {
-      const res = await API.post("/ai/mentor", { email, goal });
+      const res = await API.post("/ai/mentor", { 
+        email, 
+        goal,
+        language: lang,
+        level: lvl
+      });
+
+      if (res.data.error) {
+        toast.error(res.data.error, { id: tid });
+        return;
+      }
       processResponse(res.data.response);
-      toast.success("Career roadmap generated!", { id: tid });
+      toast.success(t('roadmap_success'), { id: tid });
       fetchHistory();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to generate career roadmap.", { id: tid });
+      toast.error(t('send_error'), { id: tid });
     }
   };
 
@@ -147,11 +151,11 @@ export default function Mentor() {
   const progressPercent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
   const getBadgeInfo = () => {
-    if (progressPercent === 0) return { title: "Apprentice", icon: <Shield className="w-8 h-8 text-neutral-400" />, color: "bg-neutral-100 text-neutral-600 border-neutral-300 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-300" };
-    if (progressPercent < 50) return { title: "Bronze Scholar", icon: <Medal className="w-8 h-8 text-amber-600 dark:text-amber-500" />, color: "bg-amber-100 text-amber-800 border-amber-300 shadow-md shadow-amber-500/10 dark:bg-amber-900/40 dark:border-amber-700 dark:text-amber-300" };
-    if (progressPercent < 90) return { title: "Silver Specialist", icon: <Award className="w-8 h-8 text-slate-500 dark:text-slate-400" />, color: "bg-slate-100 text-slate-700 border-slate-300 shadow-md shadow-slate-500/10 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-300" };
-    if (progressPercent < 100) return { title: "Gold Expert", icon: <Trophy className="w-8 h-8 text-yellow-500" />, color: "bg-yellow-100 text-yellow-800 border-yellow-300 shadow-lg shadow-yellow-500/20 dark:bg-yellow-900/40 dark:border-yellow-700 dark:text-yellow-300" };
-    return { title: "Domain Master", icon: <Crown className="w-8 h-8 text-fuchsia-500" />, color: "bg-fuchsia-100 text-fuchsia-800 border-fuchsia-300 shadow-xl shadow-fuchsia-500/30 dark:bg-fuchsia-900/40 dark:border-fuchsia-700 dark:text-fuchsia-300" };
+    if (progressPercent === 0) return { title: t('apprentice'), icon: <Shield className="w-8 h-8 text-neutral-400" />, color: "bg-neutral-100 text-neutral-600 border-neutral-300 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-300" };
+    if (progressPercent < 50) return { title: t('bronze_scholar'), icon: <Medal className="w-8 h-8 text-amber-600 dark:text-amber-500" />, color: "bg-amber-100 text-amber-800 border-amber-300 shadow-md shadow-amber-500/10 dark:bg-amber-900/40 dark:border-amber-700 dark:text-amber-300" };
+    if (progressPercent < 90) return { title: t('silver_specialist'), icon: <Award className="w-8 h-8 text-slate-500 dark:text-slate-400" />, color: "bg-slate-100 text-slate-700 border-slate-300 shadow-md shadow-slate-500/10 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-300" };
+    if (progressPercent < 100) return { title: t('gold_expert'), icon: <Trophy className="w-8 h-8 text-yellow-500" />, color: "bg-yellow-100 text-yellow-800 border-yellow-300 shadow-lg shadow-yellow-500/20 dark:bg-yellow-900/40 dark:border-yellow-700 dark:text-yellow-300" };
+    return { title: t('domain_master'), icon: <Crown className="w-8 h-8 text-fuchsia-500" />, color: "bg-fuchsia-100 text-fuchsia-800 border-fuchsia-300 shadow-xl shadow-fuchsia-500/30 dark:bg-fuchsia-900/40 dark:border-fuchsia-700 dark:text-fuchsia-300" };
   };
 
   return (
@@ -182,6 +186,22 @@ export default function Mentor() {
               <X size={20} />
             </button>
           </div>
+
+          <div className="p-6 border-b border-neutral-100 dark:border-neutral-800">
+            <button
+              onClick={() => {
+                setGoal("");
+                setRawResponse(null);
+                setParsedData(null);
+                setSidebarOpen(false);
+              }}
+              className="w-full flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white py-3 rounded-xl font-bold shadow-md transition-all active:scale-95"
+            >
+              <Plus size={18} />
+              {t('new_chat')}
+            </button>
+          </div>
+
           <div className="p-6 flex-1">
             <div className="flex items-center gap-2 text-neutral-800 dark:text-neutral-200 font-bold mb-4 transition-colors">
               <HistoryIcon size={18} className="text-sky-600 dark:text-sky-400" />
@@ -194,11 +214,11 @@ export default function Mentor() {
                 {history.map((item, idx) => (
                   <div key={idx} className="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-lg border border-neutral-100 dark:border-neutral-800 shadow-sm cursor-pointer hover:bg-sky-50 dark:hover:bg-sky-900/30 transition-colors"
                     onClick={() => {
-                      setGoal(item.question.replace('Career Goal: ', ''));
+                      setGoal(item.question.replace('Mentor: ', ''));
                       processResponse(item.response);
                       setSidebarOpen(false);
                     }}>
-                    <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-200 line-clamp-2 transition-colors">{item.question.replace('Career Goal: ', '')}</p>
+                    <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-200 line-clamp-2 transition-colors">{item.question.replace('Mentor: ', '')}</p>
                     <div className="flex items-center gap-1 mt-2 text-xs text-neutral-400 dark:text-neutral-500 transition-colors">
                       <Clock size={12} />
                       <span>{t('past_session')}</span>
@@ -232,7 +252,7 @@ export default function Mentor() {
              <div className="flex gap-4 flex-col sm:flex-row">
                  <input
                   className="flex-1 px-6 py-4 rounded-2xl border-2 border-neutral-200 dark:border-neutral-800 outline-none text-neutral-800 dark:text-neutral-100 bg-neutral-50 dark:bg-neutral-950 focus:border-sky-400 dark:focus:border-sky-500 transition-colors text-lg"
-                  placeholder="e.g. Become a Full Stack Developer, Learn AI..."
+                  placeholder={t('career_goal_placeholder')}
                  value={goal}
                  onChange={e => setGoal(e.target.value)}
                  onKeyDown={(e) => e.key === 'Enter' && askMentor()}
@@ -265,7 +285,7 @@ export default function Mentor() {
                 <div className="flex-1 w-full">
                   <h3 className="text-2xl font-black mb-4 flex items-center gap-3 text-neutral-800 dark:text-neutral-200">
                     <Target className="text-sky-500 w-8 h-8" />
-                    Overall Completion: {progressPercent}%
+                    {t('overall_completion')}: {progressPercent}%
                   </h3>
                   <div className="w-full h-5 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden border border-neutral-200 dark:border-neutral-700 shadow-inner">
                     <div 
@@ -274,7 +294,7 @@ export default function Mentor() {
                     />
                   </div>
                   <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400 font-bold">
-                    {completedItems} of {totalItems} milestones achieved
+                    {completedItems} {t('of')} {totalItems} {t('milestones_achieved')}
                   </p>
                 </div>
                 
@@ -294,13 +314,13 @@ export default function Mentor() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
                     <div className="bg-white/10 p-5 rounded-2xl backdrop-blur-md border border-white/20">
                       <div className="text-sky-200 text-sm font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                        <TrendingUp size={16} /> Salary Range
+                        <TrendingUp size={16} /> {t('salary_range')}
                       </div>
                       <div className="font-bold text-xl">{parsedData.overview.salary_range}</div>
                     </div>
                     <div className="bg-white/10 p-5 rounded-2xl backdrop-blur-md border border-white/20">
                       <div className="text-sky-200 text-sm font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                        <Star size={16} /> Future Demand
+                        <Star size={16} /> {t('future_demand')}
                       </div>
                       <div className="font-bold text-xl">{parsedData.overview.future_demand}</div>
                     </div>
@@ -311,7 +331,7 @@ export default function Mentor() {
                   <div className="absolute top-4 right-4 text-amber-400 opacity-10 group-hover:scale-110 transition-transform duration-500"><Award size={100}/></div>
                   <h3 className="text-xl font-bold text-neutral-800 dark:text-neutral-200 mb-6 flex items-center gap-2">
                     <ThumbsUp className="text-sky-500" size={24}/>
-                    Message for You
+                    {t('message_for_you')}
                   </h3>
                   <p className="text-neutral-600 dark:text-neutral-400 italic font-medium leading-relaxed relative z-10 text-lg">
                     "{parsedData.motivation}"
@@ -323,7 +343,7 @@ export default function Mentor() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="bg-white dark:bg-neutral-900 p-8 rounded-3xl shadow-sm border border-neutral-200 dark:border-neutral-800">
                   <h3 className="text-xl font-black text-neutral-800 dark:text-neutral-200 mb-6 border-b border-neutral-100 dark:border-neutral-800 pb-4 flex items-center gap-3">
-                     <Code className="text-sky-500 w-6 h-6" /> Technical Skills
+                     <Code className="text-sky-500 w-6 h-6" /> {t('technical_skills')}
                   </h3>
                   <div className="flex flex-wrap gap-3">
                     {parsedData.skills.technical.map((s, i) => (
@@ -333,7 +353,7 @@ export default function Mentor() {
                 </div>
                 <div className="bg-white dark:bg-neutral-900 p-8 rounded-3xl shadow-sm border border-neutral-200 dark:border-neutral-800">
                   <h3 className="text-xl font-black text-neutral-800 dark:text-neutral-200 mb-6 border-b border-neutral-100 dark:border-neutral-800 pb-4 flex items-center gap-3">
-                     <User className="text-indigo-500 w-6 h-6" /> Soft Skills
+                     <User className="text-indigo-500 w-6 h-6" /> {t('soft_skills')}
                   </h3>
                   <div className="flex flex-wrap gap-3">
                     {parsedData.skills.soft.map((s, i) => (
@@ -347,7 +367,7 @@ export default function Mentor() {
               <div className="bg-white dark:bg-neutral-900 p-10 rounded-3xl shadow-sm border border-neutral-200 dark:border-neutral-800">
                 <h3 className="text-3xl font-black text-neutral-800 dark:text-neutral-100 mb-10 flex items-center gap-3">
                   <Map className="text-sky-500 w-10 h-10" />
-                  Your Step-by-Step Roadmap
+                  {t('step_by_step_roadmap')}
                 </h3>
                 
                 <div className="relative border-l-4 border-sky-100 dark:border-sky-900/50 ml-4 md:ml-8 space-y-12">
@@ -379,7 +399,7 @@ export default function Mentor() {
                             className={`flex items-center gap-2 text-sm font-black transition-colors px-4 py-2 rounded-xl bg-white dark:bg-neutral-900 border shadow-sm ${isDone ? 'text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/40' : 'text-neutral-600 dark:text-neutral-300 border-neutral-200 dark:border-neutral-700 hover:text-sky-600 hover:border-sky-200 hover:bg-sky-50 dark:hover:border-sky-800 dark:hover:bg-sky-900/40'}`}
                           >
                             {isDone ? <CheckSquare size={18} /> : <Square size={18} />}
-                            {isDone ? 'Marked as Completed' : 'Mark as Completed'}
+                            {isDone ? t('marked_completed') : t('mark_completed')}
                           </button>
                         </div>
                       </div>
@@ -392,7 +412,7 @@ export default function Mentor() {
               <div className="bg-white dark:bg-neutral-900 p-10 rounded-3xl shadow-sm border border-neutral-200 dark:border-neutral-800">
                 <h3 className="text-3xl font-black text-neutral-800 dark:text-neutral-100 mb-8 flex items-center gap-3">
                   <Briefcase className="text-sky-500 w-10 h-10" />
-                  Projects to Build
+                  {t('projects_to_build')}
                 </h3>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   {parsedData.projects.map((proj, idx) => {
@@ -425,7 +445,7 @@ export default function Mentor() {
                 <div className="bg-white dark:bg-neutral-900 p-10 rounded-3xl shadow-sm border border-neutral-200 dark:border-neutral-800">
                   <h3 className="text-3xl font-black text-neutral-800 dark:text-neutral-100 mb-8 flex items-center gap-3">
                     <BookOpen className="text-sky-500 w-10 h-10" />
-                    Learning Resources
+                    {t('learning_resources')}
                   </h3>
                   <div className="space-y-8">
                     {Object.entries(parsedData.learning_resources).map(([catKey, items]) => {
@@ -465,7 +485,7 @@ export default function Mentor() {
                   <div className="bg-white dark:bg-neutral-900 p-10 rounded-3xl shadow-sm border border-neutral-200 dark:border-neutral-800">
                     <h3 className="text-3xl font-black text-neutral-800 dark:text-neutral-100 mb-6 flex items-center gap-3">
                       <Award className="text-amber-500 w-10 h-10" />
-                      Certifications
+                      {t('certifications')}
                     </h3>
                     <ul className="space-y-4">
                       {parsedData.certifications.map((cert, i) => {
@@ -497,7 +517,7 @@ export default function Mentor() {
                   <div className="bg-white dark:bg-neutral-900 p-10 rounded-3xl shadow-sm border border-neutral-200 dark:border-neutral-800">
                     <h3 className="text-3xl font-black text-neutral-800 dark:text-neutral-100 mb-6 flex items-center gap-3">
                       <TrendingUp className="text-sky-500 w-10 h-10" />
-                      Job Preparation
+                      {t('job_preparation')}
                     </h3>
                     <div className="space-y-6">
                       {Object.entries(parsedData.job_preparation).map(([key, tips]) => (
@@ -518,24 +538,24 @@ export default function Mentor() {
                     <div className="absolute right-0 bottom-0 opacity-10"><TrendingUp size={150} /></div>
                     <h3 className="text-3xl font-black mb-6 flex items-center gap-3 relative z-10">
                       <Star className="text-amber-400 w-8 h-8" />
-                      Industry Trends
+                      {t('industry_trends')}
                     </h3>
                     
                     <div className="space-y-6 relative z-10">
                       <div>
-                        <h4 className="text-neutral-400 font-bold uppercase tracking-wider text-sm mb-2">Trending Tools</h4>
+                        <h4 className="text-neutral-400 font-bold uppercase tracking-wider text-sm mb-2">{t('trending_tools')}</h4>
                         <div className="flex flex-wrap gap-2">
                           {parsedData.industry_trends.trending_tools.map((t, i) => <span key={i} className="bg-white/10 px-3 py-1 rounded-lg text-sm">{t}</span>)}
                         </div>
                       </div>
                       <div>
-                        <h4 className="text-neutral-400 font-bold uppercase tracking-wider text-sm mb-2">New Technologies</h4>
+                        <h4 className="text-neutral-400 font-bold uppercase tracking-wider text-sm mb-2">{t('new_technologies')}</h4>
                         <div className="flex flex-wrap gap-2">
                           {parsedData.industry_trends.new_technologies.map((t, i) => <span key={i} className="bg-white/10 px-3 py-1 rounded-lg text-sm font-medium">{t}</span>)}
                         </div>
                       </div>
                       <div className="bg-white/5 p-4 rounded-xl border border-white/10">
-                        <h4 className="text-sky-300 font-bold uppercase tracking-wider text-xs mb-1">Market Demand</h4>
+                        <h4 className="text-sky-300 font-bold uppercase tracking-wider text-xs mb-1">{t('market_demand')}</h4>
                         <p className="text-sm leading-relaxed">{parsedData.industry_trends.market_demand}</p>
                       </div>
                     </div>
@@ -549,11 +569,11 @@ export default function Mentor() {
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5"><Crown size={400} /></div>
                 
                 <h3 className="text-4xl font-black mb-6 relative z-10 flex items-center justify-center gap-4">
-                  <Crown className="text-amber-400 w-12 h-12" /> Complete This Domain
+                  <Crown className="text-amber-400 w-12 h-12" /> {t('complete_domain')}
                 </h3>
                 
                 <p className="text-neutral-300 text-xl mb-10 max-w-2xl mx-auto relative z-10 leading-relaxed font-medium">
-                  Ready to claim mastery over this entire learning path? By clicking below, you mark all roadmap phases and projects as successfully completed.
+                  {t('mastery_desc')}
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-6 relative z-10">
@@ -562,14 +582,14 @@ export default function Mentor() {
                     className={`flex items-center justify-center gap-3 px-8 py-5 rounded-2xl font-bold transition-all duration-300 text-lg shadow-lg w-full sm:w-auto ${progressPercent === 100 ? 'bg-neutral-800 hover:bg-neutral-700 text-white border border-neutral-700 hover:border-neutral-600' : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white border-none shadow-emerald-500/20'}`}
                   >
                     {progressPercent === 100 ? <Square size={24} /> : <CheckSquare size={24} />}
-                    {progressPercent === 100 ? "Unmaster All Topics" : "Master All Topics"}
+                    {progressPercent === 100 ? t('unmaster_all') : t('master_all')}
                   </button>
 
                   <button 
                     onClick={() => nav('/tutor')}
                     className="flex items-center justify-center gap-3 px-8 py-5 rounded-2xl font-black bg-white text-indigo-600 hover:bg-neutral-100 transition-all duration-300 text-lg shadow-xl shadow-white/10 w-full sm:w-auto hover:scale-105"
                   >
-                    Start Learning with LuminaTutor <ArrowRight size={24} />
+                    {t('start_learning_tutor')} <ArrowRight size={24} />
                   </button>
                 </div>
               </div>
