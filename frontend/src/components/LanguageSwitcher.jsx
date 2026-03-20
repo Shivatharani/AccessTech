@@ -13,11 +13,14 @@ export function LanguageSwitcher() {
   const languages = [
     { code: "English", label: "English", native: "English" },
     { code: "Tamil", label: "Tamil", native: "தமிழ்" },
-    { code: "Hindi", label: "Hindi", native: "हिंदी" }
+    { code: "Hindi", label: "Hindi", native: "हिंदी" },
+    { code: "Telugu", label: "Telugu", native: "తెలుగు"  },
+    { code: "Malayalam", label: "Malayalam", native: "മലയാളം" },
   ];
 
   const handleLanguageChange = async (langCode) => {
     updateSettings(langCode, null);
+    i18n.changeLanguage(mapLangToCode(langCode));
     setIsOpen(false);
     
     if (user && token) {

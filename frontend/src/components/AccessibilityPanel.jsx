@@ -9,13 +9,14 @@ export default function AccessibilityPanel() {
     setFontSize,
     highContrast,
     setHighContrast,
+
   } = useAccessibility();
 
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
-      {/* Floating Button */}
+      {/* Floating Button — UNCHANGED */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Open Accessibility Settings"
@@ -24,11 +25,12 @@ export default function AccessibilityPanel() {
         ⚙️
       </button>
 
-      {/* Panel */}
+      {/* Panel — UNCHANGED wrapper */}
       {isOpen && (
         <div
           className="fixed bottom-20 right-6 z-50 w-72 p-4 rounded-xl shadow-xl 
-                     bg-white dark:bg-gray-900 border dark:border-gray-700 space-y-4"
+                     bg-white dark:bg-gray-900 border dark:border-gray-700 space-y-4
+                     max-h-[85vh] overflow-y-auto"
           role="dialog"
           aria-label="Accessibility Settings Panel"
         >
@@ -36,7 +38,7 @@ export default function AccessibilityPanel() {
             Accessibility
           </h2>
 
-          {/* 🔹 Dyslexia Mode */}
+          {/* 🔹 Dyslexia Mode — UNCHANGED */}
           <div className="flex items-center justify-between">
             <label className="text-gray-700 dark:text-gray-300">
               Dyslexia Mode
@@ -49,7 +51,8 @@ export default function AccessibilityPanel() {
             />
           </div>
 
-          {/* 🔹 Font Size */}
+
+          {/* 🔹 Font Size — UNCHANGED */}
           <div>
             <label className="block mb-1 text-gray-700 dark:text-gray-300">
               Font Size
@@ -67,7 +70,7 @@ export default function AccessibilityPanel() {
             </select>
           </div>
 
-          {/* 🔹 High Contrast */}
+          {/* 🔹 High Contrast — UNCHANGED */}
           <div className="flex items-center justify-between">
             <label className="text-gray-700 dark:text-gray-300">
               High Contrast
@@ -80,7 +83,7 @@ export default function AccessibilityPanel() {
             />
           </div>
 
-          {/* Close Button */}
+          {/* Close Button — UNCHANGED */}
           <button
             onClick={() => setIsOpen(false)}
             className="w-full mt-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white py-2 rounded hover:opacity-90"

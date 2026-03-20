@@ -1,0 +1,144 @@
+/* ============================================================
+   HIGH CONTRAST MODE
+   Applied when <html class="high-contrast"> is set.
+   Meets WCAG AAA (7:1 contrast ratio minimum).
+   Only overrides colours — never font-weight, font-family,
+   layout, or spacing.
+   ============================================================ */
+
+/* ── Core text & background ────────────────────────────────── */
+html.high-contrast,
+html.high-contrast body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  /* CRITICAL: never override font-weight here */
+}
+
+/* ── All text elements ─────────────────────────────────────── */
+html.high-contrast h1,
+html.high-contrast h2,
+html.high-contrast h3,
+html.high-contrast h4,
+html.high-contrast h5,
+html.high-contrast h6 {
+  color: #ffffff !important;
+  /* Keep whatever font-weight the element already has */
+}
+
+html.high-contrast p,
+html.high-contrast span,
+html.high-contrast li,
+html.high-contrast label,
+html.high-contrast td,
+html.high-contrast th {
+  color: #ffffff !important;
+}
+
+/* ── Links ─────────────────────────────────────────────────── */
+html.high-contrast a {
+  color: #ffff00 !important;        /* bright yellow — easy to distinguish from text */
+  text-decoration: underline !important;
+}
+html.high-contrast a:hover,
+html.high-contrast a:focus {
+  color: #00ffff !important;        /* cyan on hover */
+  outline: 2px solid #00ffff !important;
+}
+
+/* ── Buttons ───────────────────────────────────────────────── */
+html.high-contrast button {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  font-weight: inherit !important;  /* never change weight */
+}
+html.high-contrast button:hover,
+html.high-contrast button:focus {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  outline: 3px solid #ffff00 !important;
+  outline-offset: 2px;
+}
+
+/* Primary / filled buttons (indigo, etc.) */
+html.high-contrast button.bg-indigo-600,
+html.high-contrast button[class*="bg-indigo"],
+html.high-contrast button[class*="bg-purple"],
+html.high-contrast button[class*="bg-blue"] {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+/* ── Form inputs & selects ─────────────────────────────────── */
+html.high-contrast input,
+html.high-contrast select,
+html.high-contrast textarea {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+html.high-contrast input:focus,
+html.high-contrast select:focus,
+html.high-contrast textarea:focus {
+  outline: 3px solid #ffff00 !important;
+  outline-offset: 2px;
+}
+
+/* Checkboxes ─ make them visible */
+html.high-contrast input[type="checkbox"] {
+  accent-color: #ffffff;
+  outline: 2px solid #ffffff !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+html.high-contrast input[type="checkbox"]:checked {
+  accent-color: #ffff00;
+}
+
+/* ── Cards, panels, containers ─────────────────────────────── */
+html.high-contrast [class*="bg-white"],
+html.high-contrast [class*="bg-gray"],
+html.high-contrast [class*="dark:bg-gray"],
+html.high-contrast [class*="bg-slate"] {
+  background-color: #000000 !important;
+  border: 1px solid #ffffff !important;
+}
+
+/* Navbar / header area */
+html.high-contrast nav,
+html.high-contrast header {
+  background-color: #000000 !important;
+  border-bottom: 2px solid #ffffff !important;
+}
+
+/* ── Borders ───────────────────────────────────────────────── */
+html.high-contrast [class*="border"] {
+  border-color: #ffffff !important;
+}
+
+/* ── Icons & SVGs ──────────────────────────────────────────── */
+html.high-contrast svg {
+  fill: currentColor;
+}
+
+/* ── Focus ring (global) ───────────────────────────────────── */
+html.high-contrast *:focus-visible {
+  outline: 3px solid #ffff00 !important;
+  outline-offset: 2px !important;
+}
+
+/* ── Muted / secondary text — make it white, not gray ─────── */
+html.high-contrast [class*="text-gray"],
+html.high-contrast [class*="text-slate"],
+html.high-contrast [class*="text-zinc"],
+html.high-contrast [class*="text-neutral"] {
+  color: #ffffff !important;
+}
+
+/* ── Accessibility panel itself ─────────────────────────────── */
+html.high-contrast [role="dialog"] {
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}

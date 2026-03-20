@@ -12,9 +12,15 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Sync i18n if language changes or on load
-    const code = language === "Tamil" ? "ta" : language === "Hindi" ? "hi" : "en";
-    const dyslexiaFont = language === "Tamil" ? "'Noto Sans Tamil'" : language === "Hindi" ? "'Noto Sans Devanagari'" : "'OpenDyslexic', 'Lexend'";
-    
+    const langMap = {
+    Tamil:     { code: "ta", font: "'Noto Sans Tamil'"       },
+    Hindi:     { code: "hi", font: "'Noto Sans Devanagari'"  },
+    Telugu:    { code: "te", font: "'Noto Sans Telugu'"      },
+    Malayalam: { code: "ml", font: "'Noto Sans Malayalam'"   },
+  };
+  const { code = "en", font = "'OpenDyslexic', 'Lexend'" } = langMap[language] || {};
+  const dyslexiaFont = font;
+  
     if (i18n.language !== code) {
       i18n.changeLanguage(code);
     }

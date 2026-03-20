@@ -13,6 +13,8 @@ export default function LanguageSelector(){
    <option>English</option>
    <option>Tamil</option>
    <option>Hindi</option>
+   <option>Telugu</option>
+   <option>Malayalam</option>
   </select>
  )
 
