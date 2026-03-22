@@ -344,7 +344,16 @@ const en = {
     "real_life_example": "Real-life Example",
     "where_used": "Where It's Used",
     "why_it_matters": "Why It Matters",
-    "related_terms": "Related Terms"
+    "related_terms": "Related Terms",
+    "signup_left_badge": "Free to get started",
+    "signup_left_title_1": "Join the Future",
+    "signup_left_title_2": "of Learning.",
+    "signup_left_desc": "Create your account and unlock AI-powered tools designed to accelerate your journey.",
+    "signup_left_feature_1": "Personalized AI tutoring",
+    "signup_left_feature_2": "Career roadmap generator",
+    "signup_left_feature_3": "Multilingual support",
+    "signup_left_feature_4": "Real-time code analysis",
+    "signup_left_testimonial": "\"AccessTech transformed how students study. The AI tutor adapts to all level perfectly.\""
   }
 };
 
@@ -692,7 +701,16 @@ const ta = {
     "real_life_example": "நிஜ வாழ்க்கை உதாரணம்",
     "where_used": "எங்கே பயன்படுத்தப்படுகிறது",
     "why_it_matters": "இது ஏன் முக்கியம்",
-    "related_terms": "தொடர்புடைய சொற்கள்"
+    "related_terms": "தொடர்புடைய சொற்கள்",
+    "signup_left_badge": "தொடங்க இலவசம்",
+    "signup_left_title_1": "எதிர்காலத்துடன் இணையுங்கள்",
+    "signup_left_title_2": "கற்றலின்.",
+    "signup_left_desc": "உங்கள் கணக்கை உருவாக்கி, உங்கள் பயணத்தை துரிதப்படுத்த வடிவமைக்கப்பட்ட AI-ஆற்றல் கொண்ட கருவிகளைத் திறக்கவும்.",
+    "signup_left_feature_1": "தனிப்பயனாக்கப்பட்ட AI பயிற்சி",
+    "signup_left_feature_2": "வாழ்க்கைப்பாதை ஜெனரேட்டர்",
+    "signup_left_feature_3": "பன்மொழி ஆதரவு",
+    "signup_left_feature_4": "நிகழ்நேர குறியீடு பகுப்பாய்வு",
+    "signup_left_testimonial": "\"AccessTech மாணவர்கள் படிக்கும் முறையை மாற்றியுள்ளது. AI ஆசிரியர் அனைத்து நிலைகளுக்கும் சரியாக பொருந்துகிறது.\""
   }
 };
 
@@ -1316,7 +1334,16 @@ const te = {
     "why_it_matters": "ఇది ఎందుకు ముఖ్యమైనది",
     "where_used": "ఎక్కడ ఉపయోగించబడింది",
     "telugu": "తెలుగు",
-    "malayalam": "మలయాళం"
+    "malayalam": "మలయాళం",
+    "signup_left_badge": "ప్రారంభించడానికి ఉచితం",
+    "signup_left_title_1": "భవిష్యత్తుతో చేరండి",
+    "signup_left_title_2": "నేర్చుకోవడంలో.",
+    "signup_left_desc": "మీ ఖాతాను సృష్టించండి మరియు మీ ప్రయాణాన్ని వేగవంతం చేయడానికి రూపొందించిన AI-ఆధారిత సాధనాలను అన్‌లాక్ చేయండి.",
+    "signup_left_feature_1": "వ్యక్తిగతీకరించిన AI శిక్షణ",
+    "signup_left_feature_2": "కెరీర్ రోడ్‌మ్యాప్ జనరేటర్",
+    "signup_left_feature_3": "బహుభాషా మద్దతు",
+    "signup_left_feature_4": "రియల్-టైమ్ కోడ్ విశ్లేషణ",
+    "signup_left_testimonial": "\"AccessTech విద్యార్థుల అధ్యయన విధానాన్ని మార్చింది. AI ట్యూటర్ అన్ని స్థాయిలకు సరిగ్గా సరిపోతుంది.\""
   }
 };
  
@@ -1593,7 +1620,16 @@ const ml = {
     "why_it_matters": "ഇത് എന്തുകൊണ്ട് പ്രധാനമാണ്",
     "where_used": "എവിടെ ഉപയോഗിക്കുന്നു",
     "telugu": "തെലുഗു",
-    "malayalam": "മലയാളം"
+    "malayalam": "മലയാളം",
+    "signup_left_badge": "ആരംഭിക്കാൻ സൗജന്യം",
+    "signup_left_title_1": "ഭാവിയിൽ ചേരുക",
+    "signup_left_title_2": "പഠനത്തിന്റെ.",
+    "signup_left_desc": "നിങ്ങളുടെ അക്കൗണ്ട് സൃഷ്ടിച്ച് യാത്ര വേഗത്തിലാക്കാൻ രൂപകൽപ്പന ചെയ്ത AI-പവർ ടൂളുകൾ അൺലോക്ക് ചെയ്യുക.",
+    "signup_left_feature_1": "വ്യക്തിഗതമാക്കിയ AI ട്യൂട്ടറിംഗ്",
+    "signup_left_feature_2": "കരിയർ റോഡ്‌മാപ്പ് ജനറേറ്റർ",
+    "signup_left_feature_3": "ബഹുഭാഷാ പിന്തുണ",
+    "signup_left_feature_4": "റിയൽ-ടൈം കോഡ് വിശകലനം",
+    "signup_left_testimonial": "\"AccessTech വിദ്യാർത്ഥികൾ പഠിക്കുന്ന രീതി മാറ്റിമറിച്ചു. AI ട്യൂട്ടർ എല്ലാ തലങ്ങളിലേക്കും കൃത്യമായി പൊരുത്തപ്പെടുന്നു.\""
   }
 };
 

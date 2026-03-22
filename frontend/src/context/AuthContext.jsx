@@ -3,10 +3,34 @@ import i18n from "../i18n";
 
 export const AuthContext = createContext();
 
+const isTokenValid = (token) => {
+  if (!token || token === "null" || token === "undefined") return false;
+  try {
+    const parts = token.split('.');
+    if (parts.length === 3) {
+      const payload = JSON.parse(atob(parts[1]));
+      if (payload.exp && (payload.exp * 1000) < Date.now()) {
+        return false;
+      }
+    }
+  } catch(e) {
+    // Ignore parse errors, fallback to true
+  }
+  return true;
+};
+
 export const AuthProvider = ({ children }) => {
 
-  const [user, setUser] = useState(localStorage.getItem("email"));
-  const [token, setToken] = useState(localStorage.getItem("token"));
+  const initialToken = localStorage.getItem("token");
+  const validToken = isTokenValid(initialToken) ? initialToken : null;
+  
+  if (!validToken && initialToken) {
+    localStorage.removeItem("token");
+    localStorage.removeItem("email");
+  }
+
+  const [user, setUser] = useState(validToken ? localStorage.getItem("email") : null);
+  const [token, setToken] = useState(validToken);
   const [language, setLanguage] = useState(localStorage.getItem("language") || "English");
   const [level, setLevel] = useState(localStorage.getItem("level") || "Beginner");
 

@@ -2,7 +2,12 @@ import { useState, useEffect, useContext } from "react";
 import API from "../services/api";
 import Navbar from "../components/Navbar";
 import { useTranslation } from "react-i18next";
-import { User, History as HistoryIcon, Clock, Menu, X, ArrowLeft, Map, Target, TrendingUp, Star, Code, ThumbsUp, ChevronRight, CheckCircle2, PlayCircle, BookOpen, ExternalLink, Award, Sparkles, Brain, Rocket, Lightbulb, Shield, Medal, Trophy, Crown, CheckSquare, Square, Plus, Briefcase, Circle, ArrowRight } from "lucide-react";
+import {
+  User, History as HistoryIcon, Clock, Menu, X, ArrowLeft, Map, Target, TrendingUp,
+  Star, Code, ThumbsUp, ChevronRight, CheckCircle2, PlayCircle, BookOpen, ExternalLink,
+  Award, Sparkles, Brain, Rocket, Lightbulb, Shield, Medal, Trophy, Crown, CheckSquare,
+  Square, Plus, Briefcase, Circle, ArrowRight
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -16,30 +21,19 @@ export default function Mentor() {
   const [parsedData, setParsedData] = useState(null);
   const [history, setHistory] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-  // Progress tracking state
   const [progress, setProgress] = useState({});
-
   const { user: email, language: lang, level: lvl } = useContext(AuthContext);
 
   useEffect(() => {
-    if (email !== "User") {
-      fetchHistory();
-    }
+    if (email !== "User") fetchHistory();
   }, [email]);
 
   useEffect(() => {
     if (goal) {
       const savedProgress = localStorage.getItem(`pathpilot_progress_${email}_${goal}`);
       if (savedProgress) {
-        try {
-          setProgress(JSON.parse(savedProgress));
-        } catch(e) {
-          console.error("Failed to parse progress", e);
-        }
-      } else {
-        setProgress({});
-      }
+        try { setProgress(JSON.parse(savedProgress)); } catch (e) { console.error(e); }
+      } else setProgress({});
     }
   }, [goal, parsedData, email]);
 
@@ -51,17 +45,9 @@ export default function Mentor() {
 
   const toggleStepProgress = (idx) => {
     if (!progress[`step_${idx}`]) {
-      // User is trying to mark as completed
-      if (idx > 0 && !progress[`step_${idx - 1}`]) {
-        toast.error(t('complete_phase_error', { idx: idx }));
-        return;
-      }
+      if (idx > 0 && !progress[`step_${idx - 1}`]) { toast.error(t('complete_phase_error', { idx })); return; }
     } else {
-      // User is trying to unmark
-      if (idx < parsedData.roadmap.length - 1 && progress[`step_${idx + 1}`]) {
-        toast.error(t('uncheck_phase_error', { idx: idx + 2 }));
-        return;
-      }
+      if (idx < parsedData.roadmap.length - 1 && progress[`step_${idx + 1}`]) { toast.error(t('uncheck_phase_error', { idx: idx + 2 })); return; }
     }
     toggleProgress(`step_${idx}`);
   };
@@ -69,13 +55,10 @@ export default function Mentor() {
   const toggleMaster = () => {
     const isMastered = progressPercent === 100;
     const newProg = { ...progress };
-    
-    // Toggle all features
     if (parsedData) {
       parsedData.roadmap.forEach((_, i) => newProg[`step_${i}`] = !isMastered);
       parsedData.projects.forEach((_, i) => newProg[`proj_${i}`] = !isMastered);
     }
-    
     setProgress(newProg);
     localStorage.setItem(`pathpilot_progress_${email}_${goal}`, JSON.stringify(newProg));
     if (!isMastered) toast.success(t('domain_mastered'));
@@ -84,321 +67,255 @@ export default function Mentor() {
   const fetchHistory = async () => {
     try {
       const res = await API.get(`/ai/history?email=${email}`);
-      const mentorHistory = res.data.history.filter(h => h.question.startsWith('Mentor: ')).reverse();
-      setHistory(mentorHistory);
-    } catch (err) {
-      console.error("Failed to fetch history", err);
-    }
+      setHistory(res.data.history.filter(h => h.question.startsWith('Mentor: ')).reverse());
+    } catch (err) { console.error("Failed to fetch history", err); }
   };
 
   const processResponse = (respText) => {
     setRawResponse(respText);
     try {
       let jsonStr = respText;
-      if (respText.includes('```json')) {
-        jsonStr = respText.split('```json')[1].split('```')[0];
-      } else if (respText.includes('```')) {
-        jsonStr = respText.split('```')[1].split('```')[0];
-      }
-      const data = JSON.parse(jsonStr.trim());
-      setParsedData(data);
-    } catch (e) {
-      setParsedData(null);
-    }
+      if (respText.includes('```json')) jsonStr = respText.split('```json')[1].split('```')[0];
+      else if (respText.includes('```')) jsonStr = respText.split('```')[1].split('```')[0];
+      setParsedData(JSON.parse(jsonStr.trim()));
+    } catch { setParsedData(null); }
   };
 
   const askMentor = async () => {
-    if (!goal) {
-      toast.error(t('career_goal_prompt'));
-      return;
-    }
-
+    if (!goal) { toast.error(t('career_goal_prompt')); return; }
     const tid = toast.loading(t('generating_roadmap'));
-
     try {
-      const res = await API.post("/ai/mentor", { 
-        email, 
-        goal,
-        language: lang,
-        level: lvl
-      });
-
-      if (res.data.error) {
-        toast.error(res.data.error, { id: tid });
-        return;
-      }
+      const res = await API.post("/ai/mentor", { email, goal, language: lang, level: lvl });
+      if (res.data.error) { toast.error(res.data.error, { id: tid }); return; }
       processResponse(res.data.response);
       toast.success(t('roadmap_success'), { id: tid });
       fetchHistory();
-    } catch (err) {
-      console.error(err);
-      toast.error(t('send_error'), { id: tid });
-    }
+    } catch (err) { toast.error(t('send_error'), { id: tid }); }
   };
 
   const renderSectionIcon = (title) => {
     const tLower = title.toLowerCase();
-    if (tLower.includes('youtube') || tLower.includes('video')) return <PlayCircle className="w-5 h-5 text-red-500" />;
-    if (tLower.includes('book')) return <BookOpen className="w-5 h-5 text-amber-500" />;
-    if (tLower.includes('practice')) return <Code className="w-5 h-5 text-emerald-500" />;
-    return <Star className="w-5 h-5 text-sky-500" />;
+    if (tLower.includes('youtube') || tLower.includes('video')) return <PlayCircle className="w-4 h-4 text-red-500" />;
+    if (tLower.includes('book')) return <BookOpen className="w-4 h-4 text-amber-500" />;
+    if (tLower.includes('practice')) return <Code className="w-4 h-4 text-emerald-500" />;
+    return <Star className="w-4 h-4 text-sky-500" />;
   };
 
   const totalItems = parsedData ? (parsedData.roadmap.length + parsedData.projects.length) : 0;
-  const completedItems = totalItems > 0 ? (
-    Object.keys(progress).filter(k => (k.startsWith('step_') || k.startsWith('proj_')) && progress[k]).length
-  ) : 0;
+  const completedItems = totalItems > 0 ? Object.keys(progress).filter(k => (k.startsWith('step_') || k.startsWith('proj_')) && progress[k]).length : 0;
   const progressPercent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
   const getBadgeInfo = () => {
-    if (progressPercent === 0) return { title: t('apprentice'), icon: <Shield className="w-8 h-8 text-neutral-400" />, color: "bg-neutral-100 text-neutral-600 border-neutral-300 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-300" };
-    if (progressPercent < 50) return { title: t('bronze_scholar'), icon: <Medal className="w-8 h-8 text-amber-600 dark:text-amber-500" />, color: "bg-amber-100 text-amber-800 border-amber-300 shadow-md shadow-amber-500/10 dark:bg-amber-900/40 dark:border-amber-700 dark:text-amber-300" };
-    if (progressPercent < 90) return { title: t('silver_specialist'), icon: <Award className="w-8 h-8 text-slate-500 dark:text-slate-400" />, color: "bg-slate-100 text-slate-700 border-slate-300 shadow-md shadow-slate-500/10 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-300" };
-    if (progressPercent < 100) return { title: t('gold_expert'), icon: <Trophy className="w-8 h-8 text-yellow-500" />, color: "bg-yellow-100 text-yellow-800 border-yellow-300 shadow-lg shadow-yellow-500/20 dark:bg-yellow-900/40 dark:border-yellow-700 dark:text-yellow-300" };
-    return { title: t('domain_master'), icon: <Crown className="w-8 h-8 text-fuchsia-500" />, color: "bg-fuchsia-100 text-fuchsia-800 border-fuchsia-300 shadow-xl shadow-fuchsia-500/30 dark:bg-fuchsia-900/40 dark:border-fuchsia-700 dark:text-fuchsia-300" };
+    if (progressPercent === 0) return { title: t('apprentice'), icon: <Shield className="w-7 h-7 text-gray-400" />, style: "bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300" };
+    if (progressPercent < 50) return { title: t('bronze_scholar'), icon: <Medal className="w-7 h-7 text-amber-600" />, style: "bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-700 text-amber-800 dark:text-amber-300" };
+    if (progressPercent < 90) return { title: t('silver_specialist'), icon: <Award className="w-7 h-7 text-slate-500" />, style: "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300" };
+    if (progressPercent < 100) return { title: t('gold_expert'), icon: <Trophy className="w-7 h-7 text-yellow-500" />, style: "bg-yellow-50 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-700 text-yellow-800 dark:text-yellow-300" };
+    return { title: t('domain_master'), icon: <Crown className="w-7 h-7 text-violet-500" />, style: "bg-violet-50 dark:bg-violet-900/30 border-violet-200 dark:border-violet-700 text-violet-800 dark:text-violet-300" };
   };
 
+  const card = "bg-white dark:bg-[#0d0d1a] border border-gray-100 dark:border-white/5 rounded-3xl shadow-sm";
+
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex flex-col transition-colors duration-300">
+    <div className="min-h-screen bg-[#fafafa] dark:bg-[#080810] flex flex-col transition-colors duration-500">
       <Navbar />
       <div className="flex flex-1 overflow-hidden relative">
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black/50 dark:bg-black/70 z-40 md:hidden transition-colors duration-300"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-        <aside className={`fixed md:relative z-50 w-80 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 flex flex-col h-[calc(100vh-64px)] overflow-y-auto transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-          <div className="p-6 border-b border-neutral-100 dark:border-neutral-800 bg-sky-50/50 dark:bg-sky-950/20 flex justify-between items-start transition-colors">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400 rounded-full flex items-center justify-center font-bold text-xl transition-colors">
-                <Target size={24} />
+        {sidebarOpen && <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden" onClick={() => setSidebarOpen(false)} />}
+
+        {/* Sidebar */}
+        <aside className={`fixed md:relative z-50 w-72 bg-white dark:bg-[#0d0d1a] border-r border-gray-100 dark:border-white/5 flex flex-col h-[calc(100vh-64px)] overflow-y-auto transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+          <div className="p-5 border-b border-gray-100 dark:border-white/5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-500 to-sky-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+                <Target size={18} className="text-white" />
               </div>
-              <div>
-                <h3 className="font-bold text-neutral-900 dark:text-neutral-100 truncate w-40 transition-colors" title={email}>{email}</h3>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300 px-2 py-0.5 rounded-full font-medium transition-colors">{lang}</span>
-                  <span className="text-xs bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full font-medium transition-colors">{lvl}</span>
+              <div className="min-w-0 flex-1">
+                <p className="font-bold text-sm text-gray-900 dark:text-white truncate">{email}</p>
+                <div className="flex gap-1.5 mt-1">
+                  <span className="px-2 py-0.5 bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 text-[10px] font-black uppercase tracking-wide rounded-md">{lang}</span>
+                  <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 text-[10px] font-black uppercase tracking-wide rounded-md">{lvl}</span>
                 </div>
               </div>
+              <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-400 hover:text-gray-600"><X size={18} /></button>
             </div>
-            <button onClick={() => setSidebarOpen(false)} className="md:hidden text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
-              <X size={20} />
-            </button>
           </div>
 
-          <div className="p-6 border-b border-neutral-100 dark:border-neutral-800">
+          <div className="p-4 border-b border-gray-100 dark:border-white/5">
             <button
-              onClick={() => {
-                setGoal("");
-                setRawResponse(null);
-                setParsedData(null);
-                setSidebarOpen(false);
-              }}
-              className="w-full flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white py-3 rounded-xl font-bold shadow-md transition-all active:scale-95"
+              onClick={() => { setGoal(""); setRawResponse(null); setParsedData(null); setSidebarOpen(false); }}
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-sky-600 text-white py-2.5 rounded-xl font-bold text-sm shadow-lg active:scale-95"
             >
-              <Plus size={18} />
-              {t('new_chat')}
+              <Plus size={16} /> {t('new_chat')}
             </button>
           </div>
 
-          <div className="p-6 flex-1">
-            <div className="flex items-center gap-2 text-neutral-800 dark:text-neutral-200 font-bold mb-4 transition-colors">
-              <HistoryIcon size={18} className="text-sky-600 dark:text-sky-400" />
-              {t('mentor_history')}
+          <div className="p-4 flex-1 overflow-y-auto">
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">
+              <HistoryIcon size={14} /> {t('mentor_history')}
             </div>
             {history.length === 0 ? (
-              <p className="text-sm text-neutral-500 dark:text-neutral-400 italic transition-colors">{t('no_paths')}</p>
-            ) : (
-              <div className="space-y-4">
-                {history.map((item, idx) => (
-                  <div key={idx} className="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-lg border border-neutral-100 dark:border-neutral-800 shadow-sm cursor-pointer hover:bg-sky-50 dark:hover:bg-sky-900/30 transition-colors"
-                    onClick={() => {
-                      setGoal(item.question.replace('Mentor: ', ''));
-                      processResponse(item.response);
-                      setSidebarOpen(false);
-                    }}>
-                    <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-200 line-clamp-2 transition-colors">{item.question.replace('Mentor: ', '')}</p>
-                    <div className="flex items-center gap-1 mt-2 text-xs text-neutral-400 dark:text-neutral-500 transition-colors">
-                      <Clock size={12} />
-                      <span>{t('past_session')}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+              <p className="text-xs text-gray-400 dark:text-gray-600 italic text-center py-6">{t('no_paths')}</p>
+            ) : history.map((item, idx) => (
+              <button key={idx}
+                className="w-full text-left p-3 rounded-xl bg-gray-50 dark:bg-white/3 border border-gray-100 dark:border-white/5 hover:bg-sky-50 dark:hover:bg-sky-900/20 hover:border-sky-200 dark:hover:border-sky-800 transition-all mb-2 group"
+                onClick={() => { setGoal(item.question.replace('Mentor: ', '')); processResponse(item.response); setSidebarOpen(false); }}
+              >
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 line-clamp-2 group-hover:text-sky-700 dark:group-hover:text-sky-300 transition-colors">
+                  {item.question.replace('Mentor: ', '')}
+                </p>
+                <div className="flex items-center gap-1 mt-1.5 text-[10px] text-gray-400 uppercase tracking-wider">
+                  <Clock size={10} /> {t('past_session')}
+                </div>
+              </button>
+            ))}
           </div>
         </aside>
-        
-        <main className="flex-1 p-6 md:p-10 overflow-y-auto h-[calc(100vh-64px)] relative w-full bg-neutral-50/50 dark:bg-neutral-950/50">
-          <div className="flex items-center gap-4 mb-10 border-b pb-6 border-neutral-200 dark:border-neutral-800 max-w-5xl mx-auto">
-            <button onClick={() => nav(-1)} className="p-2.5 bg-white dark:bg-neutral-900 rounded-full shadow-sm border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/50 transition-colors">
-              <ArrowLeft size={20} />
+
+        <main className="flex-1 p-6 md:p-10 overflow-y-auto h-[calc(100vh-64px)] w-full">
+          {/* Header */}
+          <div className="flex items-center gap-4 mb-8 max-w-5xl mx-auto">
+            <button onClick={() => nav(-1)} className="p-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-500 hover:text-sky-600 dark:hover:text-sky-400 hover:border-sky-300 dark:hover:border-sky-700 transition-all shadow-sm">
+              <ArrowLeft size={18} />
             </button>
-            <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2.5 bg-white dark:bg-neutral-900 rounded-md shadow-sm border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800">
-              <Menu size={20} />
+            <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-500 shadow-sm">
+              <Menu size={18} />
             </button>
-            <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-indigo-600 dark:from-sky-400 dark:to-indigo-500 transition-colors flex items-center gap-3">
-              <Map className="text-sky-500 w-10 h-10" />
-              {t('pathpilot')}
-            </h1>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-sky-600 flex items-center justify-center shadow-lg shadow-sky-500/25">
+                <Map className="w-5 h-5 text-white" />
+              </div>
+              <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">{t('pathpilot')}</h1>
+            </div>
           </div>
-          
-          <div className="bg-white dark:bg-neutral-900 p-8 rounded-3xl shadow-sm border border-neutral-200 dark:border-neutral-800 mb-10 max-w-5xl mx-auto transition-all">
-             <h2 className="text-xl font-bold mb-6 text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
-                 <Briefcase className="text-sky-500" />
-                 {t('career_goal_prompt')}
-             </h2>
-             <div className="flex gap-4 flex-col sm:flex-row">
-                 <input
-                  className="flex-1 px-6 py-4 rounded-2xl border-2 border-neutral-200 dark:border-neutral-800 outline-none text-neutral-800 dark:text-neutral-100 bg-neutral-50 dark:bg-neutral-950 focus:border-sky-400 dark:focus:border-sky-500 transition-colors text-lg"
-                  placeholder={t('career_goal_placeholder')}
-                 value={goal}
-                 onChange={e => setGoal(e.target.value)}
-                 onKeyDown={(e) => e.key === 'Enter' && askMentor()}
-                 />
-                 <Button
-                 onClick={askMentor}
-                 className="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white px-10 h-14 sm:h-[64px] rounded-2xl font-bold shadow-lg shadow-sky-500/30 transition-all text-lg whitespace-nowrap"
-                 >
-                 {t('map_path')}
-                 </Button>
-             </div>
+
+          {/* Goal Input */}
+          <div className={`${card} p-7 mb-8 max-w-5xl mx-auto`}>
+            <p className="text-sm font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4 flex items-center gap-2">
+              <Briefcase size={14} /> {t('career_goal_prompt')}
+            </p>
+            <div className="flex gap-3 flex-col sm:flex-row">
+              <input
+                className="flex-1 px-5 py-4 rounded-2xl border-2 border-gray-200 dark:border-white/8 bg-gray-50 dark:bg-white/3 text-gray-900 dark:text-white outline-none focus:border-sky-400 dark:focus:border-sky-600 focus:ring-2 focus:ring-sky-400/20 dark:focus:ring-sky-600/20 transition-all text-base font-medium"
+                placeholder={t('career_goal_placeholder')}
+                value={goal}
+                onChange={e => setGoal(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && askMentor()}
+              />
+              <Button
+                onClick={askMentor}
+                className="bg-gradient-to-r from-cyan-500 to-sky-600 hover:from-cyan-600 hover:to-sky-700 text-white px-8 h-14 rounded-2xl font-bold shadow-lg shadow-sky-500/25 transition-all text-base whitespace-nowrap"
+              >
+                {t('map_path')}
+              </Button>
+            </div>
           </div>
 
           {rawResponse && !parsedData && (
-            <div className="mt-8 bg-white dark:bg-neutral-900 p-10 rounded-3xl shadow-lg border border-neutral-100 dark:border-neutral-800 max-w-5xl mx-auto animate-in fade-in zoom-in-95 duration-500 transition-colors">
-              <h2 className="font-extrabold pb-6 text-2xl mb-6 text-neutral-800 dark:text-neutral-100 border-b-2 border-sky-100 dark:border-sky-900/30 flex items-center gap-3 transition-colors">
-                  <Target className="text-sky-500 w-8 h-8" />
-                  {t('custom_roadmap')}
+            <div className={`${card} p-8 max-w-5xl mx-auto`}>
+              <h2 className="font-black text-xl mb-4 text-gray-900 dark:text-white flex items-center gap-2">
+                <Target className="text-sky-500" /> {t('custom_roadmap')}
               </h2>
-              <div className="prose prose-sky dark:prose-invert max-w-none text-neutral-700 dark:text-neutral-300 whitespace-pre-wrap leading-loose text-lg transition-colors">
+              <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
                 {rawResponse}
               </div>
             </div>
           )}
 
           {parsedData && (
-            <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+            <div className="max-w-5xl mx-auto space-y-7 animate-in fade-in slide-in-from-bottom-8 duration-700">
 
-              <div className="bg-white dark:bg-neutral-900 p-8 rounded-3xl shadow-sm border border-neutral-200 dark:border-neutral-800 flex flex-col md:flex-row items-center gap-8 justify-between">
+              {/* Progress Card */}
+              <div className={`${card} p-7 flex flex-col md:flex-row items-center gap-7`}>
                 <div className="flex-1 w-full">
-                  <h3 className="text-2xl font-black mb-4 flex items-center gap-3 text-neutral-800 dark:text-neutral-200">
-                    <Target className="text-sky-500 w-8 h-8" />
-                    {t('overall_completion')}: {progressPercent}%
+                  <h3 className="text-lg font-black text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                    <Target className="text-sky-500" size={20} />
+                    {t('overall_completion')}: <span className="text-sky-600 dark:text-sky-400">{progressPercent}%</span>
                   </h3>
-                  <div className="w-full h-5 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden border border-neutral-200 dark:border-neutral-700 shadow-inner">
-                    <div 
-                      className="h-full bg-gradient-to-r from-sky-400 to-indigo-500 transition-all duration-1000 ease-out" 
-                      style={{ width: `${progressPercent}%` }}
-                    />
+                  <div className="w-full h-3 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-cyan-500 to-sky-600 transition-all duration-1000 ease-out rounded-full" style={{ width: `${progressPercent}%` }} />
                   </div>
-                  <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400 font-bold">
+                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 font-semibold">
                     {completedItems} {t('of')} {totalItems} {t('milestones_achieved')}
                   </p>
                 </div>
-                
-                <div className={`p-8 rounded-3xl border-2 flex flex-col items-center justify-center min-w-[220px] transition-all duration-500 ${getBadgeInfo().color}`}>
-                  <div className="mb-3 bg-white/50 dark:bg-black/20 p-4 rounded-full shadow-sm backdrop-blur-sm">{getBadgeInfo().icon}</div>
-                  <span className="font-black tracking-wider uppercase text-sm text-center">{getBadgeInfo().title}</span>
-                </div>
-              </div>
-              
-              {/* Overview & Motivation */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-2 bg-gradient-to-br from-indigo-500 to-sky-600 p-10 rounded-3xl shadow-xl text-white relative overflow-hidden">
-                  <div className="absolute -right-10 -top-10 opacity-10"><Target size={250}/></div>
-                  <h2 className="text-4xl font-black mb-4 relative z-10">{parsedData.overview.role}</h2>
-                  <p className="text-sky-100 text-lg mb-8 relative z-10 font-medium leading-relaxed">{parsedData.overview.daily_tasks}</p>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
-                    <div className="bg-white/10 p-5 rounded-2xl backdrop-blur-md border border-white/20">
-                      <div className="text-sky-200 text-sm font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                        <TrendingUp size={16} /> {t('salary_range')}
-                      </div>
-                      <div className="font-bold text-xl">{parsedData.overview.salary_range}</div>
-                    </div>
-                    <div className="bg-white/10 p-5 rounded-2xl backdrop-blur-md border border-white/20">
-                      <div className="text-sky-200 text-sm font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                        <Star size={16} /> {t('future_demand')}
-                      </div>
-                      <div className="font-bold text-xl">{parsedData.overview.future_demand}</div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-white dark:bg-neutral-900 p-8 rounded-3xl shadow-md border border-neutral-200 dark:border-neutral-800 flex flex-col justify-center relative overflow-hidden group">
-                  <div className="absolute top-4 right-4 text-amber-400 opacity-10 group-hover:scale-110 transition-transform duration-500"><Award size={100}/></div>
-                  <h3 className="text-xl font-bold text-neutral-800 dark:text-neutral-200 mb-6 flex items-center gap-2">
-                    <ThumbsUp className="text-sky-500" size={24}/>
-                    {t('message_for_you')}
-                  </h3>
-                  <p className="text-neutral-600 dark:text-neutral-400 italic font-medium leading-relaxed relative z-10 text-lg">
-                    "{parsedData.motivation}"
-                  </p>
+                <div className={`p-5 rounded-2xl border-2 flex flex-col items-center justify-center min-w-[180px] ${getBadgeInfo().style}`}>
+                  <div className="mb-2 p-3 rounded-xl bg-white/50 dark:bg-black/20">{getBadgeInfo().icon}</div>
+                  <span className="font-black text-xs tracking-wider uppercase text-center">{getBadgeInfo().title}</span>
                 </div>
               </div>
 
-              {/* Skills Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-white dark:bg-neutral-900 p-8 rounded-3xl shadow-sm border border-neutral-200 dark:border-neutral-800">
-                  <h3 className="text-xl font-black text-neutral-800 dark:text-neutral-200 mb-6 border-b border-neutral-100 dark:border-neutral-800 pb-4 flex items-center gap-3">
-                     <Code className="text-sky-500 w-6 h-6" /> {t('technical_skills')}
-                  </h3>
-                  <div className="flex flex-wrap gap-3">
-                    {parsedData.skills.technical.map((s, i) => (
-                      <span key={i} className="px-4 py-2 bg-sky-50 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 rounded-xl text-sm font-bold border border-sky-100 dark:border-sky-800 shadow-sm transition-transform hover:scale-105 cursor-default hover:bg-sky-100 dark:hover:bg-sky-900/60">{s}</span>
-                    ))}
+              {/* Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="md:col-span-2 bg-gradient-to-br from-cyan-500 to-sky-600 p-8 rounded-3xl shadow-xl text-white relative overflow-hidden">
+                  <div className="absolute -right-10 -top-10 opacity-10"><Target size={200} /></div>
+                  <h2 className="text-3xl font-black mb-3 relative z-10">{parsedData.overview.role}</h2>
+                  <p className="text-sky-100 mb-6 relative z-10 font-medium leading-relaxed">{parsedData.overview.daily_tasks}</p>
+                  <div className="grid grid-cols-2 gap-3 relative z-10">
+                    <div className="bg-white/15 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
+                      <div className="text-sky-200 text-xs font-black uppercase tracking-wider mb-1 flex items-center gap-1"><TrendingUp size={12} /> {t('salary_range')}</div>
+                      <div className="font-bold">{parsedData.overview.salary_range}</div>
+                    </div>
+                    <div className="bg-white/15 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
+                      <div className="text-sky-200 text-xs font-black uppercase tracking-wider mb-1 flex items-center gap-1"><Star size={12} /> {t('future_demand')}</div>
+                      <div className="font-bold">{parsedData.overview.future_demand}</div>
+                    </div>
                   </div>
                 </div>
-                <div className="bg-white dark:bg-neutral-900 p-8 rounded-3xl shadow-sm border border-neutral-200 dark:border-neutral-800">
-                  <h3 className="text-xl font-black text-neutral-800 dark:text-neutral-200 mb-6 border-b border-neutral-100 dark:border-neutral-800 pb-4 flex items-center gap-3">
-                     <User className="text-indigo-500 w-6 h-6" /> {t('soft_skills')}
+                <div className={`${card} p-7 flex flex-col justify-center`}>
+                  <h3 className="font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2 text-sm">
+                    <ThumbsUp className="text-sky-500" size={18} /> {t('message_for_you')}
                   </h3>
-                  <div className="flex flex-wrap gap-3">
-                    {parsedData.skills.soft.map((s, i) => (
-                      <span key={i} className="px-4 py-2 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-xl text-sm font-bold border border-indigo-100 dark:border-indigo-800 shadow-sm transition-transform hover:scale-105 cursor-default hover:bg-indigo-100 dark:hover:bg-indigo-900/60">{s}</span>
-                    ))}
-                  </div>
+                  <p className="text-gray-600 dark:text-gray-400 italic font-medium leading-relaxed text-sm">"{parsedData.motivation}"</p>
                 </div>
               </div>
 
-              {/* ROADMAP TIMELINE */}
-              <div className="bg-white dark:bg-neutral-900 p-10 rounded-3xl shadow-sm border border-neutral-200 dark:border-neutral-800">
-                <h3 className="text-3xl font-black text-neutral-800 dark:text-neutral-100 mb-10 flex items-center gap-3">
-                  <Map className="text-sky-500 w-10 h-10" />
-                  {t('step_by_step_roadmap')}
+              {/* Skills */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {[
+                  { title: t('technical_skills'), data: parsedData.skills.technical, color: "sky", Icon: Code },
+                  { title: t('soft_skills'), data: parsedData.skills.soft, color: "violet", Icon: User },
+                ].map(({ title, data, color, Icon }) => (
+                  <div key={title} className={`${card} p-7`}>
+                    <h3 className={`text-base font-black text-gray-900 dark:text-white mb-5 border-b border-gray-100 dark:border-white/5 pb-3 flex items-center gap-2`}>
+                      <Icon className={`text-${color}-500`} size={18} /> {title}
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {data.map((s, i) => (
+                        <span key={i} className={`px-3 py-1.5 bg-${color}-50 dark:bg-${color}-900/30 text-${color}-700 dark:text-${color}-300 rounded-xl text-sm font-bold border border-${color}-100 dark:border-${color}-800 hover:scale-105 transition-transform cursor-default`}>{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Roadmap */}
+              <div className={`${card} p-8`}>
+                <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-8 flex items-center gap-3">
+                  <Map className="text-sky-500" size={28} /> {t('step_by_step_roadmap')}
                 </h3>
-                
-                <div className="relative border-l-4 border-sky-100 dark:border-sky-900/50 ml-4 md:ml-8 space-y-12">
+                <div className="relative border-l-4 border-sky-100 dark:border-sky-900/30 ml-5 space-y-8">
                   {parsedData.roadmap.map((step, idx) => {
                     const isDone = progress[`step_${idx}`];
                     return (
-                      <div key={idx} className="relative pl-12 group">
-                        <div 
-                          className={`absolute -left-[22px] top-1 w-10 h-10 rounded-full border-4 border-white dark:border-neutral-900 flex items-center justify-center transition-all duration-300 cursor-pointer shadow-lg
-                            ${isDone ? 'bg-emerald-500 text-white scale-110' : 'bg-sky-100 dark:bg-sky-800 text-sky-600 dark:text-sky-300 hover:bg-sky-200 dark:hover:bg-sky-700 hover:scale-110'}`}
+                      <div key={idx} className="relative pl-10">
+                        <div
+                          className={`absolute -left-[22px] top-1 w-10 h-10 rounded-full border-4 border-white dark:border-[#0d0d1a] flex items-center justify-center transition-all duration-300 cursor-pointer shadow-lg ${isDone ? 'bg-emerald-500 text-white scale-110 shadow-emerald-500/30' : 'bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-400 hover:bg-sky-200 dark:hover:bg-sky-800 hover:scale-110'}`}
                           onClick={() => toggleStepProgress(idx)}
                         >
-                          {isDone ? <CheckCircle2 size={20} /> : <span className="font-bold">{idx + 1}</span>}
+                          {isDone ? <CheckCircle2 size={18} /> : <span className="font-black text-sm">{idx + 1}</span>}
                         </div>
-                        <div className={`p-8 rounded-3xl border transition-all duration-300 shadow-sm ${isDone ? 'border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/50 dark:bg-emerald-900/20 shadow-emerald-100 dark:shadow-none' : 'bg-neutral-50 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700 hover:border-sky-300 dark:hover:border-sky-700 hover:shadow-sky-100 dark:hover:shadow-none'}`}>
-                          <div className="flex justify-between items-start flex-col sm:flex-row sm:items-center gap-4 mb-4">
-                            <h4 className={`text-2xl font-black ${isDone ? 'text-emerald-700 dark:text-emerald-400' : 'text-neutral-800 dark:text-neutral-200'}`}>
-                              {step.phase}
-                            </h4>
-                            <span className="px-4 py-1.5 bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 text-sm font-bold rounded-full shadow-sm border border-neutral-200 dark:border-neutral-700 flex items-center gap-2">
-                              <Clock size={16} className="text-sky-500" /> {step.time_estimate}
+                        <div className={`p-6 rounded-2xl border transition-all duration-300 ${isDone ? 'border-emerald-200 dark:border-emerald-800/40 bg-emerald-50/50 dark:bg-emerald-900/10' : 'bg-gray-50 dark:bg-white/3 border-gray-200 dark:border-white/8 hover:border-sky-300 dark:hover:border-sky-700/40'}`}>
+                          <div className="flex justify-between items-start flex-wrap gap-3 mb-3">
+                            <h4 className={`text-lg font-black ${isDone ? 'text-emerald-700 dark:text-emerald-400' : 'text-gray-900 dark:text-white'}`}>{step.phase}</h4>
+                            <span className="px-3 py-1 bg-white dark:bg-black/20 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-xl border border-gray-200 dark:border-white/10 flex items-center gap-1.5">
+                              <Clock size={12} className="text-sky-500" /> {step.time_estimate}
                             </span>
                           </div>
-                          <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-lg mb-6">
-                            {step.description}
-                          </p>
-                          <button 
+                          <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-4 text-sm">{step.description}</p>
+                          <button
                             onClick={() => toggleStepProgress(idx)}
-                            className={`flex items-center gap-2 text-sm font-black transition-colors px-4 py-2 rounded-xl bg-white dark:bg-neutral-900 border shadow-sm ${isDone ? 'text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/40' : 'text-neutral-600 dark:text-neutral-300 border-neutral-200 dark:border-neutral-700 hover:text-sky-600 hover:border-sky-200 hover:bg-sky-50 dark:hover:border-sky-800 dark:hover:bg-sky-900/40'}`}
+                            className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl border transition-all ${isDone ? 'text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/30' : 'text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 hover:text-sky-600 hover:border-sky-300 dark:hover:border-sky-700'}`}
                           >
-                            {isDone ? <CheckSquare size={18} /> : <Square size={18} />}
+                            {isDone ? <CheckSquare size={16} /> : <Square size={16} />}
                             {isDone ? t('marked_completed') : t('mark_completed')}
                           </button>
                         </div>
@@ -409,65 +326,56 @@ export default function Mentor() {
               </div>
 
               {/* Projects */}
-              <div className="bg-white dark:bg-neutral-900 p-10 rounded-3xl shadow-sm border border-neutral-200 dark:border-neutral-800">
-                <h3 className="text-3xl font-black text-neutral-800 dark:text-neutral-100 mb-8 flex items-center gap-3">
-                  <Briefcase className="text-sky-500 w-10 h-10" />
-                  {t('projects_to_build')}
+              <div className={`${card} p-8`}>
+                <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                  <Briefcase className="text-sky-500" size={28} /> {t('projects_to_build')}
                 </h3>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
                   {parsedData.projects.map((proj, idx) => {
                     const isDone = progress[`proj_${idx}`];
                     return (
-                      <div key={idx} className={`p-8 rounded-3xl border transition-all duration-300 flex flex-col h-full bg-neutral-50 dark:bg-neutral-800/50 relative overflow-hidden group ${isDone ? 'border-emerald-300 dark:border-emerald-800 shadow-lg shadow-emerald-100 dark:shadow-none bg-emerald-50/50 dark:bg-emerald-900/20' : 'border-neutral-200 dark:border-neutral-700 hover:border-sky-300 hover:shadow-xl hover:shadow-sky-100 dark:hover:shadow-none'}`}>
-                        {isDone && <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500 rounded-bl-full opacity-10 blur-xl"></div>}
-                        <div className="flex justify-between items-center mb-6 relative z-10">
-                          <span className={`text-xs font-black uppercase tracking-wider px-3 py-1.5 rounded-lg shadow-sm ${
-                            proj.level.toLowerCase().includes('begin') ? 'bg-green-100 text-green-700 dark:bg-green-900/60 dark:text-green-300 border border-green-200 dark:border-green-800' :
-                            proj.level.toLowerCase().includes('inter') ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800' :
-                            'bg-red-100 text-red-700 dark:bg-red-900/60 dark:text-red-300 border border-red-200 dark:border-red-800'
-                          }`}>
+                      <div key={idx} className={`p-6 rounded-2xl border transition-all duration-300 flex flex-col ${isDone ? 'border-emerald-200 dark:border-emerald-800/40 bg-emerald-50/40 dark:bg-emerald-900/10' : 'bg-gray-50 dark:bg-white/3 border-gray-200 dark:border-white/8 hover:border-sky-300 dark:hover:border-sky-700/40 hover:shadow-lg'}`}>
+                        <div className="flex justify-between items-center mb-4">
+                          <span className={`text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-lg ${proj.level?.toLowerCase().includes('begin') ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : proj.level?.toLowerCase().includes('inter') ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'}`}>
                             {proj.level}
                           </span>
-                          <button onClick={() => toggleProgress(`proj_${idx}`)} className={`transition-all duration-300 hover:scale-110 ${isDone ? 'text-emerald-500' : 'text-neutral-300 dark:text-neutral-600 hover:text-sky-500'}`}>
-                            {isDone ? <CheckCircle2 size={32} /> : <Circle size={32} />}
+                          <button onClick={() => toggleProgress(`proj_${idx}`)} className={`transition-all hover:scale-110 ${isDone ? 'text-emerald-500' : 'text-gray-300 dark:text-gray-600 hover:text-sky-500'}`}>
+                            {isDone ? <CheckCircle2 size={28} /> : <Circle size={28} />}
                           </button>
                         </div>
-                        <h4 className="font-black text-xl text-neutral-800 dark:text-neutral-100 mb-4 relative z-10">{proj.name}</h4>
-                        <p className="text-neutral-600 dark:text-neutral-400 text-base leading-relaxed flex-1 relative z-10">{proj.description}</p>
+                        <h4 className="font-black text-lg text-gray-900 dark:text-white mb-2">{proj.name}</h4>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed flex-1">{proj.description}</p>
                       </div>
                     );
                   })}
                 </div>
               </div>
 
-              {/* Resources & Links */}
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                <div className="bg-white dark:bg-neutral-900 p-10 rounded-3xl shadow-sm border border-neutral-200 dark:border-neutral-800">
-                  <h3 className="text-3xl font-black text-neutral-800 dark:text-neutral-100 mb-8 flex items-center gap-3">
-                    <BookOpen className="text-sky-500 w-10 h-10" />
-                    {t('learning_resources')}
+              {/* Resources */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                <div className={`${card} p-8`}>
+                  <h3 className="text-xl font-black text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                    <BookOpen className="text-sky-500" size={22} /> {t('learning_resources')}
                   </h3>
-                  <div className="space-y-8">
+                  <div className="space-y-6">
                     {Object.entries(parsedData.learning_resources).map(([catKey, items]) => {
-                      if (!items || items.length === 0) return null;
+                      if (!items?.length) return null;
                       return (
                         <div key={catKey}>
-                          <h4 className="font-bold text-neutral-800 dark:text-neutral-200 capitalize mb-4 flex items-center gap-3 border-b-2 border-neutral-100 dark:border-neutral-800 pb-2 text-lg">
-                             <span className="bg-neutral-100 dark:bg-neutral-800 p-2 rounded-lg">{renderSectionIcon(catKey)}</span> {catKey.replace('_', ' ')}
+                          <h4 className="font-black text-gray-700 dark:text-gray-300 capitalize mb-3 flex items-center gap-2 text-sm border-b border-gray-100 dark:border-white/5 pb-2">
+                            {renderSectionIcon(catKey)} {catKey.replace('_', ' ')}
                           </h4>
-                          <ul className="space-y-3">
+                          <ul className="space-y-2">
                             {items.map((item, i) => {
                               const isStr = typeof item === 'string';
                               const name = isStr ? item : item.name;
                               const link = isStr ? null : item.link;
                               return (
-                                <li key={i} className="flex items-center gap-3 group">
-                                  <div className="w-2 h-2 rounded-full bg-sky-400 flex-shrink-0 transition-transform group-hover:scale-150"></div>
-                                  {!link ? (
-                                    <span className="text-neutral-600 dark:text-neutral-400 font-medium">{name}</span>
-                                  ) : (
-                                    <a href={link} target="_blank" rel="noopener noreferrer" className="text-neutral-700 dark:text-neutral-300 font-semibold hover:text-sky-600 dark:hover:text-sky-400 hover:underline flex items-center gap-1 transition-colors">
-                                      {name} <ExternalLink size={14} className="opacity-50 group-hover:opacity-100" />
+                                <li key={i} className="flex items-center gap-2 group">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-sky-400 flex-shrink-0" />
+                                  {!link ? <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">{name}</span> : (
+                                    <a href={link} target="_blank" rel="noopener noreferrer" className="text-gray-700 dark:text-gray-300 text-sm font-semibold hover:text-sky-600 dark:hover:text-sky-400 flex items-center gap-1 transition-colors">
+                                      {name} <ExternalLink size={12} className="opacity-50 group-hover:opacity-100" />
                                     </a>
                                   )}
                                 </li>
@@ -475,125 +383,86 @@ export default function Mentor() {
                             })}
                           </ul>
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 </div>
 
-                <div className="space-y-8">
+                <div className="space-y-5">
                   {/* Certifications */}
-                  <div className="bg-white dark:bg-neutral-900 p-10 rounded-3xl shadow-sm border border-neutral-200 dark:border-neutral-800">
-                    <h3 className="text-3xl font-black text-neutral-800 dark:text-neutral-100 mb-6 flex items-center gap-3">
-                      <Award className="text-amber-500 w-10 h-10" />
-                      {t('certifications')}
+                  <div className={`${card} p-7`}>
+                    <h3 className="text-xl font-black text-gray-900 dark:text-white mb-5 flex items-center gap-2">
+                      <Award className="text-amber-500" size={22} /> {t('certifications')}
                     </h3>
-                    <ul className="space-y-4">
+                    <ul className="space-y-3">
                       {parsedData.certifications.map((cert, i) => {
-                        const isStr = typeof cert === 'string';
-                        const name = isStr ? cert : cert.name;
-                        const link = isStr ? null : cert.link;
+                        const isStr = typeof cert === 'string'; const name = isStr ? cert : cert.name; const link = isStr ? null : cert.link;
                         return (
-                          <li key={i} className="flex items-center gap-4 bg-neutral-50 dark:bg-neutral-800/50 p-4 rounded-2xl border border-neutral-100 dark:border-neutral-700 hover:border-amber-300 dark:hover:border-amber-700 transition-all hover:shadow-md group">
-                             <div className="bg-white dark:bg-neutral-900 p-2 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-800 group-hover:scale-110 transition-transform">
-                               <Award className="text-amber-500 flex-shrink-0" size={24} />
-                             </div>
-                             {!link ? (
-                                <span className="text-neutral-700 dark:text-neutral-300 font-bold flex-1 truncate">
-                                  {name}
-                                </span>
-                             ) : (
-                                <a href={link} target="_blank" rel="noopener noreferrer" className="text-neutral-700 dark:text-neutral-300 font-bold hover:text-amber-600 dark:hover:text-amber-400 flex-1 truncate transition-colors flex items-center justify-between">
-                                  {name}
-                                  <ExternalLink size={18} className="text-neutral-400 group-hover:text-amber-500 transition-colors" />
-                                </a>
-                             )}
+                          <li key={i} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-white/3 border border-gray-100 dark:border-white/5 hover:border-amber-200 dark:hover:border-amber-800 transition-all group">
+                            <div className="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                              <Award className="text-amber-500" size={16} />
+                            </div>
+                            {!link ? <span className="text-gray-700 dark:text-gray-300 font-bold text-sm flex-1 truncate">{name}</span> : (
+                              <a href={link} target="_blank" rel="noopener noreferrer" className="text-gray-700 dark:text-gray-300 font-bold text-sm hover:text-amber-600 dark:hover:text-amber-400 flex-1 truncate transition-colors">
+                                {name}
+                              </a>
+                            )}
                           </li>
                         );
                       })}
                     </ul>
                   </div>
 
-                  {/* Job Prep */}
-                  <div className="bg-white dark:bg-neutral-900 p-10 rounded-3xl shadow-sm border border-neutral-200 dark:border-neutral-800">
-                    <h3 className="text-3xl font-black text-neutral-800 dark:text-neutral-100 mb-6 flex items-center gap-3">
-                      <TrendingUp className="text-sky-500 w-10 h-10" />
-                      {t('job_preparation')}
-                    </h3>
-                    <div className="space-y-6">
-                      {Object.entries(parsedData.job_preparation).map(([key, tips]) => (
-                        <div key={key} className="bg-neutral-50 dark:bg-neutral-800/50 p-6 rounded-2xl border border-neutral-100 dark:border-neutral-700">
-                          <h4 className="font-black text-neutral-800 dark:text-neutral-200 capitalize text-lg mb-3 flex items-center gap-2">
-                             <div className="w-1.5 h-6 bg-sky-500 rounded-full"></div> {key.replace('_', ' ')}
-                          </h4>
-                          <ul className="list-disc list-inside space-y-2 text-base text-neutral-600 dark:text-neutral-400 font-medium">
-                            {tips.map((tip, i) => <li key={i}>{tip}</li>)}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
                   {/* Industry Trends */}
-                  <div className="bg-gradient-to-br from-neutral-900 to-neutral-800 dark:from-neutral-950 dark:to-neutral-900 p-10 rounded-3xl shadow-xl border border-neutral-800 dark:border-neutral-800 text-white relative overflow-hidden">
-                    <div className="absolute right-0 bottom-0 opacity-10"><TrendingUp size={150} /></div>
-                    <h3 className="text-3xl font-black mb-6 flex items-center gap-3 relative z-10">
-                      <Star className="text-amber-400 w-8 h-8" />
-                      {t('industry_trends')}
+                  <div className="bg-gray-900 dark:bg-[#0a0a14] border border-white/5 rounded-3xl p-7 text-white relative overflow-hidden">
+                    <div className="absolute right-0 bottom-0 opacity-10"><TrendingUp size={120} /></div>
+                    <h3 className="text-lg font-black mb-5 flex items-center gap-2 relative z-10">
+                      <Star className="text-amber-400" size={20} /> {t('industry_trends')}
                     </h3>
-                    
-                    <div className="space-y-6 relative z-10">
+                    <div className="space-y-4 relative z-10">
                       <div>
-                        <h4 className="text-neutral-400 font-bold uppercase tracking-wider text-sm mb-2">{t('trending_tools')}</h4>
+                        <h4 className="text-gray-500 font-black text-[10px] uppercase tracking-widest mb-2">{t('trending_tools')}</h4>
                         <div className="flex flex-wrap gap-2">
-                          {parsedData.industry_trends.trending_tools.map((t, i) => <span key={i} className="bg-white/10 px-3 py-1 rounded-lg text-sm">{t}</span>)}
+                          {parsedData.industry_trends.trending_tools.map((t, i) => <span key={i} className="bg-white/8 border border-white/10 px-3 py-1 rounded-lg text-xs font-medium">{t}</span>)}
                         </div>
                       </div>
                       <div>
-                        <h4 className="text-neutral-400 font-bold uppercase tracking-wider text-sm mb-2">{t('new_technologies')}</h4>
+                        <h4 className="text-gray-500 font-black text-[10px] uppercase tracking-widest mb-2">{t('new_technologies')}</h4>
                         <div className="flex flex-wrap gap-2">
-                          {parsedData.industry_trends.new_technologies.map((t, i) => <span key={i} className="bg-white/10 px-3 py-1 rounded-lg text-sm font-medium">{t}</span>)}
+                          {parsedData.industry_trends.new_technologies.map((t, i) => <span key={i} className="bg-white/8 border border-white/10 px-3 py-1 rounded-lg text-xs font-medium">{t}</span>)}
                         </div>
                       </div>
-                      <div className="bg-white/5 p-4 rounded-xl border border-white/10">
-                        <h4 className="text-sky-300 font-bold uppercase tracking-wider text-xs mb-1">{t('market_demand')}</h4>
-                        <p className="text-sm leading-relaxed">{parsedData.industry_trends.market_demand}</p>
+                      <div className="bg-white/5 border border-white/10 p-4 rounded-xl">
+                        <h4 className="text-sky-400 font-black text-[10px] uppercase tracking-widest mb-1">{t('market_demand')}</h4>
+                        <p className="text-sm leading-relaxed text-gray-300">{parsedData.industry_trends.market_demand}</p>
                       </div>
                     </div>
                   </div>
-
                 </div>
               </div>
 
-              {/* Master Completion & CTA */}
-              <div className="bg-gradient-to-br from-neutral-900 to-neutral-800 dark:from-neutral-950 dark:to-neutral-900 p-12 rounded-3xl shadow-2xl text-white text-center relative overflow-hidden mt-10">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5"><Crown size={400} /></div>
-                
-                <h3 className="text-4xl font-black mb-6 relative z-10 flex items-center justify-center gap-4">
-                  <Crown className="text-amber-400 w-12 h-12" /> {t('complete_domain')}
-                </h3>
-                
-                <p className="text-neutral-300 text-xl mb-10 max-w-2xl mx-auto relative z-10 leading-relaxed font-medium">
-                  {t('mastery_desc')}
-                </p>
-
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-6 relative z-10">
-                  <button 
+              {/* Master CTA */}
+              <div className="bg-gray-900 dark:bg-[#0a0a14] border border-white/5 rounded-3xl p-10 text-white text-center relative overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center opacity-[0.03]"><Crown size={400} /></div>
+                <Crown className="text-amber-400 w-10 h-10 mx-auto mb-4" />
+                <h3 className="text-3xl font-black mb-3">{t('complete_domain')}</h3>
+                <p className="text-gray-400 mb-8 max-w-xl mx-auto font-medium leading-relaxed">{t('mastery_desc')}</p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <button
                     onClick={toggleMaster}
-                    className={`flex items-center justify-center gap-3 px-8 py-5 rounded-2xl font-bold transition-all duration-300 text-lg shadow-lg w-full sm:w-auto ${progressPercent === 100 ? 'bg-neutral-800 hover:bg-neutral-700 text-white border border-neutral-700 hover:border-neutral-600' : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white border-none shadow-emerald-500/20'}`}
+                    className={`flex items-center gap-2 px-7 py-4 rounded-2xl font-bold text-sm transition-all ${progressPercent === 100 ? 'bg-white/10 hover:bg-white/15 border border-white/10' : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 shadow-lg shadow-emerald-500/20'}`}
                   >
-                    {progressPercent === 100 ? <Square size={24} /> : <CheckSquare size={24} />}
+                    {progressPercent === 100 ? <Square size={18} /> : <CheckSquare size={18} />}
                     {progressPercent === 100 ? t('unmaster_all') : t('master_all')}
                   </button>
-
-                  <button 
+                  <button
                     onClick={() => nav('/tutor')}
-                    className="flex items-center justify-center gap-3 px-8 py-5 rounded-2xl font-black bg-white text-indigo-600 hover:bg-neutral-100 transition-all duration-300 text-lg shadow-xl shadow-white/10 w-full sm:w-auto hover:scale-105"
+                    className="flex items-center gap-2 px-7 py-4 rounded-2xl font-black text-sm bg-white text-gray-900 hover:bg-gray-100 transition-all shadow-xl hover:scale-105"
                   >
-                    {t('start_learning_tutor')} <ArrowRight size={24} />
+                    {t('start_learning_tutor')} <ArrowRight size={18} />
                   </button>
                 </div>
               </div>
-
             </div>
           )}
         </main>

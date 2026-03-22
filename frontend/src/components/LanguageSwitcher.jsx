@@ -20,7 +20,6 @@ export function LanguageSwitcher() {
 
   const handleLanguageChange = async (langCode) => {
     updateSettings(langCode, null);
-    i18n.changeLanguage(mapLangToCode(langCode));
     setIsOpen(false);
     
     if (user && token) {

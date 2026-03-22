@@ -3,26 +3,23 @@ import { useSearchParams } from "react-router-dom";
 import API from "../services/api";
 import Navbar from "../components/Navbar";
 import { useTranslation } from "react-i18next";
-import { User, History as HistoryIcon, Clock, LogOut, Menu, X, ArrowLeft, Camera, Image as ImageIcon, Trash2, Mic, MicOff, Volume2, Plus } from "lucide-react";
+import { User, History as HistoryIcon, Clock, Menu, X, ArrowLeft, Camera, Image as ImageIcon, Trash2, Mic, MicOff, Volume2, Plus, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
-
 import { AuthContext } from "../context/AuthContext";
 import { useAssistant } from "../context/AssistantContext";
 
-export default function Tutor(){
-
+export default function Tutor() {
   const { t } = useTranslation()
   const nav = useNavigate()
   const [searchParams] = useSearchParams()
   const { user: email, token, language, level } = useContext(AuthContext)
-  
   const { activeTopic } = useAssistant()
-  
-  const [topic,setTopic]=useState("")
-  const [response,setResponse]=useState("")
+
+  const [topic, setTopic] = useState("")
+  const [response, setResponse] = useState("")
   const [history, setHistory] = useState([])
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [image, setImage] = useState(null)
@@ -36,39 +33,29 @@ export default function Tutor(){
   useEffect(() => {
     const urlTopic = searchParams.get("topic");
     const targetTopic = urlTopic || activeTopic;
-    
     if (targetTopic) {
       setTopic(targetTopic);
-      // Automatically trigger askAI after a short delay to allow UI to update
-      setTimeout(() => {
-        askAI(targetTopic);
-      }, 500);
+      setTimeout(() => { askAI(targetTopic); }, 500);
     }
   }, [activeTopic, searchParams]);
 
   useEffect(() => {
-    if (email) {
-      fetchHistory()
-    }
-  }, [email, response]) // Refetch history when a new response is generated
+    if (email) fetchHistory()
+  }, [email, response])
 
   const fetchHistory = async () => {
     try {
       const res = await API.get(`/ai/history?email=${email}`)
       const tutorHistory = res.data.history.filter(h => h.question.startsWith('Tutor: ')).reverse()
       setHistory(tutorHistory)
-    } catch {
-      console.error("Failed to fetch history")
-    }
+    } catch { console.error("Failed to fetch history") }
   }
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0]
     if (file) {
       const reader = new FileReader()
-      reader.onloadend = () => {
-        setImage(reader.result)
-      }
+      reader.onloadend = () => { setImage(reader.result) }
       reader.readAsDataURL(file)
     }
   }
@@ -77,32 +64,23 @@ export default function Tutor(){
     setShowCamera(true)
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true })
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream
-      }
-    } catch {
-      toast.error(t('camera_error'))
-      setShowCamera(false)
-    }
+      if (videoRef.current) videoRef.current.srcObject = stream
+    } catch { toast.error(t('camera_error')); setShowCamera(false) }
   }
 
   const capturePhoto = () => {
-    const canvas = canvasRef.current
-    const video = videoRef.current
+    const canvas = canvasRef.current, video = videoRef.current
     if (canvas && video) {
-      canvas.width = video.videoWidth
-      canvas.height = video.videoHeight
+      canvas.width = video.videoWidth; canvas.height = video.videoHeight
       canvas.getContext('2d').drawImage(video, 0, 0)
-      const dataUrl = canvas.toDataURL('image/jpeg')
-      setImage(dataUrl)
+      setImage(canvas.toDataURL('image/jpeg'))
       stopCamera()
     }
   }
 
   const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const tracks = videoRef.current.srcObject.getTracks()
-      tracks.forEach(track => track.stop())
+    if (videoRef.current?.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach(t => t.stop())
     }
     setShowCamera(false)
   }
@@ -114,285 +92,193 @@ export default function Tutor(){
   }
 
   const toggleLocalSTT = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      toast.error(t('speech_not_supported'));
-      return;
-    }
-
-    if (isListening) {
-      setIsListening(false);
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = getLangCode();
-    recognition.interimResults = true;
-    
-    recognition.onstart = () => {
-      setIsListening(true);
-      toast.info(t('listening'));
-    };
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setTopic(transcript);
-    };
-
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { toast.error(t('speech_not_supported')); return; }
+    if (isListening) { setIsListening(false); return; }
+    const recognition = new SR();
+    recognition.lang = getLangCode(); recognition.interimResults = true;
+    recognition.onstart = () => { setIsListening(true); toast.info(t('listening')); };
+    recognition.onresult = (e) => setTopic(e.results[0][0].transcript);
     recognition.onerror = () => setIsListening(false);
     recognition.onend = () => setIsListening(false);
     recognition.start();
   };
 
-
   const speakResponse = (text) => {
     if (!text) return;
-    
-    // Stop speaking if already speaking
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-      toast.info(t('speech_stopped') || "Speech stopped");
-      return;
-    }
-
+    if (isSpeaking) { window.speechSynthesis.cancel(); setIsSpeaking(false); return; }
     window.speechSynthesis.cancel();
-    
-    // Clean text to avoid breaking TTS with markdown symbols
     const cleanText = text.replace(/[*#_`~]/g, " ").trim();
     const utterance = new SpeechSynthesisUtterance(cleanText);
-    const langCode = getLangCode();
-    utterance.lang = langCode;
-    
+    const langCode = getLangCode(); utterance.lang = langCode;
     const startSpeaking = () => {
       const voices = window.speechSynthesis.getVoices();
       const targetLang = langCode.split('-')[0];
-      
-      // Specifically target high quality OS or Google voices
-      let bestVoice = voices.find(v => v.lang === langCode && (v.name.includes('Google') || v.name.includes('Microsoft'))) || 
-                      voices.find(v => v.lang === langCode) || 
-                      voices.find(v => v.lang.startsWith(targetLang)) ||
-                      voices.find(v => v.name.toLowerCase().includes(targetLang === 'hi' ? 'hindi' : targetLang === 'ta' ? 'tamil' : 'english'));
-      
-      if (bestVoice) {
-        utterance.voice = bestVoice;
-        console.log(`Selected TTS voice: ${bestVoice.name} (${bestVoice.lang})`);
-      }
-
+      let bestVoice = voices.find(v => v.lang === langCode && (v.name.includes('Google') || v.name.includes('Microsoft'))) ||
+        voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith(targetLang));
+      if (bestVoice) utterance.voice = bestVoice;
       utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = (err) => {
-        console.error("TTS Error:", err);
-        setIsSpeaking(false);
-      };
-      
+      utterance.onerror = () => setIsSpeaking(false);
       setIsSpeaking(true);
       window.speechSynthesis.speak(utterance);
       toast.info(t('playing_audio'));
     };
-
-    if (window.speechSynthesis.getVoices().length === 0) {
-      window.speechSynthesis.onvoiceschanged = startSpeaking;
-    } else {
-      startSpeaking();
-    }
+    if (window.speechSynthesis.getVoices().length === 0) window.speechSynthesis.onvoiceschanged = startSpeaking;
+    else startSpeaking();
   };
 
-  const askAI=async(overrideTopic = null)=>{
+  const askAI = async (overrideTopic = null) => {
     const currentTopic = overrideTopic || topic;
-    if (!currentTopic) {
-      toast.error(t('enter_topic'));
-      return;
-    }
-
+    if (!currentTopic) { toast.error(t('enter_topic')); return; }
     const tid = toast.loading(t('generating_lesson'));
-
     try {
-     const res=await API.post("/ai/ask",{
-      email: email || "User",
-      topic: currentTopic,
-      image: image || null,
-      language, 
-      level
-     })
-   
-     setResponse(res.data.response)
-     setTopic(currentTopic)
-     setImage(null) // Clear image after successful ask
-     toast.success(t('lesson_generated'), { id: tid })
-     fetchHistory()
-    } catch {
-      toast.error(t('failed_generate_lesson'), { id: tid })
-    }
+      const res = await API.post("/ai/ask", { email: email || "User", topic: currentTopic, image: image || null, language, level })
+      setResponse(res.data.response)
+      setTopic(currentTopic)
+      setImage(null)
+      toast.success(t('lesson_generated'), { id: tid })
+      fetchHistory()
+    } catch { toast.error(t('failed_generate_lesson'), { id: tid }) }
   }
 
-  const goToQuiz = () => {
-    nav(`/quiz?topic=${encodeURIComponent(topic)}&lang=${encodeURIComponent(language)}`)
-  }
+  const goToQuiz = () => nav(`/quiz?topic=${encodeURIComponent(topic)}&lang=${encodeURIComponent(language)}`)
 
-  return(
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col transition-colors duration-300">
-      <Navbar/>
+  return (
+    <div className="min-h-screen bg-[#fafafa] dark:bg-[#080810] flex flex-col transition-colors duration-500">
+      <Navbar />
       <div className="flex flex-1 overflow-hidden relative">
-        {/* Mobile Sidebar Overlay */}
         {sidebarOpen && (
-          <div 
-            className="fixed inset-0 bg-black/50 dark:bg-black/70 z-40 md:hidden transition-colors duration-300" 
-            onClick={() => setSidebarOpen(false)}
-          />
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden" onClick={() => setSidebarOpen(false)} />
         )}
 
         {/* Sidebar */}
-        <aside className={`fixed md:relative z-40 w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col h-[calc(100vh-64px)] overflow-y-auto transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-          <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-indigo-50/50 dark:bg-indigo-950/20 flex justify-between items-start transition-colors">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center font-bold text-xl transition-colors">
-                <User size={24} />
+        <aside className={`fixed md:relative z-40 w-72 bg-white dark:bg-[#0d0d1a] border-r border-gray-100 dark:border-white/5 flex flex-col h-[calc(100vh-64px)] overflow-y-auto transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+
+          {/* User info */}
+          <div className="p-5 border-b border-gray-100 dark:border-white/5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
+                <User size={18} className="text-white" />
               </div>
-                <div>
-                  <h3 className="font-bold text-gray-900 dark:text-gray-100 truncate w-40 transition-colors" title={email}>{email}</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full font-medium transition-colors">{language}</span>
-                    <span className="text-xs bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full font-medium transition-colors">{level}</span>
-                  </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-bold text-sm text-gray-900 dark:text-white truncate">{email}</p>
+                <div className="flex gap-1.5 mt-1">
+                  <span className="px-2 py-0.5 bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 text-[10px] font-black uppercase tracking-wide rounded-md">{language}</span>
+                  <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-[10px] font-black uppercase tracking-wide rounded-md">{level}</span>
                 </div>
+              </div>
+              <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                <X size={18} />
+              </button>
             </div>
-             <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-              <X size={20} />
-            </button>
           </div>
-          
-          <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+
+          <div className="p-4 border-b border-gray-100 dark:border-white/5">
             <button
-              onClick={() => {
-                setTopic("");
-                setResponse("");
-                setImage(null);
-                setSidebarOpen(false);
-              }}
-              className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold shadow-md transition-all active:scale-95"
+              onClick={() => { setTopic(""); setResponse(""); setImage(null); setSidebarOpen(false); }}
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-violet-500/20 hover:shadow-violet-500/30 transition-all active:scale-95"
             >
-              <Plus size={18} />
-              {t('new_chat')}
+              <Plus size={16} /> {t('new_chat')}
             </button>
           </div>
-          
-          <div className="p-6 flex-1">
-            <div className="flex items-center gap-2 text-gray-800 dark:text-gray-200 font-bold mb-4 transition-colors">
-              <HistoryIcon size={18} className="text-indigo-600 dark:text-indigo-400" />
-              {t('history')}
+
+          <div className="p-4 flex-1 overflow-y-auto">
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">
+              <HistoryIcon size={14} /> {t('history')}
             </div>
             {history.length === 0 ? (
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic transition-colors">{t('no_history')}</p>
+              <p className="text-xs text-gray-400 dark:text-gray-600 italic text-center py-6">{t('no_history')}</p>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {history.map((item, idx) => (
-                  <div key={idx} className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg border border-gray-100 dark:border-gray-800 shadow-sm cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors"
-                    onClick={() => {
-                      setTopic(item.question.replace('Tutor: ', ''));
-                      setResponse(item.response);
-                      setSidebarOpen(false);
-                    }}>
-                    <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 line-clamp-2 transition-colors">{item.question.replace('Tutor: ', '')}</p>
-                    <div className="flex items-center gap-1 mt-2 text-xs text-gray-400 dark:text-gray-500 transition-colors">
-                      <Clock size={12} />
-                      <span>{t('previously_asked')}</span>
+                  <button key={idx}
+                    className="w-full text-left p-3 rounded-xl bg-gray-50 dark:bg-white/3 border border-gray-100 dark:border-white/5 hover:bg-violet-50 dark:hover:bg-violet-900/20 hover:border-violet-200 dark:hover:border-violet-800/30 transition-all group"
+                    onClick={() => { setTopic(item.question.replace('Tutor: ', '')); setResponse(item.response); setSidebarOpen(false); }}
+                  >
+                    <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 line-clamp-2 group-hover:text-violet-700 dark:group-hover:text-violet-300 transition-colors">
+                      {item.question.replace('Tutor: ', '')}
+                    </p>
+                    <div className="flex items-center gap-1 mt-1.5 text-[10px] text-gray-400 uppercase tracking-wider">
+                      <Clock size={10} /> {t('previously_asked')}
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             )}
           </div>
         </aside>
 
-        {/* Main Content */}
+        {/* Main */}
         <main className="flex-1 p-6 md:p-10 overflow-y-auto h-[calc(100vh-64px)] relative w-full">
-          <div className="flex items-center gap-4 mb-10 border-b pb-4 border-indigo-100 dark:border-indigo-900/30">
-            <button onClick={() => nav(-1)} className="p-2 bg-white dark:bg-gray-900 rounded-full shadow-sm border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors">
-              <ArrowLeft size={20} />
+          {/* Header */}
+          <div className="flex items-center gap-4 mb-8">
+            <button onClick={() => nav(-1)} className="p-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:border-violet-300 dark:hover:border-violet-700 transition-all shadow-sm">
+              <ArrowLeft size={18} />
             </button>
-            <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2 bg-white dark:bg-gray-900 rounded-md shadow-sm border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800">
-              <Menu size={20} />
+            <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-500 dark:text-gray-400 shadow-sm">
+              <Menu size={18} />
             </button>
-            <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-500 transition-colors flex items-center gap-3 tracking-tight">
-              <span className="text-indigo-500 text-5xl leading-none -mt-2">✨</span>
-              {t('luminatutor')}
-            </h1>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+                {t('luminatutor')}
+              </h1>
+            </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-sm border border-indigo-100 dark:border-indigo-900/30 mb-8 max-w-4xl transition-all">
-            <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">
-              {t('what_to_learn') || t('tutor_question') || "What would you like to learn today?"}
-            </h2>
-            
-            {/* Image Preview */}
+          {/* Input Card */}
+          <div className="bg-white dark:bg-[#0d0d1a] border border-gray-100 dark:border-white/5 rounded-3xl p-6 mb-6 shadow-sm max-w-4xl">
+            <p className="text-sm font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
+              {t('what_to_learn') || "What would you like to learn?"}
+            </p>
+
             {image && (
-              <div className="relative w-32 h-32 mb-4 group">
-                <img src={image} alt="Preview" className="w-full h-full object-cover rounded-lg border-2 border-indigo-500 shadow-md" />
-                <button 
-                  onClick={() => setImage(null)}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <X size={14} />
+              <div className="relative w-24 h-24 mb-4 group">
+                <img src={image} alt="Preview" className="w-full h-full object-cover rounded-xl border-2 border-violet-400 shadow-lg" />
+                <button onClick={() => setImage(null)} className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                  <X size={12} />
                 </button>
               </div>
             )}
 
-            {/* Camera View */}
             {showCamera && (
-              <div className="relative mb-4 max-w-md bg-black rounded-lg overflow-hidden border-2 border-indigo-500 shadow-lg">
-                <video ref={videoRef} autoPlay playsInline className="w-full h-auto" />
+              <div className="relative mb-4 max-w-md rounded-2xl overflow-hidden border-2 border-violet-400 shadow-xl">
+                <video ref={videoRef} autoPlay playsInline className="w-full" />
                 <canvas ref={canvasRef} className="hidden" />
-                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
-                  <Button onClick={capturePhoto} className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-full p-3 h-auto"><Camera size={24} /></Button>
-                  <Button onClick={stopCamera} className="bg-red-600 hover:bg-red-700 text-white rounded-full p-3 h-auto"><X size={24} /></Button>
+                <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-3">
+                  <Button onClick={capturePhoto} className="bg-violet-600 text-white rounded-xl h-10 px-4"><Camera size={18} /></Button>
+                  <Button onClick={stopCamera} className="bg-red-600 text-white rounded-xl h-10 px-4"><X size={18} /></Button>
                 </div>
               </div>
             )}
 
-            <div className="flex items-center bg-gray-50 dark:bg-gray-950 p-2 rounded-xl border border-gray-200 dark:border-gray-800 focus-within:ring-2 focus-within:ring-indigo-400 dark:focus-within:ring-indigo-500 transition-all">
+            <div className="flex items-center bg-gray-50 dark:bg-white/3 rounded-2xl border border-gray-200 dark:border-white/8 focus-within:ring-2 focus-within:ring-violet-500/50 focus-within:border-violet-400 dark:focus-within:border-violet-600 transition-all overflow-hidden">
               <input
-                className="flex-1 px-4 py-3 outline-none text-gray-800 dark:text-gray-100 bg-transparent text-lg transition-colors"
+                className="flex-1 px-5 py-4 outline-none text-gray-800 dark:text-gray-100 bg-transparent text-base font-medium"
                 placeholder={t('enter_topic')}
                 value={topic}
-                onChange={e=>setTopic(e.target.value)}
+                onChange={e => setTopic(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && askAI()}
               />
 
-              <button 
-                onClick={toggleLocalSTT}
-                className={`p-2 transition-colors mr-2 ${isListening ? 'text-red-500 animate-pulse' : 'text-gray-400 hover:text-indigo-600'}`}
-                title={t('voice_input')}
-              >
-                {isListening ? <MicOff size={20} /> : <Mic size={20} />}
-              </button>
-              
-              <div className="flex items-center gap-2 px-2 border-l border-gray-200 dark:border-gray-800 ml-2">
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleFileUpload} 
-                  className="hidden" 
-                  accept="image/*"
-                />
-                <button 
-                  onClick={() => fileInputRef.current.click()}
-                  className="p-2 text-gray-400 hover:text-indigo-600 transition-colors"
-                  title={t('upload_image')}
-                >
-                  <ImageIcon size={20} />
+              <div className="flex items-center gap-1 px-2">
+                <button onClick={toggleLocalSTT} className={`p-2 rounded-lg transition-all ${isListening ? 'text-red-500 bg-red-50 dark:bg-red-900/20 animate-pulse' : 'text-gray-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20'}`}>
+                  {isListening ? <MicOff size={18} /> : <Mic size={18} />}
                 </button>
-                <button 
-                  onClick={startCamera}
-                  className="p-2 text-gray-400 hover:text-indigo-600 transition-colors"
-                  title={t('capture_camera')}
-                >
-                  <Camera size={20} />
+                <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept="image/*" />
+                <button onClick={() => fileInputRef.current.click()} className="p-2 rounded-lg text-gray-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all">
+                  <ImageIcon size={18} />
+                </button>
+                <button onClick={startCamera} className="p-2 rounded-lg text-gray-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all">
+                  <Camera size={18} />
                 </button>
               </div>
 
               <Button
                 onClick={() => askAI()}
-                className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-8 h-12 rounded-lg font-bold shadow-md ml-2 transition-colors text-md"
+                className="m-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 h-10 rounded-xl font-bold shadow-lg shadow-violet-500/20 transition-all text-sm"
               >
                 {t('ask_ai')}
               </Button>
@@ -400,23 +286,28 @@ export default function Tutor(){
           </div>
 
           {response && (
-            <div className="mt-8 bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500 transition-colors relative group">
-              <h2 className="font-bold border-b border-gray-100 dark:border-gray-800 pb-4 text-xl mb-4 text-gray-800 dark:text-gray-100 flex items-center justify-between gap-2 transition-colors">
-                <div className="flex items-center gap-2">
-                  <span>{t('explanation')}</span>
-                  <button 
+            <div className="max-w-4xl bg-white dark:bg-[#0d0d1a] border border-gray-100 dark:border-white/5 rounded-3xl p-8 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 dark:border-white/5">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                    <Sparkles size={16} className="text-white" />
+                  </div>
+                  <span className="font-black text-gray-900 dark:text-white text-lg">{t('explanation')}</span>
+                  <button
                     onClick={() => speakResponse(response)}
-                    className={`p-1.5 rounded-full transition-all ${isSpeaking ? 'bg-indigo-100 text-indigo-700 animate-pulse' : 'text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-900/30'}`}
-                    title={isSpeaking ? t('stop_speaking') : t('read_aloud')}
+                    className={`p-1.5 rounded-lg transition-all ${isSpeaking ? 'bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 animate-pulse' : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-violet-600 dark:hover:text-violet-400'}`}
                   >
-                    {isSpeaking ? <MicOff size={20} /> : <Volume2 size={20} />}
+                    {isSpeaking ? <MicOff size={16} /> : <Volume2 size={16} />}
                   </button>
                 </div>
-                <Button onClick={goToQuiz} className="bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white rounded-lg shadow-sm hover:shadow-md transition-all">
-                  {t('take_quiz') || "Take Interactive Quiz"}
+                <Button
+                  onClick={goToQuiz}
+                  className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/20 text-sm h-9 px-4"
+                >
+                  {t('take_quiz') || "Take Quiz"} →
                 </Button>
-              </h2>
-              <div className="prose prose-indigo dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed transition-colors">
+              </div>
+              <div className="prose prose-gray dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed text-base">
                 {response}
               </div>
             </div>
