@@ -49,13 +49,14 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafe] dark:bg-[#06060f] flex items-center justify-center px-4 transition-colors duration-300 relative overflow-hidden">
-      {/* Ambient bg */}
+    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
+      style={{ backgroundColor: '#e8f5e9' }}>
+      {/* Ambient blobs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-[40vw] h-[40vw] bg-violet-500/10 dark:bg-violet-500/8 rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-[30vw] h-[30vw] bg-indigo-500/10 dark:bg-cyan-500/5 rounded-full blur-[100px]" />
-        <div className="absolute inset-0 opacity-30 dark:opacity-10"
-          style={{ backgroundImage: 'radial-gradient(circle, #6366f1 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        <div className="absolute top-1/4 left-1/4 w-[40vw] h-[40vw] rounded-full opacity-30 blur-[100px]"
+          style={{ backgroundColor: '#a5d6a7' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-[30vw] h-[30vw] rounded-full opacity-20 blur-[80px]"
+          style={{ backgroundColor: '#80cbc4' }} />
       </div>
 
       <div className="absolute top-6 right-6 z-50">
@@ -63,62 +64,60 @@ export default function Login() {
       </div>
 
       <div className="relative w-full max-w-md">
-        {/* Card */}
-        <div className="relative p-[1px] rounded-3xl bg-gradient-to-br from-violet-500/30 via-transparent to-indigo-500/20 shadow-2xl shadow-violet-500/10">
-          <div className="bg-white dark:bg-[#0d0d1f] rounded-3xl p-8 md:p-10 relative overflow-hidden">
-            {/* Inner ambient */}
-            <div className="absolute top-0 right-0 w-40 h-40 bg-violet-500/5 rounded-full blur-3xl" />
+        <div className="rounded-3xl p-1 shadow-2xl"
+          style={{ background: 'linear-gradient(135deg, #a5d6a7, #80cbc4)' }}>
+          <div className="rounded-3xl p-8 md:p-10 relative overflow-hidden"
+            style={{ backgroundColor: '#f1f8e9' }}>
+            <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-30"
+              style={{ backgroundColor: '#c8e6c9' }} />
 
-            {/* Back button */}
-            <button onClick={() => nav("/")} className="absolute top-6 left-6 w-9 h-9 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-all">
+            <button onClick={() => nav("/")}
+              className="absolute top-6 left-6 w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:bg-green-100 border"
+              style={{ borderColor: '#c8e6c9', color: '#66bb6a' }}>
               <ArrowLeft size={16} />
             </button>
 
-            {/* Logo */}
             <div className="flex flex-col items-center mb-8 mt-4">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/30 mb-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg mb-4"
+                style={{ background: 'linear-gradient(135deg, #66bb6a, #43a047)' }}>
                 <Zap className="w-6 h-6 text-white fill-white" />
               </div>
-              <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">{t('welcome')}</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">{t('login_continue')}</p>
+              <h2 className="text-2xl font-black tracking-tight" style={{ color: '#1b5e20' }}>{t('welcome')}</h2>
+              <p className="text-sm mt-1" style={{ color: '#81c784' }}>{t('login_continue')}</p>
             </div>
 
             <div className="space-y-3">
-              {/* Email */}
-              <div>
-                <input
-                  className="w-full px-4 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/8 rounded-xl text-gray-900 dark:text-gray-100 text-sm font-medium placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-violet-500/50 focus:bg-white dark:focus:bg-white/8 transition-all"
-                  placeholder={t('email')}
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                />
-              </div>
-
-              {/* Password */}
+              <input
+                className="w-full px-4 py-3.5 rounded-xl text-sm font-medium outline-none transition-all border focus:border-green-400 focus:ring-2 focus:ring-green-200"
+                style={{ backgroundColor: '#e8f5e9', borderColor: '#c8e6c9', color: '#2e7d32' }}
+                placeholder={t('email')}
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="w-full px-4 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/8 rounded-xl text-gray-900 dark:text-gray-100 text-sm font-medium placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-violet-500/50 focus:bg-white dark:focus:bg-white/8 transition-all pr-12"
+                  className="w-full px-4 py-3.5 rounded-xl text-sm font-medium outline-none transition-all border focus:border-green-400 focus:ring-2 focus:ring-green-200 pr-12"
+                  style={{ backgroundColor: '#e8f5e9', borderColor: '#c8e6c9', color: '#2e7d32' }}
                   placeholder={t('password')}
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                 />
                 <button
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
+                  className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors"
+                  style={{ color: '#81c784' }}
+                  onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
 
-              {/* Level */}
               <div className="relative">
-                <Activity size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-600" />
+                <Activity size={15} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: '#81c784' }} />
                 <select
-                  className="w-full pl-10 pr-4 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/8 rounded-xl text-gray-900 dark:text-gray-100 text-sm font-medium focus:outline-none focus:border-violet-500/50 focus:bg-white dark:focus:bg-white/8 transition-all appearance-none cursor-pointer"
+                  className="w-full pl-10 pr-4 py-3.5 rounded-xl text-sm font-medium outline-none transition-all border focus:border-green-400 appearance-none cursor-pointer"
+                  style={{ backgroundColor: '#e8f5e9', borderColor: '#c8e6c9', color: '#2e7d32' }}
                   value={form.level}
-                  onChange={(e) => setForm({ ...form, level: e.target.value })}
-                >
+                  onChange={(e) => setForm({ ...form, level: e.target.value })}>
                   <option value="Beginner">{t('beginner')}</option>
                   <option value="Intermediate">{t('intermediate')}</option>
                   <option value="Advanced">{t('advanced')}</option>
@@ -128,24 +127,24 @@ export default function Login() {
 
             <button
               onClick={login}
-              className="w-full mt-5 py-3.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:scale-[1.02] transition-all duration-200 text-sm"
-            >
+              className="w-full mt-5 py-3.5 text-white font-bold rounded-xl shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] text-sm"
+              style={{ background: 'linear-gradient(135deg, #66bb6a, #43a047)' }}>
               {t('login')}
             </button>
 
-            <div className="mt-5 pt-5 border-t border-gray-100 dark:border-white/5 flex justify-center">
+            <div className="mt-5 pt-5 border-t flex justify-center" style={{ borderColor: '#c8e6c9' }}>
               <GoogleLogin
                 onSuccess={handleGoogle}
                 onError={() => toast.error(t('google_login_failed'))}
-                theme="filled_blue"
+                theme="outline"
                 shape="pill"
                 text="signin_with"
               />
             </div>
 
-            <p className="text-center mt-5 text-sm text-gray-500 dark:text-gray-500">
+            <p className="text-center mt-5 text-sm" style={{ color: '#81c784' }}>
               {t('dont_have_account')}
-              <Link to="/signup" className="ml-1.5 text-violet-600 dark:text-violet-400 font-bold hover:underline">
+              <Link to="/signup" className="ml-1.5 font-bold hover:underline" style={{ color: '#43a047' }}>
                 {t('signup')}
               </Link>
             </p>

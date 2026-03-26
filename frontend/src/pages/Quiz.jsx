@@ -73,17 +73,26 @@ export default function Quiz() {
 
   const progressPercent = questions.length > 0 ? ((currentIndex + (showAnswer ? 1 : 0)) / questions.length) * 100 : 0;
 
+  const accent = '#c2185b';
+  const accentLight = '#fce4ec';
+  const accentMid = '#e91e63';
+  const border = '#f48fb1';
+  const text = '#880e4f';
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#fafafa] dark:bg-[#080810] flex flex-col items-center justify-center transition-colors duration-500">
+      <div className="min-h-screen flex flex-col items-center justify-center" style={{ backgroundColor: '#fce4ec' }}>
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-6 relative">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center animate-pulse shadow-2xl shadow-violet-500/30">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center animate-pulse shadow-2xl"
+              style={{ background: 'linear-gradient(135deg, #f48fb1, #c2185b)' }}>
               <Sparkles className="w-8 h-8 text-white" />
             </div>
           </div>
-          <h2 className="text-xl font-black text-gray-900 dark:text-white">{t('brewing_quiz')}</h2>
-          <p className="text-gray-400 text-sm mt-2 font-medium">Crafting questions for <span className="text-violet-600 dark:text-violet-400 font-bold">{topic}</span>...</p>
+          <h2 className="text-xl font-black" style={{ color: text }}>{t('brewing_quiz')}</h2>
+          <p className="text-sm mt-2 font-medium" style={{ color: border }}>
+            Crafting questions for <span className="font-bold" style={{ color: accent }}>{topic}</span>...
+          </p>
         </div>
       </div>
     );
@@ -91,15 +100,15 @@ export default function Quiz() {
 
   const scorePercent = questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
   const getScoreGrade = () => {
-    if (scorePercent >= 90) return { label: 'Excellent!', color: 'text-emerald-500', bg: 'from-emerald-500 to-teal-600' };
-    if (scorePercent >= 70) return { label: 'Great Job!', color: 'text-sky-500', bg: 'from-sky-500 to-blue-600' };
-    if (scorePercent >= 50) return { label: 'Good Effort!', color: 'text-amber-500', bg: 'from-amber-500 to-orange-600' };
-    return { label: 'Keep Practicing!', color: 'text-rose-500', bg: 'from-rose-500 to-pink-600' };
+    if (scorePercent >= 90) return { label: 'Excellent!', color: '#2e7d32', gradient: 'linear-gradient(135deg, #a5d6a7, #2e7d32)' };
+    if (scorePercent >= 70) return { label: 'Great Job!', color: '#0288d1', gradient: 'linear-gradient(135deg, #81d4fa, #0288d1)' };
+    if (scorePercent >= 50) return { label: 'Good Effort!', color: '#e65100', gradient: 'linear-gradient(135deg, #ffcc80, #e65100)' };
+    return { label: 'Keep Practicing!', color: '#c2185b', gradient: 'linear-gradient(135deg, #f48fb1, #c2185b)' };
   };
   const grade = getScoreGrade();
 
   return (
-    <div className="min-h-screen bg-[#fafafa] dark:bg-[#080810] flex flex-col transition-colors duration-500">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#fce4ec' }}>
       <Navbar />
 
       <main className="flex-1 flex flex-col items-center px-6 py-10">
@@ -107,90 +116,93 @@ export default function Quiz() {
 
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
-            <button onClick={() => nav(-1)} className="p-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-500 hover:text-violet-600 dark:hover:text-violet-400 hover:border-violet-300 dark:hover:border-violet-700 transition-all shadow-sm">
+            <button onClick={() => nav(-1)} className="p-2.5 rounded-xl border shadow-sm transition-all"
+              style={{ backgroundColor: 'white', borderColor: border, color: '#f48fb1' }}>
               <ArrowLeft size={18} />
             </button>
             <div className="text-center">
-              <h1 className="text-lg font-black text-gray-900 dark:text-white tracking-tight">{topic}</h1>
-              <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">{t('mastery')}</p>
+              <h1 className="text-lg font-black tracking-tight" style={{ color: text }}>{topic}</h1>
+              <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#f48fb1' }}>{t('mastery')}</p>
             </div>
-            <div className="px-4 py-2 bg-gradient-to-r from-violet-100 to-purple-100 dark:from-violet-900/30 dark:to-purple-900/30 border border-violet-200 dark:border-violet-800/50 rounded-xl">
-              <span className="text-violet-700 dark:text-violet-300 font-black text-sm">{t('score')}: {score}</span>
+            <div className="px-4 py-2 rounded-xl border" style={{ backgroundColor: accentLight, borderColor: border }}>
+              <span className="font-black text-sm" style={{ color: text }}>{t('score')}: {score}</span>
             </div>
           </div>
 
           {!quizFinished && questions.length > 0 && (
-            <>
-              {/* Progress Bar */}
-              <div className="mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-black text-gray-400 uppercase tracking-widest">
-                    {t('quiz')} {currentIndex + 1} / {questions.length}
-                  </span>
-                  <span className="text-xs font-black text-violet-600 dark:text-violet-400">{Math.round(progressPercent)}%</span>
-                </div>
-                <div className="h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-violet-500 to-purple-600 rounded-full transition-all duration-700 ease-out"
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs font-black uppercase tracking-widest" style={{ color: '#f48fb1' }}>
+                  {t('quiz')} {currentIndex + 1} / {questions.length}
+                </span>
+                <span className="text-xs font-black" style={{ color: accent }}>{Math.round(progressPercent)}%</span>
               </div>
-            </>
+              <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: accentLight }}>
+                <div
+                  className="h-full rounded-full transition-all duration-700 ease-out"
+                  style={{ width: `${progressPercent}%`, background: 'linear-gradient(90deg, #f48fb1, #c2185b)' }}
+                />
+              </div>
+            </div>
           )}
 
           {quizFinished ? (
-            <div className="bg-white dark:bg-[#0d0d1a] border border-gray-100 dark:border-white/5 rounded-3xl p-10 text-center shadow-xl animate-in zoom-in-95 duration-500">
-              <div className={`w-20 h-20 rounded-3xl bg-gradient-to-br ${grade.bg} flex items-center justify-center mx-auto mb-6 shadow-2xl`}>
+            <div className="rounded-3xl p-10 text-center shadow-xl animate-in zoom-in-95 duration-500 border"
+              style={{ backgroundColor: 'white', borderColor: '#e0e0e0' }}>
+              <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl"
+                style={{ background: grade.gradient }}>
                 <Trophy className="w-10 h-10 text-white" />
               </div>
-              <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-2">{grade.label}</h2>
-              <p className="text-gray-500 dark:text-gray-400 mb-2 font-medium">{t('quiz_completed')}</p>
-              <div className={`text-5xl font-black ${grade.color} mb-1`}>{scorePercent}%</div>
-              <p className="text-gray-400 text-sm font-medium mb-8">
-                {t('you_scored')} <span className="font-bold text-gray-900 dark:text-white">{score}</span> {t('out_of')} {questions.length}
+              <h2 className="text-3xl font-black mb-2" style={{ color: text }}>{grade.label}</h2>
+              <p className="mb-2 font-medium" style={{ color: '#9e9e9e' }}>{t('quiz_completed')}</p>
+              <div className="text-5xl font-black mb-1" style={{ color: grade.color }}>{scorePercent}%</div>
+              <p className="text-sm font-medium mb-8" style={{ color: '#9e9e9e' }}>
+                {t('you_scored')} <span className="font-bold" style={{ color: text }}>{score}</span> {t('out_of')} {questions.length}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button onClick={() => nav("/tutor")} className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg shadow-violet-500/20 h-11">
+                <button onClick={() => nav("/tutor")}
+                  className="text-white font-bold rounded-xl shadow-lg h-11 px-6"
+                  style={{ background: 'linear-gradient(135deg, #f48fb1, #c2185b)' }}>
                   {t('return_to_tutor')}
-                </Button>
-                <Button variant="outline" onClick={fetchQuiz} className="border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-xl h-11 font-bold hover:border-violet-400 dark:hover:border-violet-600">
+                </button>
+                <button onClick={fetchQuiz}
+                  className="rounded-xl h-11 px-6 font-bold border transition-all hover:bg-pink-50"
+                  style={{ borderColor: border, color: accent }}>
                   Retry Quiz
-                </Button>
+                </button>
               </div>
             </div>
           ) : questions.length > 0 ? (
-            <div className="bg-white dark:bg-[#0d0d1a] border border-gray-100 dark:border-white/5 rounded-3xl p-8 shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-8 leading-relaxed">
+            <div className="rounded-3xl p-8 shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-500 border"
+              style={{ backgroundColor: 'white', borderColor: '#e0e0e0' }}>
+              <h2 className="text-xl font-bold mb-8 leading-relaxed" style={{ color: text }}>
                 {questions[currentIndex]?.question}
               </h2>
 
               <div className="space-y-3 mb-8">
                 {questions[currentIndex]?.options.map((opt, idx) => {
-                  let style = "bg-gray-50 dark:bg-white/3 border-gray-200 dark:border-white/8 hover:bg-violet-50 dark:hover:bg-violet-900/20 hover:border-violet-300 dark:hover:border-violet-700/50 text-gray-700 dark:text-gray-300 cursor-pointer";
+                  let style = {};
                   let icon = null;
+                  let className = "w-full text-left p-4 rounded-2xl border-2 transition-all duration-300 flex items-center justify-between font-semibold text-base cursor-pointer";
 
-                  if (showAnswer) {
-                    if (idx === questions[currentIndex].answer) {
-                      style = "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-400 dark:border-emerald-600/50 text-emerald-800 dark:text-emerald-300";
-                      icon = <CheckCircle className="w-5 h-5 text-emerald-500" />;
-                    } else if (idx === selectedOption) {
-                      style = "bg-red-50 dark:bg-red-900/20 border-red-400 dark:border-red-600/50 text-red-800 dark:text-red-300";
-                      icon = <XCircle className="w-5 h-5 text-red-500" />;
-                    } else {
-                      style = "bg-gray-50 dark:bg-white/3 border-gray-100 dark:border-white/5 text-gray-400 dark:text-gray-600 opacity-50 cursor-default";
-                    }
+                  if (!showAnswer) {
+                    style = { backgroundColor: accentLight, borderColor: '#fce4ec', color: text };
+                  } else if (idx === questions[currentIndex].answer) {
+                    style = { backgroundColor: '#e8f5e9', borderColor: '#66bb6a', color: '#1b5e20' };
+                    icon = <CheckCircle className="w-5 h-5" style={{ color: '#43a047' }} />;
+                  } else if (idx === selectedOption) {
+                    style = { backgroundColor: '#ffebee', borderColor: '#ef9a9a', color: '#c62828' };
+                    icon = <XCircle className="w-5 h-5" style={{ color: '#e53935' }} />;
+                  } else {
+                    style = { backgroundColor: '#fafafa', borderColor: '#f0f0f0', color: '#9e9e9e', opacity: 0.5, cursor: 'default' };
                   }
 
                   return (
-                    <button
-                      key={idx}
-                      onClick={() => handleSelectOption(idx)}
-                      disabled={showAnswer}
-                      className={`w-full text-left p-4 rounded-2xl border-2 transition-all duration-300 flex items-center justify-between font-semibold text-base ${style}`}
-                    >
+                    <button key={idx} onClick={() => handleSelectOption(idx)} disabled={showAnswer}
+                      className={className} style={style}>
                       <div className="flex items-center gap-3">
-                        <span className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-white/5 flex items-center justify-center text-xs font-black text-gray-500 dark:text-gray-400 flex-shrink-0">
+                        <span className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black flex-shrink-0"
+                          style={{ backgroundColor: 'rgba(0,0,0,0.05)', color: 'inherit' }}>
                           {String.fromCharCode(65 + idx)}
                         </span>
                         {opt}
@@ -203,17 +215,16 @@ export default function Quiz() {
 
               {showAnswer && (
                 <div className="flex justify-end animate-in fade-in slide-in-from-bottom-2 duration-300">
-                  <Button
-                    onClick={handleNext}
-                    className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg shadow-violet-500/20 h-11 px-8"
-                  >
+                  <button onClick={handleNext}
+                    className="text-white font-bold rounded-xl shadow-lg h-11 px-8"
+                    style={{ background: 'linear-gradient(135deg, #f48fb1, #c2185b)' }}>
                     {currentIndex === questions.length - 1 ? t('finish_quiz') : t('next_question')} →
-                  </Button>
+                  </button>
                 </div>
               )}
             </div>
           ) : (
-            <div className="text-center text-gray-500 p-10">No questions available.</div>
+            <div className="text-center p-10" style={{ color: '#9e9e9e' }}>No questions available.</div>
           )}
         </div>
       </main>
