@@ -126,65 +126,53 @@ export default function Tutor() {
 
   const goToQuiz = () => nav(`/quiz?topic=${encodeURIComponent(topic)}&lang=${encodeURIComponent(language)}`)
 
-  // Colors for violet/lavender theme
-  const sidebarBg = '#fdf4ff';
-  const accent = '#9c27b0';
-  const accentLight = '#f3e5f5';
-  const accentMid = '#ce93d8';
-  const border = '#e1bee7';
-  const text = '#4a148c';
-
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#f3e5f5' }}>
+    <div className="min-h-screen flex flex-col bg-fuchsia-50 dark:bg-gray-950">
       <Navbar />
       <div className="flex flex-1 overflow-hidden relative">
         {sidebarOpen && <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden" onClick={() => setSidebarOpen(false)} />}
 
         {/* Sidebar */}
-        <aside className={`fixed md:relative z-40 w-72 flex flex-col h-[calc(100vh-64px)] overflow-y-auto transition-transform duration-300 border-r ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
-          style={{ backgroundColor: sidebarBg, borderColor: border }}>
-          <div className="p-5 border-b" style={{ borderColor: border }}>
+        <aside className={`fixed md:relative z-40 w-72 flex flex-col h-[calc(100vh-64px)] overflow-y-auto transition-transform duration-300 border-r ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} bg-purple-50 border-fuchsia-200 dark:bg-gray-900 dark:border-fuchsia-900/40`}>
+          <div className="p-5 border-b border-fuchsia-200 dark:border-fuchsia-900/40">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg"
-                style={{ background: 'linear-gradient(135deg, #ce93d8, #9c27b0)' }}>
+              <div className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg bg-gradient-to-br from-fuchsia-300 to-fuchsia-600 dark:from-fuchsia-600 dark:to-fuchsia-800">
                 <User size={18} className="text-white" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-bold text-sm truncate" style={{ color: text }}>{email}</p>
+                <p className="font-bold text-sm truncate text-fuchsia-900 dark:text-fuchsia-50">{email}</p>
                 <div className="flex gap-1.5 mt-1">
-                  <span className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wide rounded-md" style={{ backgroundColor: accentLight, color: accent }}>{language}</span>
-                  <span className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wide rounded-md" style={{ backgroundColor: '#ede7f6', color: '#7b1fa2' }}>{level}</span>
+                  <span className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wide rounded-md bg-fuchsia-100 text-fuchsia-600 dark:bg-fuchsia-900/50 dark:text-fuchsia-400">{language}</span>
+                  <span className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wide rounded-md bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-400">{level}</span>
                 </div>
               </div>
-              <button onClick={() => setSidebarOpen(false)} className="md:hidden" style={{ color: accentMid }}><X size={18} /></button>
+              <button onClick={() => setSidebarOpen(false)} className="md:hidden text-fuchsia-400 dark:text-fuchsia-600"><X size={18} /></button>
             </div>
           </div>
 
-          <div className="p-4 border-b" style={{ borderColor: border }}>
+          <div className="p-4 border-b border-fuchsia-200 dark:border-fuchsia-900/40">
             <button onClick={() => { setTopic(""); setResponse(""); setImage(null); setSidebarOpen(false); }}
-              className="w-full flex items-center justify-center gap-2 text-white py-2.5 rounded-xl font-bold text-sm shadow-lg"
-              style={{ background: 'linear-gradient(135deg, #ce93d8, #9c27b0)' }}>
+              className="w-full flex items-center justify-center gap-2 text-white py-2.5 rounded-xl font-bold text-sm shadow-lg bg-gradient-to-br from-fuchsia-300 to-fuchsia-600 hover:opacity-90 dark:from-fuchsia-600 dark:to-fuchsia-800 transition-opacity">
               <Plus size={16} /> {t('new_chat')}
             </button>
           </div>
 
           <div className="p-4 flex-1 overflow-y-auto">
-            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest mb-3" style={{ color: accentMid }}>
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest mb-3 text-fuchsia-400 dark:text-fuchsia-600">
               <HistoryIcon size={14} /> {t('history')}
             </div>
             {history.length === 0 ? (
-              <p className="text-xs italic text-center py-6" style={{ color: accentMid }}>{t('no_history')}</p>
+              <p className="text-xs italic text-center py-6 text-fuchsia-400 dark:text-fuchsia-600">{t('no_history')}</p>
             ) : (
               <div className="space-y-2">
                 {history.map((item, idx) => (
                   <button key={idx}
-                    className="w-full text-left p-3 rounded-xl border transition-all group"
-                    style={{ backgroundColor: accentLight, borderColor: border }}
+                    className="w-full text-left p-3 rounded-xl border transition-all group bg-fuchsia-100 border-fuchsia-200 hover:bg-fuchsia-200 dark:bg-fuchsia-900/20 dark:border-fuchsia-900/40 dark:hover:bg-fuchsia-900/40"
                     onClick={() => { setTopic(item.question.replace('Tutor: ', '')); setResponse(item.response); setSidebarOpen(false); }}>
-                    <p className="text-sm font-semibold line-clamp-2 transition-colors" style={{ color: text }}>
+                    <p className="text-sm font-semibold line-clamp-2 transition-colors text-fuchsia-900 dark:text-fuchsia-100">
                       {item.question.replace('Tutor: ', '')}
                     </p>
-                    <div className="flex items-center gap-1 mt-1.5 text-[10px] uppercase tracking-wider" style={{ color: accentMid }}>
+                    <div className="flex items-center gap-1 mt-1.5 text-[10px] uppercase tracking-wider text-fuchsia-500 dark:text-fuchsia-600">
                       <Clock size={10} /> {t('previously_asked')}
                     </div>
                   </button>
@@ -197,33 +185,29 @@ export default function Tutor() {
         <main className="flex-1 p-6 md:p-10 overflow-y-auto h-[calc(100vh-64px)] relative w-full">
           <div className="flex items-center gap-4 mb-8">
             <button onClick={() => nav(-1)}
-              className="p-2.5 rounded-xl border transition-all shadow-sm"
-              style={{ backgroundColor: 'white', borderColor: border, color: accentMid }}>
+              className="p-2.5 rounded-xl border transition-all shadow-sm bg-white border-fuchsia-200 text-fuchsia-500 hover:bg-fuchsia-50 dark:bg-gray-900 dark:border-fuchsia-900/40 dark:text-fuchsia-500 dark:hover:bg-gray-800">
               <ArrowLeft size={18} />
             </button>
-            <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2.5 rounded-xl border shadow-sm"
-              style={{ backgroundColor: 'white', borderColor: border }}>
+            <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2.5 rounded-xl border shadow-sm bg-white border-fuchsia-200 dark:bg-gray-900 dark:border-fuchsia-900/40 text-fuchsia-500">
               <Menu size={18} />
             </button>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
-                style={{ background: 'linear-gradient(135deg, #ce93d8, #9c27b0)' }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg bg-gradient-to-br from-fuchsia-300 to-fuchsia-600 dark:from-fuchsia-600 dark:to-fuchsia-800">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <h1 className="text-2xl font-black tracking-tight" style={{ color: text }}>{t('luminatutor')}</h1>
+              <h1 className="text-2xl font-black tracking-tight text-fuchsia-900 dark:text-fuchsia-50">{t('luminatutor')}</h1>
             </div>
           </div>
 
           {/* Input Card */}
-          <div className="rounded-3xl p-6 mb-6 shadow-sm max-w-4xl border"
-            style={{ backgroundColor: 'white', borderColor: border }}>
-            <p className="text-sm font-black uppercase tracking-widest mb-4" style={{ color: accentMid }}>
+          <div className="rounded-3xl p-6 mb-6 shadow-sm max-w-4xl border bg-white border-fuchsia-200 dark:bg-gray-900 dark:border-fuchsia-900/50">
+            <p className="text-sm font-black uppercase tracking-widest mb-4 text-fuchsia-400 dark:text-fuchsia-600">
               {t('what_to_learn') || "What would you like to learn?"}
             </p>
 
             {image && (
               <div className="relative w-24 h-24 mb-4 group">
-                <img src={image} alt="Preview" className="w-full h-full object-cover rounded-xl border-2 shadow-lg" style={{ borderColor: accentMid }} />
+                <img src={image} alt="Preview" className="w-full h-full object-cover rounded-xl border-2 shadow-lg border-fuchsia-300 dark:border-fuchsia-700" />
                 <button onClick={() => setImage(null)} className="absolute -top-2 -right-2 bg-red-400 text-white p-1 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
                   <X size={12} />
                 </button>
@@ -231,21 +215,19 @@ export default function Tutor() {
             )}
 
             {showCamera && (
-              <div className="relative mb-4 max-w-md rounded-2xl overflow-hidden border-2 shadow-xl" style={{ borderColor: accentMid }}>
+              <div className="relative mb-4 max-w-md rounded-2xl overflow-hidden border-2 shadow-xl border-fuchsia-300 dark:border-fuchsia-700">
                 <video ref={videoRef} autoPlay playsInline className="w-full" />
                 <canvas ref={canvasRef} className="hidden" />
                 <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-3">
-                  <button onClick={capturePhoto} className="px-4 h-10 rounded-xl text-white font-bold" style={{ backgroundColor: accent }}><Camera size={18} /></button>
-                  <button onClick={stopCamera} className="px-4 h-10 rounded-xl text-white font-bold bg-red-400"><X size={18} /></button>
+                  <button onClick={capturePhoto} className="px-4 h-10 rounded-xl text-white font-bold bg-fuchsia-600 hover:bg-fuchsia-700"><Camera size={18} /></button>
+                  <button onClick={stopCamera} className="px-4 h-10 rounded-xl text-white font-bold bg-red-400 hover:bg-red-500"><X size={18} /></button>
                 </div>
               </div>
             )}
 
-            <div className="flex items-center rounded-2xl border transition-all overflow-hidden"
-              style={{ backgroundColor: accentLight, borderColor: border }}>
+            <div className="flex items-center rounded-2xl border transition-all overflow-hidden bg-fuchsia-50 border-fuchsia-200 focus-within:border-fuchsia-400 dark:bg-gray-950 dark:border-fuchsia-900/50 dark:focus-within:border-fuchsia-700">
               <input
-                className="flex-1 px-5 py-4 outline-none text-base font-medium"
-                style={{ backgroundColor: 'transparent', color: text }}
+                className="flex-1 px-5 py-4 outline-none text-base font-medium bg-transparent text-fuchsia-900 dark:text-fuchsia-50 placeholder-fuchsia-300 dark:placeholder-fuchsia-700"
                 placeholder={t('enter_topic')}
                 value={topic}
                 onChange={e => setTopic(e.target.value)}
@@ -253,49 +235,44 @@ export default function Tutor() {
               />
               <div className="flex items-center gap-1 px-2">
                 <button onClick={toggleLocalSTT}
-                  className={`p-2 rounded-lg transition-all ${isListening ? 'animate-pulse' : ''}`}
-                  style={{ color: isListening ? '#e91e63' : accentMid, backgroundColor: isListening ? '#fce4ec' : 'transparent' }}>
+                  className={`p-2 rounded-lg transition-all ${isListening ? 'animate-pulse text-pink-500 bg-pink-100 dark:bg-pink-900/30 dark:text-pink-400' : 'text-fuchsia-400 dark:text-fuchsia-600'}`}>
                   {isListening ? <MicOff size={18} /> : <Mic size={18} />}
                 </button>
                 <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept="image/*" />
-                <button onClick={() => fileInputRef.current.click()} className="p-2 rounded-lg transition-all" style={{ color: accentMid }}>
+                <button onClick={() => fileInputRef.current.click()} className="p-2 rounded-lg transition-all text-fuchsia-400 hover:bg-fuchsia-100 dark:text-fuchsia-600 dark:hover:bg-fuchsia-900/30">
                   <ImageIcon size={18} />
                 </button>
-                <button onClick={startCamera} className="p-2 rounded-lg transition-all" style={{ color: accentMid }}>
+                <button onClick={startCamera} className="p-2 rounded-lg transition-all text-fuchsia-400 hover:bg-fuchsia-100 dark:text-fuchsia-600 dark:hover:bg-fuchsia-900/30">
                   <Camera size={18} />
                 </button>
               </div>
               <button
                 onClick={() => askAI()}
-                className="m-2 text-white px-6 h-10 rounded-xl font-bold shadow-lg text-sm"
-                style={{ background: 'linear-gradient(135deg, #ce93d8, #9c27b0)' }}>
+                className="m-2 text-white px-6 h-10 rounded-xl font-bold shadow-lg text-sm bg-gradient-to-br from-fuchsia-400 to-fuchsia-600 hover:from-fuchsia-500 hover:to-fuchsia-700 dark:from-fuchsia-600 dark:to-fuchsia-800 transition-all">
                 {t('ask_ai')}
               </button>
             </div>
           </div>
 
           {response && (
-            <div className="max-w-4xl rounded-3xl p-8 shadow-sm border animate-in fade-in slide-in-from-bottom-4 duration-500"
-              style={{ backgroundColor: 'white', borderColor: border }}>
-              <div className="flex items-center justify-between mb-6 pb-4 border-b" style={{ borderColor: border }}>
+            <div className="max-w-4xl rounded-3xl p-8 shadow-sm border animate-in fade-in slide-in-from-bottom-4 duration-500 bg-white border-fuchsia-200 dark:bg-gray-900 dark:border-fuchsia-900/50">
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-fuchsia-200 dark:border-fuchsia-900/40">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #ce93d8, #9c27b0)' }}>
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-gradient-to-br from-fuchsia-400 to-fuchsia-600 dark:from-fuchsia-600 dark:to-fuchsia-800">
                     <Sparkles size={16} className="text-white" />
                   </div>
-                  <span className="font-black text-lg" style={{ color: text }}>{t('explanation')}</span>
+                  <span className="font-black text-lg text-fuchsia-900 dark:text-fuchsia-50">{t('explanation')}</span>
                   <button onClick={() => speakResponse(response)}
-                    className={`p-1.5 rounded-lg transition-all ${isSpeaking ? 'animate-pulse' : ''}`}
-                    style={{ color: isSpeaking ? accent : accentMid, backgroundColor: isSpeaking ? accentLight : 'transparent' }}>
+                    className={`p-1.5 rounded-lg transition-all ${isSpeaking ? 'animate-pulse text-fuchsia-600 bg-fuchsia-100 dark:text-fuchsia-400 dark:bg-fuchsia-900/30' : 'text-fuchsia-400 dark:text-fuchsia-600 hover:bg-fuchsia-50 dark:hover:bg-fuchsia-900/20'}`}>
                     {isSpeaking ? <MicOff size={16} /> : <Volume2 size={16} />}
                   </button>
                 </div>
                 <button onClick={goToQuiz}
-                  className="text-white rounded-xl font-bold shadow-lg text-sm h-9 px-4"
-                  style={{ background: 'linear-gradient(135deg, #a5d6a7, #66bb6a)' }}>
+                  className="text-white rounded-xl font-bold shadow-lg text-sm h-9 px-4 bg-gradient-to-br from-green-300 to-green-500 hover:from-green-400 hover:to-green-600 dark:from-green-600 dark:to-green-800 transition-all whitespace-nowrap">
                   {t('take_quiz') || "Take Quiz"} →
                 </button>
               </div>
-              <div className="prose max-w-none whitespace-pre-wrap leading-relaxed text-base" style={{ color: '#5a4a6b' }}>
+              <div className="prose max-w-none whitespace-pre-wrap leading-relaxed text-base text-gray-700 dark:text-gray-300">
                 {response}
               </div>
             </div>

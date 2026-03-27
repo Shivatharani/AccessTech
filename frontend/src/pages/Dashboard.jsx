@@ -47,52 +47,47 @@ export default function Dashboard() {
     const CHART_COLORS = ['#66bb6a', '#29b6f6', '#ab47bc', '#ffa726'];
 
     const tools = [
-        { title: t('luminatutor'), path: "/tutor", icon: <span className="text-2xl">✨</span>, gradient: "linear-gradient(135deg, #ce93d8, #ab47bc)", desc: t('tutor_desc') },
-        { title: t('pathpilot'), path: "/mentor", icon: <Map className="w-6 h-6 text-white" />, gradient: "linear-gradient(135deg, #81d4fa, #29b6f6)", desc: t('pathpilot_desc') },
-        { title: t('termcrystal'), path: "/dictionary", icon: <Sparkles className="w-6 h-6 text-white" />, gradient: "linear-gradient(135deg, #a5d6a7, #66bb6a)", desc: t('termcrystal_desc') },
-        { title: t('syntaxsage'), path: "/codehelper", icon: <Code2 className="w-6 h-6 text-white" />, gradient: "linear-gradient(135deg, #ffcc80, #ffa726)", desc: t('syntaxsage_desc') },
-        { title: t('quiz'), path: "/quiz", icon: <Target className="w-6 h-6 text-white" />, gradient: "linear-gradient(135deg, #f48fb1, #e91e63)", desc: t('quiz_desc') }
+        { title: t('luminatutor'), path: "/tutor", icon: <span className="text-2xl">✨</span>, gradientClasses: "bg-gradient-to-br from-fuchsia-300 to-fuchsia-500 hover:from-fuchsia-400 hover:to-fuchsia-600 dark:from-fuchsia-600 dark:to-fuchsia-800", desc: t('tutor_desc') },
+        { title: t('pathpilot'), path: "/mentor", icon: <Map className="w-6 h-6 text-white" />, gradientClasses: "bg-gradient-to-br from-sky-300 to-sky-500 hover:from-sky-400 hover:to-sky-600 dark:from-sky-600 dark:to-sky-800", desc: t('pathpilot_desc') },
+        { title: t('termcrystal'), path: "/dictionary", icon: <Sparkles className="w-6 h-6 text-white" />, gradientClasses: "bg-gradient-to-br from-emerald-300 to-emerald-500 hover:from-emerald-400 hover:to-emerald-600 dark:from-emerald-600 dark:to-emerald-800", desc: t('termcrystal_desc') },
+        { title: t('syntaxsage'), path: "/codehelper", icon: <Code2 className="w-6 h-6 text-white" />, gradientClasses: "bg-gradient-to-br from-orange-300 to-orange-500 hover:from-orange-400 hover:to-orange-600 dark:from-orange-600 dark:to-orange-800", desc: t('syntaxsage_desc') },
+        { title: t('quiz'), path: "/quiz", icon: <Target className="w-6 h-6 text-white" />, gradientClasses: "bg-gradient-to-br from-pink-300 to-pink-500 hover:from-pink-400 hover:to-pink-600 dark:from-pink-600 dark:to-pink-800", desc: t('quiz_desc') }
     ]
 
     const statCards = stats ? [
-        { label: t('total_questions'), value: stats.qCount, Icon: BookOpen, bg: '#e8f5e9', color: '#388e3c', iconBg: '#c8e6c9' },
-        { label: t('total_logins'), value: stats.lCount, Icon: Activity, bg: '#e1f5fe', color: '#0288d1', iconBg: '#b3e5fc' },
-        { label: t('avg_quiz_score'), value: `${stats.avgScore.toFixed(1)}/10`, Icon: Flame, bg: '#f3e5f5', color: '#8e24aa', iconBg: '#e1bee7' },
+        { label: t('total_questions'), value: stats.qCount, Icon: BookOpen, textClass: 'text-green-700 dark:text-green-400', bgClass: 'bg-green-50 dark:bg-green-950/20', iconBgClass: 'bg-green-100 dark:bg-green-900/40' },
+        { label: t('total_logins'), value: stats.lCount, Icon: Activity, textClass: 'text-sky-700 dark:text-sky-400', bgClass: 'bg-sky-50 dark:bg-sky-950/20', iconBgClass: 'bg-sky-100 dark:bg-sky-900/40' },
+        { label: t('avg_quiz_score'), value: `${stats.avgScore.toFixed(1)}/10`, Icon: Flame, textClass: 'text-fuchsia-700 dark:text-fuchsia-400', bgClass: 'bg-fuchsia-50 dark:bg-fuchsia-950/20', iconBgClass: 'bg-fuchsia-100 dark:bg-fuchsia-900/40' },
     ] : [];
 
     return (
-        <div className="min-h-screen" style={{ backgroundColor: '#e8f5e9' }}>
+        <div className="min-h-screen bg-green-50 dark:bg-gray-950">
             <Navbar />
 
             <div className="p-6 md:p-10 max-w-[1600px] mx-auto space-y-8 pb-20">
 
                 {/* Welcome Banner */}
-                <div className="relative rounded-3xl p-8 md:p-12 overflow-hidden border"
-                    style={{ background: 'linear-gradient(135deg, #f1f8e9, #e0f2f1)', borderColor: '#c8e6c9' }}>
-                    <div className="absolute top-0 left-0 w-[400px] h-[400px] rounded-full blur-[80px] -translate-x-1/2 -translate-y-1/2 opacity-40"
-                        style={{ backgroundColor: '#a5d6a7' }} />
-                    <div className="absolute bottom-0 right-0 w-[300px] h-[300px] rounded-full blur-[80px] translate-x-1/2 translate-y-1/2 opacity-30"
-                        style={{ backgroundColor: '#80cbc4' }} />
+                <div className="relative rounded-3xl p-8 md:p-12 overflow-hidden border bg-gradient-to-br from-green-50 to-teal-50 border-green-200 dark:from-green-900/20 dark:to-teal-900/20 dark:border-green-800/40">
+                    <div className="absolute top-0 left-0 w-[400px] h-[400px] rounded-full blur-[80px] -translate-x-1/2 -translate-y-1/2 opacity-40 bg-green-300 dark:bg-green-700/30" />
+                    <div className="absolute bottom-0 right-0 w-[300px] h-[300px] rounded-full blur-[80px] translate-x-1/2 translate-y-1/2 opacity-30 bg-teal-300 dark:bg-teal-700/30" />
                     <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                         <div>
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-5 border"
-                                style={{ backgroundColor: '#c8e6c9', borderColor: '#a5d6a7', color: '#2e7d32' }}>
-                                <Trophy size={12} style={{ color: '#ffc107' }} /> {t('learning_level')}: {localStorage.getItem("level") || t('beginner')}
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-5 border bg-green-100 border-green-300 text-green-800 dark:bg-green-900/40 dark:border-green-800/50 dark:text-green-400">
+                                <Trophy size={12} className="text-amber-400" /> {t('learning_level')}: {localStorage.getItem("level") || t('beginner')}
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2" style={{ color: '#1b5e20' }}>
-                                {t('welcome_back')}, <span style={{ color: '#66bb6a' }}>{username}</span>!
+                            <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2 text-green-900 dark:text-green-50">
+                                {t('welcome_back')}, <span className="text-green-500 dark:text-green-400">{username}</span>!
                             </h1>
-                            <p className="text-lg font-medium" style={{ color: '#4caf50' }}>{t('hero_subtitle')}</p>
+                            <p className="text-lg font-medium text-green-600 dark:text-green-400/80">{t('hero_subtitle')}</p>
                         </div>
                         {lastLogin && (
-                            <div className="flex items-center gap-3 px-5 py-4 rounded-2xl border"
-                                style={{ backgroundColor: 'white', borderColor: '#c8e6c9' }}>
-                                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#e8f5e9' }}>
-                                    <Clock size={20} style={{ color: '#66bb6a' }} />
+                            <div className="flex items-center gap-3 px-5 py-4 rounded-2xl border bg-white border-green-200 dark:bg-gray-900/80 dark:border-green-800/40">
+                                <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-green-50 dark:bg-green-900/30">
+                                    <Clock size={20} className="text-green-500 dark:text-green-400" />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: '#a5d6a7' }}>{t('last_login')}</p>
-                                    <p className="font-bold text-sm" style={{ color: '#2e7d32' }}>{lastLogin}</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-green-400 dark:text-green-600">{t('last_login')}</p>
+                                    <p className="font-bold text-sm text-green-800 dark:text-green-300">{lastLogin}</p>
                                 </div>
                             </div>
                         )}
@@ -102,16 +97,14 @@ export default function Dashboard() {
                 {/* Stat Cards */}
                 {stats && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                        {statCards.map(({ label, value, Icon, bg, color, iconBg }) => (
-                            <div key={label} className="rounded-2xl p-6 flex items-center gap-5 hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-xl group border"
-                                style={{ backgroundColor: 'white', borderColor: '#e0e0e0' }}>
-                                <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform"
-                                    style={{ backgroundColor: iconBg, color }}>
+                        {statCards.map(({ label, value, Icon, textClass, bgClass, iconBgClass }) => (
+                            <div key={label} className={`rounded-2xl p-6 flex items-center gap-5 hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-xl group border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900`}>
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform ${iconBgClass} ${textClass}`}>
                                     <Icon size={28} />
                                 </div>
                                 <div>
-                                    <p className="text-xs font-black uppercase tracking-widest mb-1" style={{ color: '#9e9e9e' }}>{label}</p>
-                                    <h3 className="text-3xl font-black" style={{ color: '#1b5e20' }}>{value}</h3>
+                                    <p className="text-xs font-black uppercase tracking-widest mb-1 text-gray-400 dark:text-gray-500">{label}</p>
+                                    <h3 className="text-3xl font-black text-green-900 dark:text-green-50">{value}</h3>
                                 </div>
                             </div>
                         ))}
@@ -123,13 +116,13 @@ export default function Dashboard() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                             {/* Quiz Trend */}
-                            <div className="bg-white border rounded-3xl p-8 shadow-sm" style={{ borderColor: '#e0e0e0' }}>
+                            <div className="bg-white border rounded-3xl p-8 shadow-sm border-gray-200 dark:bg-gray-900 dark:border-gray-800">
                                 <div className="flex items-center justify-between mb-8">
                                     <div>
-                                        <h2 className="text-xl font-black tracking-tight" style={{ color: '#1b5e20' }}>{t('quiz_trends')}</h2>
-                                        <p className="text-xs font-bold uppercase tracking-widest mt-0.5" style={{ color: '#a5d6a7' }}>{t('score_consistency')}</p>
+                                        <h2 className="text-xl font-black tracking-tight text-green-900 dark:text-green-50">{t('quiz_trends')}</h2>
+                                        <p className="text-xs font-bold uppercase tracking-widest mt-0.5 text-green-400 dark:text-green-600">{t('score_consistency')}</p>
                                     </div>
-                                    <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#e8f5e9', color: '#388e3c' }}>
+                                    <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400">
                                         <TrendingUp size={18} />
                                     </div>
                                 </div>
@@ -143,15 +136,15 @@ export default function Dashboard() {
                                                         <stop offset="95%" stopColor="#66bb6a" stopOpacity={0} />
                                                     </linearGradient>
                                                 </defs>
-                                                <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#e8f5e9" />
+                                                <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#e8f5e9" className="dark:stroke-gray-800" />
                                                 <XAxis dataKey="name" hide />
-                                                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#a5d6a7', fontSize: 11, fontWeight: 700 }} domain={[0, 10]} />
+                                                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#a5d6a7', fontSize: 11, fontWeight: 700 }} domain={[0, 10]} className="dark:fill-green-700" />
                                                 <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', backgroundColor: '#f1f8e9', color: '#2e7d32', padding: '12px 16px' }} />
                                                 <Area type="monotone" dataKey="score" stroke="#66bb6a" strokeWidth={3} fillOpacity={1} fill="url(#colorPerf)" />
                                             </AreaChart>
                                         </ResponsiveContainer>
                                     ) : (
-                                        <div className="h-full flex flex-col items-center justify-center" style={{ color: '#c8e6c9' }}>
+                                        <div className="h-full flex flex-col items-center justify-center text-green-200 dark:text-green-900/40">
                                             <Activity size={40} className="mb-3 opacity-50" />
                                             <p className="text-sm font-bold">{t('take_quiz_notice')}</p>
                                         </div>
@@ -160,13 +153,13 @@ export default function Dashboard() {
                             </div>
 
                             {/* Module Engagement */}
-                            <div className="bg-white border rounded-3xl p-8 shadow-sm" style={{ borderColor: '#e0e0e0' }}>
+                            <div className="bg-white border rounded-3xl p-8 shadow-sm border-gray-200 dark:bg-gray-900 dark:border-gray-800">
                                 <div className="flex items-center justify-between mb-8">
                                     <div>
-                                        <h2 className="text-xl font-black tracking-tight" style={{ color: '#1b5e20' }}>{t('module_engagement')}</h2>
-                                        <p className="text-xs font-bold uppercase tracking-widest mt-0.5" style={{ color: '#a5d6a7' }}>{t('cross_tool_interaction')}</p>
+                                        <h2 className="text-xl font-black tracking-tight text-green-900 dark:text-green-50">{t('module_engagement')}</h2>
+                                        <p className="text-xs font-bold uppercase tracking-widest mt-0.5 text-green-400 dark:text-green-600">{t('cross_tool_interaction')}</p>
                                     </div>
-                                    <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#e8f5e9', color: '#388e3c' }}>
+                                    <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400">
                                         <PieIcon size={18} />
                                     </div>
                                 </div>
@@ -184,12 +177,12 @@ export default function Dashboard() {
                                                 </PieChart>
                                             </ResponsiveContainer>
                                             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                                <span className="text-2xl font-black" style={{ color: '#1b5e20' }}>{usageData.reduce((a, c) => a + c.value, 0)}</span>
-                                                <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: '#a5d6a7' }}>{t('total_actions')}</span>
+                                                <span className="text-2xl font-black text-green-900 dark:text-green-50">{usageData.reduce((a, c) => a + c.value, 0)}</span>
+                                                <span className="text-[9px] font-black uppercase tracking-widest text-green-300 dark:text-green-700">{t('total_actions')}</span>
                                             </div>
                                         </>
                                     ) : (
-                                        <div className="h-full flex flex-col items-center justify-center" style={{ color: '#c8e6c9' }}>
+                                        <div className="h-full flex flex-col items-center justify-center text-green-200 dark:text-green-900/40">
                                             <PieIcon size={40} className="mb-3 opacity-50" />
                                             <p className="text-sm font-bold">No interactions yet</p>
                                         </div>
@@ -200,21 +193,19 @@ export default function Dashboard() {
 
                         {/* Tool Grid */}
                         <div>
-                            <h2 className="text-2xl font-black tracking-tight mb-5 flex items-center gap-2" style={{ color: '#1b5e20' }}>
-                                <Zap style={{ color: '#ffc107', fill: '#ffc107' }} size={24} /> {t('ai_toolset')}
+                            <h2 className="text-2xl font-black tracking-tight mb-5 flex items-center gap-2 text-green-900 dark:text-green-50">
+                                <Zap className="text-amber-400 fill-amber-400" size={24} /> {t('ai_toolset')}
                             </h2>
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                                 {tools.map((tool, idx) => (
                                     <div key={idx} onClick={() => nav(tool.path)}
-                                        className="bg-white rounded-2xl p-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group relative overflow-hidden border"
-                                        style={{ borderColor: '#e0e0e0' }}>
-                                        <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform"
-                                            style={{ background: tool.gradient }}>
+                                        className="bg-white rounded-2xl p-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group relative overflow-hidden border border-gray-200 dark:bg-gray-900 dark:border-gray-800">
+                                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform ${tool.gradientClasses}`}>
                                             {tool.icon}
                                         </div>
-                                        <h3 className="text-sm font-black uppercase tracking-tight mb-1" style={{ color: '#1b5e20' }}>{tool.title}</h3>
-                                        <p className="text-[10px] leading-relaxed line-clamp-2" style={{ color: '#81c784' }}>{tool.desc}</p>
-                                        <div className="flex items-center text-[10px] font-black uppercase tracking-widest mt-3" style={{ color: '#a5d6a7' }}>
+                                        <h3 className="text-sm font-black uppercase tracking-tight mb-1 text-green-900 dark:text-green-50">{tool.title}</h3>
+                                        <p className="text-[10px] leading-relaxed line-clamp-2 text-green-400 dark:text-green-600">{tool.desc}</p>
+                                        <div className="flex items-center text-[10px] font-black uppercase tracking-widest mt-3 text-green-300 dark:text-green-700">
                                             {t('launch_tool')} <ChevronRight size={12} className="ml-0.5" />
                                         </div>
                                     </div>
@@ -225,34 +216,31 @@ export default function Dashboard() {
 
                     {/* Sidebar */}
                     <div className="space-y-5">
-                        <div className="rounded-3xl p-7 relative overflow-hidden border"
-                            style={{ background: 'linear-gradient(135deg, #f1f8e9, #e0f2f1)', borderColor: '#c8e6c9' }}>
-                            <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl opacity-40"
-                                style={{ backgroundColor: '#a5d6a7' }} />
-                            <h2 className="text-base font-black mb-6 flex items-center gap-2 relative z-10" style={{ color: '#1b5e20' }}>
-                                <Calendar style={{ color: '#66bb6a' }} size={18} />
+                        <div className="rounded-3xl p-7 relative overflow-hidden border bg-gradient-to-br from-green-50 to-teal-50 border-green-200 dark:from-green-900/20 dark:to-teal-900/20 dark:border-green-800/40">
+                            <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl opacity-40 bg-green-300 dark:bg-green-700/30" />
+                            <h2 className="text-base font-black mb-6 flex items-center gap-2 relative z-10 text-green-900 dark:text-green-50">
+                                <Calendar className="text-green-500" size={18} />
                                 {t('recent_activity')}
                             </h2>
                             <div className="space-y-4 relative z-10">
                                 {recentActivity.length > 0 ? recentActivity.map((act, idx) => (
                                     <div key={idx} className="flex gap-3 group">
-                                        <div className="flex-shrink-0 w-1 h-10 rounded-full" style={{ backgroundColor: '#66bb6a' }} />
+                                        <div className="flex-shrink-0 w-1 h-10 rounded-full bg-green-400 dark:bg-green-600" />
                                         <div className="min-w-0">
-                                            <p className="text-[9px] font-black uppercase tracking-widest mb-0.5 truncate" style={{ color: '#43a047' }}>{act.question.split(':')[0]}</p>
-                                            <p className="text-xs font-medium line-clamp-1" style={{ color: '#388e3c' }}>
+                                            <p className="text-[9px] font-black uppercase tracking-widest mb-0.5 truncate text-green-600 dark:text-green-500">{act.question.split(':')[0]}</p>
+                                            <p className="text-xs font-medium line-clamp-1 text-green-700 dark:text-green-400">
                                                 {act.question.includes(':') ? act.question.split(': ')[1] : act.question}
                                             </p>
                                         </div>
                                     </div>
                                 )) : (
-                                    <p className="text-xs font-medium text-center py-6" style={{ color: '#a5d6a7' }}>{t('start_learning_notice')}</p>
+                                    <p className="text-xs font-medium text-center py-6 text-green-300 dark:text-green-700">{t('start_learning_notice')}</p>
                                 )}
                             </div>
                         </div>
 
                         <div
-                            className="relative rounded-3xl p-7 text-white cursor-pointer group overflow-hidden border"
-                            style={{ background: 'linear-gradient(135deg, #66bb6a, #26a69a)', borderColor: '#a5d6a7' }}
+                            className="relative rounded-3xl p-7 text-white cursor-pointer group overflow-hidden border bg-gradient-to-br from-green-400 to-teal-500 border-green-300 dark:from-green-600 dark:to-teal-700 dark:border-green-700/50"
                             onClick={() => nav("/quiz")}>
                             <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-x-1/2 translate-y-1/2 blur-2xl" />
                             <div className="relative z-10">
