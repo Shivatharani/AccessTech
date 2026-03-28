@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import API from "../services/api";
 import { toast } from "sonner";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -6,6 +6,7 @@ import Navbar from "../components/Navbar";
 import { ArrowLeft, CheckCircle, XCircle, Trophy, Target, Sparkles, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Quiz() {
   const { t } = useTranslation();
@@ -13,8 +14,10 @@ export default function Quiz() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const initialTopic = queryParams.get("topic") || "";
-  const lang = queryParams.get("lang") || "English";
-  const count = parseInt(queryParams.get("count") || "10", 10);
+  const { language: sessionLang } = useContext(AuthContext);
+  const lang = queryParams.get("lang") || sessionLang || "English";
+  const countFromUrl = parseInt(queryParams.get("count") || "10", 10);
+  const from = queryParams.get("from"); // 'tutor' or 'mentor'
   const email = localStorage.getItem("email");
 
   const [topic, setTopic] = useState(initialTopic);
@@ -25,12 +28,14 @@ export default function Quiz() {
   const [selectedOption, setSelectedOption] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [quizFinished, setQuizFinished] = useState(false);
+  const [questionCount, setQuestionCount] = useState(countFromUrl || 10);
 
   useEffect(() => { 
+    // Do NOT auto-fetch. Just let the topic be set from URL
     if (initialTopic) {
-      fetchQuiz(initialTopic);
+      setTopic(initialTopic);
     }
-  }, []);
+  }, [initialTopic]);
 
   const fetchQuiz = async (searchTopic = topic) => {
     if (!searchTopic.trim()) {
@@ -48,7 +53,11 @@ export default function Quiz() {
 
     try {
       const tid = toast.loading(`${t('generating_questions')} ${searchTopic}...`);
-      const res = await API.post("/ai/generate-quiz", { topic: searchTopic, language: lang, count });
+      const res = await API.post("/ai/generate-quiz", { 
+        topic: searchTopic, 
+        language: lang, 
+        count: questionCount 
+      });
       setQuestions(res.data.quiz);
       setLoading(false);
       toast.success(t('ready_begin'), { id: tid });
@@ -142,20 +151,81 @@ export default function Quiz() {
             ) : <div className="w-[74px]" />}
           </div>
 
-          {/* Search bar when not taking a quiz */ }
+          {/* Pre-Quiz Selection Screen */}
           {!loading && !quizFinished && questions.length === 0 && (
-            <div className="mb-10 bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-sm border border-pink-200 dark:border-pink-900/50 flex flex-col md:flex-row gap-3">
-               <input
-                 className="flex-1 px-5 py-4 rounded-2xl border-2 outline-none transition-all text-base font-medium focus:ring-2 focus:border-pink-400 dark:focus:border-pink-600 bg-pink-50 border-pink-200 text-pink-900 dark:bg-gray-950 dark:border-pink-900/50 dark:text-pink-50 placeholder-pink-400 dark:placeholder-pink-700"
-                 placeholder={t('enter_quiz_topic', 'Enter the topic')}
-                 value={topic}
-                 onChange={e => setTopic(e.target.value)}
-                 onKeyDown={(e) => e.key === 'Enter' && fetchQuiz(topic)}
-               />
-               <button onClick={() => fetchQuiz(topic)}
-                 className="text-white px-8 h-14 rounded-2xl font-bold shadow-lg transition-all text-base whitespace-nowrap bg-gradient-to-br from-pink-400 to-pink-700 hover:from-pink-500 hover:to-pink-800 dark:from-pink-600 dark:to-pink-900 flex items-center gap-2">
-                 <Sparkles size={18} /> {t('generate_quiz', 'Generate Quiz')}
-               </button>
+            <div className="animate-in fade-in zoom-in-95 duration-500">
+              <div className="text-center mb-10">
+                <div className="w-20 h-20 mx-auto mb-6 relative">
+                  <div className="absolute inset-0 bg-pink-400/20 blur-2xl rounded-full scale-150 animate-pulse" />
+                  <div className="w-20 h-20 rounded-3xl flex items-center justify-center shadow-2xl bg-gradient-to-br from-pink-400 to-pink-700 dark:from-pink-600 dark:to-pink-900 relative z-10">
+                    <Sparkles className="w-10 h-10 text-white" />
+                  </div>
+                </div>
+                <h2 className="text-3xl font-black text-pink-900 dark:text-pink-50 mb-2">Quiz Setup</h2>
+                <p className="text-sm font-medium text-pink-400 dark:text-pink-500 uppercase tracking-widest">Configure your mastery challenge</p>
+              </div>
+
+              <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 md:p-10 shadow-xl border border-pink-100 dark:border-pink-900/50 space-y-8">
+                {/* Topic Input */}
+                <div className="space-y-3">
+                  <label className="text-xs font-black uppercase tracking-[0.2em] text-pink-500 dark:text-pink-400 ml-1">
+                    Topic to Master
+                  </label>
+                  <input
+                    className="w-full px-6 py-5 rounded-2xl border-2 outline-none transition-all text-lg font-bold focus:ring-4 focus:ring-pink-400/20 focus:border-pink-400 dark:focus:border-pink-600 bg-pink-50/50 border-pink-100 text-pink-900 dark:bg-gray-950 dark:border-pink-900/50 dark:text-pink-50 placeholder-pink-200 dark:placeholder-pink-800"
+                    placeholder="e.g., Python Basics, Human Anatomy..."
+                    value={topic}
+                    onChange={e => setTopic(e.target.value)}
+                  />
+                </div>
+
+                {/* Question Count */}
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center ml-1">
+                    <label className="text-xs font-black uppercase tracking-[0.2em] text-pink-500 dark:text-pink-400">
+                      Question Count
+                    </label>
+                    <span className="px-4 py-1 rounded-full bg-pink-600 text-white text-sm font-black shadow-lg shadow-pink-600/20">
+                      {questionCount}
+                    </span>
+                  </div>
+                  <div className="bg-pink-50/50 dark:bg-pink-900/10 p-6 rounded-2xl border border-pink-100 dark:border-pink-900/20">
+                    <input 
+                      type="range" 
+                      min="5" 
+                      max="50" 
+                      step="5" 
+                      value={questionCount} 
+                      onChange={(e) => setQuestionCount(parseInt(e.target.value))}
+                      className="w-full h-3 bg-pink-200 dark:bg-pink-900/50 rounded-lg appearance-none cursor-pointer accent-pink-600"
+                    />
+                    <div className="flex justify-between mt-3 px-2 text-[10px] font-black text-pink-300 dark:text-pink-700 uppercase tracking-tighter">
+                      <span>5 Questions</span>
+                      <span>25 Questions</span>
+                      <span>50 Questions</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Selected Language Info */}
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-100 dark:bg-amber-900/30 text-amber-600">
+                    <Target size={16} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-500">Language Sync</p>
+                    <p className="text-sm font-bold text-amber-900 dark:text-amber-100">{lang}</p>
+                  </div>
+                </div>
+
+                {/* Start Button */}
+                <button 
+                  onClick={() => fetchQuiz(topic)}
+                  disabled={!topic.trim()}
+                  className="w-full h-20 rounded-3xl text-white font-black text-xl shadow-2xl shadow-pink-600/30 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-3 bg-gradient-to-br from-pink-400 to-pink-700 hover:from-pink-500 hover:to-pink-800 dark:from-pink-600 dark:to-pink-900">
+                  <Sparkles size={24} /> Generate Mastery Quiz
+                </button>
+              </div>
             </div>
           )}
 
@@ -188,11 +258,11 @@ export default function Quiz() {
                 {t('you_scored')} <span className="font-bold text-pink-900 dark:text-pink-50">{score}</span> {t('out_of')} {questions.length}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <button onClick={() => nav("/tutor")}
+                <button onClick={() => nav(from === 'mentor' ? '/mentor' : '/tutor')}
                   className="text-white font-bold rounded-xl shadow-lg h-11 px-6 bg-gradient-to-br from-pink-400 to-pink-700 hover:from-pink-500 hover:to-pink-800 dark:from-pink-600 dark:to-pink-900 transition-all">
-                  {t('return_to_tutor')}
+                  {from === 'mentor' ? t('return_to_mentor') || 'Return to PathPilot' : t('return_to_tutor')}
                 </button>
-                <button onClick={fetchQuiz}
+                <button onClick={() => fetchQuiz(topic)}
                   className="rounded-xl h-11 px-6 font-bold border transition-all hover:bg-pink-50 text-pink-700 border-pink-300 dark:border-pink-900/50 dark:text-pink-400 dark:hover:bg-pink-900/20">
                   Retry Quiz
                 </button>

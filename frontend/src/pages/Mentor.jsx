@@ -22,7 +22,7 @@ export default function Mentor() {
   const [history, setHistory] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [progress, setProgress] = useState({});
-  const { user: email, language: lang, level: lvl } = useContext(AuthContext);
+  const { user: email, username, language: lang, level: lvl } = useContext(AuthContext);
 
   useEffect(() => { if (email !== "User") fetchHistory(); }, [email]);
   useEffect(() => {
@@ -122,7 +122,7 @@ export default function Mentor() {
                 <Target size={18} className="text-white" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-bold text-sm truncate text-sky-900 dark:text-sky-50">{email}</p>
+                <p className="font-bold text-sm truncate text-sky-900 dark:text-sky-50">{username}</p>
                 <div className="flex gap-1.5 mt-1">
                   <span className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wide rounded-md bg-sky-100 text-sky-600 dark:bg-sky-900/50 dark:text-sky-400">{lang}</span>
                   <span className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wide rounded-md bg-amber-50 text-amber-600 dark:bg-amber-900/50 dark:text-amber-500">{lvl}</span>
@@ -297,11 +297,17 @@ export default function Mentor() {
                             </span>
                           </div>
                           <p className="leading-relaxed mb-4 text-sm text-gray-600 dark:text-gray-400">{step.description}</p>
-                          <button onClick={() => toggleStepProgress(idx)}
-                            className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl border transition-all ${isDone ? 'text-green-800 bg-green-100 border-green-200 dark:text-green-400 dark:bg-green-900/30 dark:border-green-800/40' : 'text-gray-500 bg-white border-gray-200 dark:text-gray-400 dark:bg-gray-900 dark:border-gray-700'}`}>
-                            {isDone ? <CheckSquare size={16} /> : <Square size={16} />}
-                            {isDone ? t('marked_completed') : t('mark_completed')}
-                          </button>
+                          <div className="flex flex-wrap gap-2">
+                            <button onClick={() => toggleStepProgress(idx)}
+                              className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl border transition-all ${isDone ? 'text-green-800 bg-green-100 border-green-200 dark:text-green-400 dark:bg-green-900/30 dark:border-green-800/40' : 'text-gray-500 bg-white border-gray-200 dark:text-gray-400 dark:bg-gray-900 dark:border-gray-700'}`}>
+                              {isDone ? <CheckSquare size={16} /> : <Square size={16} />}
+                              {isDone ? t('marked_completed') : t('mark_completed')}
+                            </button>
+                            <button onClick={() => nav(`/tutor?topic=${encodeURIComponent(`Explain ${step.phase} in the context of my goal: ${goal}`)}`)}
+                              className="flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl border transition-all bg-sky-100/50 text-sky-600 border-sky-200 hover:bg-sky-100 dark:bg-sky-900/20 dark:text-sky-400 dark:border-sky-900/30">
+                              <Sparkles size={16} /> Explain in Tutor
+                            </button>
+                          </div>
                         </div>
                       </div>
                     );
@@ -440,14 +446,14 @@ export default function Mentor() {
                     {progressPercent === 100 ? <Square size={18} /> : <CheckSquare size={18} />}
                     {progressPercent === 100 ? t('unmaster_all') : t('master_all')}
                   </button>
-                  <button onClick={() => nav('/tutor')}
+                  <button onClick={() => nav(`/tutor?topic=${encodeURIComponent(`I want to master my career goal: ${goal}. Can you explain the foundational concepts I need to know?`)}`)}
                     className="flex items-center gap-2 px-7 py-4 rounded-2xl font-black text-sm transition-all hover:scale-105 shadow-xl bg-white text-sky-900 dark:bg-gray-800 dark:text-sky-100">
                     {t('start_learning_tutor')} <ArrowRight size={18} />
                   </button>
-                  <button onClick={() => nav(`/quiz?topic=${encodeURIComponent(goal)}&count=20`)}
-                    className="flex items-center gap-2 px-7 py-4 rounded-2xl font-black text-sm transition-all hover:scale-105 shadow-xl text-white bg-gradient-to-br from-sky-400 to-sky-600 hover:from-sky-500 hover:to-sky-700 dark:from-sky-600 dark:to-sky-800">
-                    {t('take_quiz') || "Take Quiz"} <Target size={18} />
-                  </button>
+                    <button onClick={() => nav(`/quiz?topic=${encodeURIComponent(goal)}&from=mentor`)}
+                      className="flex items-center gap-2 px-7 py-4 rounded-2xl font-black text-sm transition-all hover:scale-105 shadow-xl text-white bg-gradient-to-br from-sky-400 to-sky-600 hover:from-sky-500 hover:to-sky-700 dark:from-sky-600 dark:to-sky-800">
+                      {t('take_quiz') || "Take Quiz"} <Target size={18} />
+                    </button>
                 </div>
               </div>
             </div>

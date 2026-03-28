@@ -21,6 +21,7 @@ class AskRequest(BaseModel):
     image: Optional[str] = None  # Base64 string
     language: Optional[str] = None
     level: Optional[str] = None
+    history: Optional[list] = None # List of role/content dicts
 
 class QuizRequest(BaseModel):
     topic: str
@@ -47,9 +48,7 @@ class PDFDownloadRequest(BaseModel):
 @router.post("/ask")
 def ask_ai(data: AskRequest):
     data.topic = data.topic[0].upper() + data.topic[1:] if data.topic else data.topic
-
     users = fetch_data("users", "email", data.email)
-
     if not users:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -57,14 +56,24 @@ def ask_ai(data: AskRequest):
     language = data.language or user.get("language", "English")
     level = data.level or user.get("level", "Beginner")
 
-    ai_response = generate_content(
-        topic=data.topic,
-        language=language,
-        level=level,
-        image=data.image
-    )
+    if data.history:
+        # Continuous Chat Mode
+        from services.groq_service import generate_chat_tutor_response
+        ai_response = generate_chat_tutor_response(
+            messages=data.history,
+            language=language,
+            level=level
+        )
+    else:
+        # Legacy/Single-Shot Mode
+        ai_response = generate_content(
+            topic=data.topic,
+            language=language,
+            level=level,
+            image=data.image
+        )
 
-    # store history
+    # store history in DB
     from datetime import datetime
     insert_data("history", {
         "email": data.email,
@@ -74,38 +83,22 @@ def ask_ai(data: AskRequest):
     })
 
     # generate quiz
-    quiz = generate_quiz(data.topic, language)
+    generate_quiz(data.topic, language)
 
     # -----------------------------
     # Update Progress Table
     # -----------------------------
-
     progress = fetch_data("progress", "email", data.email)
-
     if progress:
-
-        current_questions = progress[0]["total_questions"] + 1
-
-        update_data(
-            "progress",
-            "email",
-            data.email,
-            {
-                "total_questions": current_questions,
-                "last_topic": data.topic,
-                "current_level": level
-            }
-        )
-
+        update_data("progress", "email", data.email, {
+            "total_questions": progress[0]["total_questions"] + 1,
+            "last_topic": data.topic,
+            "current_level": level
+        })
     else:
-
         insert_data("progress", {
-            "email": data.email,
-            "total_questions": 1,
-            "quiz_attempts": 0,
-            "average_score": 0,
-            "current_level": level,
-            "last_topic": data.topic
+            "email": data.email, "total_questions": 1, "quiz_attempts": 0,
+            "average_score": 0, "current_level": level, "last_topic": data.topic
         })
 
     return {

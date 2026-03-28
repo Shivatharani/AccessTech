@@ -5,43 +5,50 @@ from dotenv import load_dotenv
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-# === ORIGINAL (LuminaTutor) ===
+# === LumioTutor (Legacy Single-Shot) ===
 def generate_content(topic, language, level, image=None):
+    prompt = f"Explain '{topic}' in {language} for a {level} user."
     if image:
-        # Extract base64 content if it has the data:image prefix
-        if "," in image:
-            image = image.split(",")[1]
-            
-        prompt = f"""You are LuminaTutor. Based on the provided image and topic '{topic}', explain clearly in {language} for a {level} user.
-Rules:
-- Beginner: very simple, analogies, real-life examples
-- Intermediate: technical + examples
-- Advanced: deep details
-Output only in {language}. IGNORE the language of the user's question; always respond ONLY in {language}. Keep it encouraging and human-centric."""
-
+        if "," in image: image = image.split(",")[1]
         chat = client.chat.completions.create(
             model="meta-llama/llama-4-scout-17b-16e-instruct",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image}"}}
-                    ]
-                }
-            ]
+            messages=[{"role": "user", "content": [{"type": "text", "text": prompt}, {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image}"}}]}]
         )
     else:
-        prompt = f"""You are LuminaTutor. Explain '{topic}' in {language} for a {level} user.
-Rules:
-- Beginner: very simple, analogies, real-life examples
-- Intermediate: technical + examples
-- Advanced: deep details
-Output only in {language}. IGNORE the language of the user's input; ALWAYS respond ONLY in {language}. Keep it encouraging and human-centric."""
         chat = client.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=[{"role": "user", "content": prompt}]
         )
+    return chat.choices[0].message.content
+
+# === NEW: LuminaTutor Continuous Chat ===
+def generate_chat_tutor_response(messages, language, level):
+    system_prompt = f"""You are LuminaTutor, a world-class AI teacher. 
+Explain topics clearly in {language} tailored for a {level} student.
+
+Rules:
+- Beginner: Very simple, use analogies and real-life examples.
+- Intermediate: Technical details mixed with practical examples.
+- Advanced: Deep technical dive, academic/industry standards.
+
+FORMATTING RULES (ESSENTIAL):
+- Use ### for Section Headings
+- Use **bold** for key concepts
+- Use bullet points for lists
+- Use `code blocks` for technical terms or snippets
+- Add empty lines between paragraphs for readability
+- Always output a professional, structured educational lesson.
+
+OUTPUT: ALWAYS respond ONLY in {language}. Keep the tone encouraging and human-centric."""
+
+    # Prepend system prompt if not present
+    if not messages or messages[0].get("role") != "system":
+        messages.insert(0, {"role": "system", "content": system_prompt})
+
+    chat = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=messages
+    )
     return chat.choices[0].message.content
 
 # === NEW: PathPilot (Career Mentor) ===

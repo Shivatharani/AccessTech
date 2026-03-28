@@ -10,9 +10,11 @@ import {
     Activity, BookOpen, Clock, Target, Code2, Map, Sparkles, ChevronRight,
     Trophy, Brain, Flame, TrendingUp, ArrowRight, Lightbulb,
     ShieldCheck, Layers, LayoutDashboard, CheckCircle2, Zap, Rocket,
-    Medal, GraduationCap, Star, BookMarked, Monitor, Briefcase
+    Medal, GraduationCap, Star, BookMarked, Monitor, Briefcase, User, Languages, Award
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Dashboard() {
     const { t } = useTranslation();
@@ -39,8 +41,8 @@ export default function Dashboard() {
     const [recommendations, setRecommendations] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const { username, language, level } = useContext(AuthContext);
     const email = localStorage.getItem("email");
-    const username = email?.split('@')[0] || "User";
 
     useEffect(() => {
         if (!email) {
@@ -124,10 +126,21 @@ export default function Dashboard() {
                             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 border bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-900/30 dark:border-emerald-800">
                                 <ShieldCheck size={14} /> AI LEARNING COMMAND CENTER
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4 text-gray-900 dark:text-white">
-                                {t('welcome_back')}, <span className="text-emerald-500">{username}</span>
+                            <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4 text-emerald-600 dark:text-emerald-400">
+                                {username}
                             </h1>
-                            <p className="text-lg font-medium text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed">
+                            <div className="flex flex-wrap gap-4 mt-4 text-sm font-bold text-gray-600 dark:text-gray-400">
+                                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+                                  <User size={16} className="text-emerald-500" /> {email}
+                                </span>
+                                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+                                  <Languages size={16} className="text-emerald-500" /> {language}
+                                </span>
+                                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+                                  <Award size={16} className="text-emerald-500" /> {level}
+                                </span>
+                            </div>
+                            <p className="mt-6 text-lg font-medium text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed">
                                 Your intelligence hub is active. You've achieved <span className="text-emerald-600 font-bold">{stats.career_progress_total}%</span> of your targeted career growth.
                             </p>
                         </div>

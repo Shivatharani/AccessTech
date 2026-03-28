@@ -96,7 +96,8 @@ def login(user: LoginRequest, request: Request):
         "message": "Login successful",
         "access_token": token,
         "language": db_user.get("language", "English"),
-        "level": db_user.get("level", "Beginner")
+        "level": db_user.get("level", "Beginner"),
+        "name": db_user.get("name", db_user.get("email").split("@")[0])
     }
 
 
@@ -148,7 +149,8 @@ def google_login(data: GoogleLogin, request: Request):
         "access_token": token,
         "email": email,
         "language": user_data.get("language", "English"),
-        "level": user_data.get("level", "Beginner")
+        "level": user_data.get("level", "Beginner"),
+        "name": user_data.get("name", email.split("@")[0])
     }
 
 

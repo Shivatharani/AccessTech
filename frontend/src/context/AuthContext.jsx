@@ -30,6 +30,13 @@ export const AuthProvider = ({ children }) => {
   }
 
   const [user, setUser] = useState(validToken ? localStorage.getItem("email") : null);
+  const [rawName, setRawName] = useState(validToken ? localStorage.getItem("name") : null);
+
+  // Auto-capitalize the first letter
+  const username = rawName 
+    ? rawName.charAt(0).toUpperCase() + rawName.slice(1) 
+    : (user ? user.split('@')[0].charAt(0).toUpperCase() + user.split('@')[0].slice(1) : "User");
+
   const [token, setToken] = useState(validToken);
   const [language, setLanguage] = useState(localStorage.getItem("language") || "English");
   const [level, setLevel] = useState(localStorage.getItem("level") || "Beginner");
@@ -65,6 +72,12 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("level", lvl);
       setLevel(lvl);
     }
+    
+    // Fallback if name isn't provided (legacy)
+    const finalName = name || email.split('@')[0];
+    localStorage.setItem("name", finalName);
+    setRawName(finalName);
+
     setUser(email);
     setToken(accessToken);
   };
@@ -72,7 +85,9 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem("email");
     localStorage.removeItem("token");
+    localStorage.removeItem("name");
     setUser(null);
+    setRawName(null);
     setToken(null);
   };
 
@@ -85,7 +100,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, language, level, login, logout, updateSettings }}>
+    <AuthContext.Provider value={{ user, username, token, language, level, login, logout, updateSettings }}>
       {children}
     </AuthContext.Provider>
   );

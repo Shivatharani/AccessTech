@@ -32,7 +32,8 @@ export default function Login() {
         email,
         res.data.access_token,
         res.data.language || "English",
-        res.data.level || form.level
+        res.data.level || form.level,
+        res.data.name
       )
       toast.success(t("login_success"), { id: tid })
       nav("/welcome")
@@ -50,7 +51,7 @@ export default function Login() {
     try {
       const res = await API.post("/auth/google-login", { token: credentialResponse.credential })
       if (res.data.access_token) {
-        contextLogin(res.data.email, res.data.access_token, res.data.language, res.data.level)
+        contextLogin(res.data.email, res.data.access_token, res.data.language, res.data.level, res.data.name)
         toast.success(t("login_success"))
         nav("/welcome")
       } else {

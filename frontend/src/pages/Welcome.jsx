@@ -5,10 +5,13 @@ import {
   ArrowRight, Accessibility, Languages, Zap, BarChart3, TrendingUp, Award
 } from "lucide-react";
 import Navbar from "../components/Navbar";
+import { AuthContext } from "../context/AuthContext";
+import { useContext } from "react";
 
 export default function Welcome() {
   const { t } = useTranslation();
   const nav = useNavigate();
+  const { username } = useContext(AuthContext);
 
   const features = [
     {
@@ -77,12 +80,12 @@ export default function Welcome() {
         <div className="text-center mb-20 space-y-6">
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest border bg-green-100 border-green-300 text-green-800 dark:bg-green-900/30 dark:border-green-800/50 dark:text-green-400">
             <Zap size={14} className="fill-current" />
-            Welcome to AccessTech
+            Your Personal AI Hub
           </div>
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-none text-green-900 dark:text-green-50">
-            Your Personal{' '}
+          <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-none text-green-900 dark:text-green-50 uppercase">
+            WELCOME BACK,<br className="md:hidden" />{' '}
             <span className="bg-gradient-to-br from-green-400 via-teal-500 to-blue-500 bg-clip-text text-transparent">
-              AI Hub
+              {username ? username : "GUEST"}
             </span>
           </h1>
           <p className="text-xl max-w-3xl mx-auto leading-relaxed font-medium text-green-600 dark:text-green-400">

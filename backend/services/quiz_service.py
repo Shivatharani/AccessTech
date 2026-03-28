@@ -9,26 +9,27 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 def generate_quiz(topic, language, count=10):
 
     prompt = f"""
-Generate EXACTLY {count} multiple-choice questions (MCQs) about {topic}. IT IS ABSOLUTELY CRITICAL THAT YOU GENERATE EXACTLY {count} QUESTIONS, NO MORE AND NO LESS.
+Generate EXACTLY {count} multiple-choice questions (MCQs) about {topic}. 
+It is ABSOLUTELY CRITICAL that you generate EXACTLY {count} questions, no more and no less.
 
-CRITICAL INSTRUCTION: EVERY SINGLE QUESTION MUST BE COMPLETELY UNIQUE. DO NOT REPEAT ANY CONCEPT, QUESTION, OR SET OF OPTIONS. Provide a diverse range of sub-topics within {topic}. Ensure options are distinct for each question.
+CRITICAL INSTRUCTION: EVERY SINGLE PART OF THE OUTPUT (including questions, options, and keys) MUST BE WRITTEN ENTIRELY IN THE {language} LANGUAGE. 
+If {language} is Tamil, everything must be in Tamil script. If Telugu, everything in Telugu script, etc.
 
-Language: You MUST write the questions, options, and answers entirely in the {language} language.
+Structure:
+Provide a diverse range of sub-topics within {topic}. Ensure options are distinct for each question.
 
+Format:
 You MUST output your response strictly as a JSON object containing a single key "quiz", which maps to an array of question objects.
-
-Format exactly like this example:
 {{
   "quiz": [
     {{
-      "question": "What is 2+2?",
-      "options": ["1", "2", "3", "4"],
-      "answer": 3
+      "question": "The question in {language}",
+      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+      "answer": 0
     }}
   ]
 }}
-
-(Note: 'answer' is the 0-based index of the correct option in the options array).
+(Note: 'answer' is the 0-based index of the correct option).
 """
 
     try:

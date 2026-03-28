@@ -14,7 +14,7 @@ import { AuthContext } from "../context/AuthContext";
 export default function Dictionary() {
   const { t } = useTranslation();
   const nav = useNavigate();
-  const { user: email, language: lang, level: lvl } = useContext(AuthContext);
+  const { user: email, username, language: lang, level: lvl } = useContext(AuthContext);
   const [term, setTerm] = useState("");
   const [response, setResponse] = useState(null);
   const [history, setHistory] = useState([]);
@@ -77,7 +77,7 @@ export default function Dictionary() {
                 <Sparkles size={18} className="text-white" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-bold text-sm truncate text-teal-900 dark:text-teal-50">{email}</p>
+                <p className="font-bold text-sm truncate text-teal-900 dark:text-teal-50">{username}</p>
                 <div className="flex gap-1.5 mt-1">
                   <span className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wide rounded-md bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-400">{language}</span>
                   <span className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wide rounded-md bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400">{level}</span>

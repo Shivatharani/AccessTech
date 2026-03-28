@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import {
   History as HistoryIcon, Clock, Menu, X, ArrowLeft, Code2, Terminal, HelpCircle,
   FileText, Brain, Search, Beaker, AlertTriangle, RefreshCcw, CheckCircle2,
-  Copy, Plus, Send
+  Copy, Plus, Send, Sparkles
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ export default function CodeHelper() {
   const [response, setResponse] = useState("");
   const [history, setHistory] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user: email, language: lang, level: lvl } = useContext(AuthContext);
+  const { user: email, username, language: lang, level: lvl } = useContext(AuthContext);
   const MODES = ["Python", "Java", "C", "General", "JavaScript", "HTML/CSS"];
 
   useEffect(() => { if (email !== "User") fetchHistory(); }, [email, response]);
@@ -71,7 +71,7 @@ export default function CodeHelper() {
                 <Code2 size={24} className="text-orange-500 dark:text-orange-400" />
               </div>
               <div className="overflow-hidden">
-                <p className="font-black text-xs truncate text-orange-900 dark:text-orange-50">{email}</p>
+                <p className="font-black text-xs truncate text-orange-900 dark:text-orange-50">{username}</p>
                 <div className="flex gap-2 mt-0.5">
                   <span className="text-[8px] font-black uppercase tracking-tighter px-1.5 py-0.5 rounded bg-orange-200 dark:bg-orange-900 text-orange-700 dark:text-orange-300">{lang}</span>
                   <span className="text-[8px] font-black uppercase tracking-tighter px-1.5 py-0.5 rounded bg-amber-200 dark:bg-amber-900 text-amber-700 dark:text-amber-300">{lvl}</span>
@@ -107,11 +107,50 @@ export default function CodeHelper() {
                   onClick={() => {
                     setQuery(parsedQuery);
                     if (match) setMode(parsedMode);
-                    const robustParse = (d) => { if (!d || typeof d !== "string") return d; try { const p = JSON.parse(d); if (typeof p === "string") return robustParse(p); return p; } catch { return d; } };
-                    let parsed = item.response, savedCode = item.code || "";
-                    let outer = robustParse(parsed);
-                    if (outer?.explanation) { parsed = robustParse(outer.explanation); savedCode = outer.code || savedCode; } else parsed = outer;
-                    setResponse(parsed); setCodeSnippet(savedCode); setSidebarOpen(false);
+
+                    // Universal Brute-Force Parser
+                    const parseRobustly = (content) => {
+                      if (!content) return null;
+                      let current = content;
+                      for (let i = 0; i < 3; i++) {
+                        if (typeof current !== 'string') break;
+                        try {
+                          const parsed = JSON.parse(current);
+                          if (parsed === current) break;
+                          current = parsed;
+                        } catch { break; }
+                      }
+                      return current;
+                    };
+
+                    let outer = parseRobustly(item.response);
+                    let finalExplanation = outer;
+                    let finalCode = item.code || "";
+
+                    if (typeof outer === 'string') {
+                      try { outer = JSON.parse(outer); finalExplanation = outer; } catch(e) {}
+                    }
+
+                    if (outer && typeof outer === 'object') {
+                      if (outer.explanation) {
+                        finalExplanation = parseRobustly(outer.explanation);
+                        if (typeof finalExplanation === 'string') {
+                          try { finalExplanation = JSON.parse(finalExplanation); } catch(e) {}
+                        }
+                        finalCode = outer.code || finalCode;
+                      }
+                    }
+
+                    // Force a clean React state cycle by clearing first
+                    setResponse(null);
+                    setCodeSnippet("");
+                    setSidebarOpen(false);
+
+                    // Re-injection with delay to force repaint
+                    setTimeout(() => {
+                      setResponse(finalExplanation);
+                      setCodeSnippet(finalCode);
+                    }, 50);
                   }}>
                   <span className="text-[9px] font-mono font-black uppercase tracking-widest px-2 py-0.5 rounded block w-fit mb-1 bg-orange-200 text-orange-900 dark:bg-orange-900/50 dark:text-orange-300">
                     {parsedMode}
@@ -221,9 +260,15 @@ export default function CodeHelper() {
                   </div>
                 ) : typeof response === 'object' ? (
                   <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                    <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl w-fit border bg-orange-100 border-orange-200 dark:bg-orange-900/30 dark:border-orange-900/50">
-                      <Code2 size={18} className="text-orange-500 dark:text-orange-400" />
-                      <span className="text-xs font-mono font-black uppercase tracking-widest text-orange-900 dark:text-orange-50">{t('sage_analysis_report')}</span>
+                    <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border bg-orange-100 border-orange-200 dark:bg-orange-900/30 dark:border-orange-900/50">
+                      <div className="flex items-center gap-3">
+                        <Code2 size={18} className="text-orange-500 dark:text-orange-400" />
+                        <span className="text-xs font-mono font-black uppercase tracking-widest text-orange-900 dark:text-orange-50">{t('sage_analysis_report')}</span>
+                      </div>
+                      <button onClick={() => nav(`/tutor?topic=${encodeURIComponent(`Explain this ${mode} code in detail: \n\n${codeSnippet}`)}`)}
+                        className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg transition-all bg-orange-200 text-orange-700 hover:bg-orange-300 dark:bg-orange-800 dark:text-orange-200 dark:hover:bg-orange-700 shadow-sm border border-orange-300 dark:border-orange-600">
+                        <Sparkles size={12} /> Explain in Tutor
+                      </button>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
