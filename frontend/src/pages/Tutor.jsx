@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import API from "../services/api";
 import Navbar from "../components/Navbar";
 import { useTranslation } from "react-i18next";
-import { User, History as HistoryIcon, Clock, Menu, X, ArrowLeft, Camera, Image as ImageIcon, Mic, MicOff, Volume2, Plus, Sparkles } from "lucide-react";
+import { User, History as HistoryIcon, Clock, Menu, X, ArrowLeft, Camera, Image as ImageIcon, Mic, MicOff, Volume2, Plus, Sparkles, FileDown } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -125,6 +125,34 @@ export default function Tutor() {
   }
 
   const goToQuiz = () => nav(`/quiz?topic=${encodeURIComponent(topic)}&lang=${encodeURIComponent(language)}`)
+
+  const handleDownloadPDF = async () => {
+    if (!response) return;
+    const tid = toast.loading(t('generating_pdf') || "Generating PDF...");
+    try {
+      const res = await API.post("/ai/download-pdf", {
+        email: email || "User",
+        topic,
+        language,
+        level,
+        content: response
+      }, {
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `AccessTech_Lesson_${topic.replace(/\s+/g, '_')}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success(t('pdf_downloaded') || "PDF Downloaded!", { id: tid });
+    } catch (error) {
+      console.error("PDF Download Error:", error);
+      toast.error(t('failed_download_pdf'), { id: tid });
+    }
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-fuchsia-50 dark:bg-gray-950">
@@ -267,10 +295,17 @@ export default function Tutor() {
                     {isSpeaking ? <MicOff size={16} /> : <Volume2 size={16} />}
                   </button>
                 </div>
-                <button onClick={goToQuiz}
-                  className="text-white rounded-xl font-bold shadow-lg text-sm h-9 px-4 bg-gradient-to-br from-green-300 to-green-500 hover:from-green-400 hover:to-green-600 dark:from-green-600 dark:to-green-800 transition-all whitespace-nowrap">
-                  {t('take_quiz') || "Take Quiz"} →
-                </button>
+                <div className="flex items-center gap-2">
+                  <button onClick={handleDownloadPDF}
+                    className="text-white rounded-xl font-bold shadow-lg text-sm h-9 px-4 bg-gradient-to-br from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 dark:from-blue-600 dark:to-blue-800 transition-all flex items-center gap-2">
+                    <FileDown size={16} />
+                    {t('download_pdf')}
+                  </button>
+                  <button onClick={goToQuiz}
+                    className="text-white rounded-xl font-bold shadow-lg text-sm h-9 px-4 bg-gradient-to-br from-green-300 to-green-500 hover:from-green-400 hover:to-green-600 dark:from-green-600 dark:to-green-800 transition-all whitespace-nowrap">
+                    {t('take_quiz') || "Take Quiz"} →
+                  </button>
+                </div>
               </div>
               <div className="prose max-w-none whitespace-pre-wrap leading-relaxed text-base text-gray-700 dark:text-gray-300">
                 {response}

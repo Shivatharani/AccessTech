@@ -353,7 +353,11 @@ const en = {
     "signup_left_feature_2": "Career roadmap generator",
     "signup_left_feature_3": "Multilingual support",
     "signup_left_feature_4": "Real-time code analysis",
-    "signup_left_testimonial": "\"AccessTech transformed how students study. The AI tutor adapts to all level perfectly.\""
+    "signup_left_testimonial": "\"AccessTech transformed how students study. The AI tutor adapts to all level perfectly.\"",
+    "download_pdf": "Download PDF",
+    "failed_download_pdf": "Failed to download PDF.",
+    "generating_pdf": "Generating PDF...",
+    "pdf_downloaded": "PDF Downloaded!"
   }
 };
 
@@ -710,7 +714,11 @@ const ta = {
     "signup_left_feature_2": "வாழ்க்கைப்பாதை ஜெனரேட்டர்",
     "signup_left_feature_3": "பன்மொழி ஆதரவு",
     "signup_left_feature_4": "நிகழ்நேர குறியீடு பகுப்பாய்வு",
-    "signup_left_testimonial": "\"AccessTech மாணவர்கள் படிக்கும் முறையை மாற்றியுள்ளது. AI ஆசிரியர் அனைத்து நிலைகளுக்கும் சரியாக பொருந்துகிறது.\""
+    "signup_left_testimonial": "\"AccessTech மாணவர்கள் படிக்கும் முறையை மாற்றியுள்ளது. AI ஆசிரியர் அனைத்து நிலைகளுக்கும் சரியாக பொருந்துகிறது.\"",
+    "download_pdf": "PDF பதிவிறக்கம்",
+    "failed_download_pdf": "PDF பதிவிறக்குவதில் தோல்வி.",
+    "generating_pdf": "PDF உருவாக்கപ്പെടുന്നു...",
+    "pdf_downloaded": "PDF பதிவிறக்கம் செய்யப்பட்டது!"
   }
 };
 
@@ -1058,7 +1066,11 @@ const hi = {
     "real_life_example": "वास्तविक जीवन का उदाहरण",
     "where_used": "कहाँ उपयोग किया जाता है",
     "why_it_matters": "यह क्यों मायने रखता है",
-    "related_terms": "संबंधित शब्द"
+    "related_terms": "संबंधित शब्द",
+    "download_pdf": "PDF डाउनलोड करें",
+    "failed_download_pdf": "PDF डाउनलोड करने में विफल।",
+    "generating_pdf": "PDF तैयार किया जा रहा है...",
+    "pdf_downloaded": "PDF डाउनलोड हो गया!"
   }
 };
 const te = {
@@ -1343,7 +1355,11 @@ const te = {
     "signup_left_feature_2": "కెరీర్ రోడ్‌మ్యాప్ జనరేటర్",
     "signup_left_feature_3": "బహుభాషా మద్దతు",
     "signup_left_feature_4": "రియల్-టైమ్ కోడ్ విశ్లేషణ",
-    "signup_left_testimonial": "\"AccessTech విద్యార్థుల అధ్యయన విధానాన్ని మార్చింది. AI ట్యూటర్ అన్ని స్థాయిలకు సరిగ్గా సరిపోతుంది.\""
+    "signup_left_testimonial": "\"AccessTech విద్యార్థుల అధ్యయన విధానాన్ని మార్చింది. AI ట్యూటర్ అన్ని స్థాయిలకు సరిగ్గా సరిపోతుంది.\"",
+    "download_pdf": "PDF డౌన్‌లోడ్ చేయండి",
+    "failed_download_pdf": "PDF డౌన్‌లోడ్ చేయడం విఫలమైంది.",
+    "generating_pdf": "PDF రూపొందిస్తోంది...",
+    "pdf_downloaded": "PDF డౌన్‌లోడ్ చేయబడింది!"
   }
 };
  
@@ -1629,7 +1645,11 @@ const ml = {
     "signup_left_feature_2": "കരിയർ റോഡ്‌മാപ്പ് ജനറേറ്റർ",
     "signup_left_feature_3": "ബഹുഭാഷാ പിന്തുണ",
     "signup_left_feature_4": "റിയൽ-ടൈം കോഡ് വിശകലനം",
-    "signup_left_testimonial": "\"AccessTech വിദ്യാർത്ഥികൾ പഠിക്കുന്ന രീതി മാറ്റിമറിച്ചു. AI ട്യൂട്ടർ എല്ലാ തലങ്ങളിലേക്കും കൃത്യമായി പൊരുത്തപ്പെടുന്നു.\""
+    "signup_left_testimonial": "\"AccessTech വിദ്യാർത്ഥികൾ പഠിക്കുന്ന രീതി മാറ്റിമറിച്ചു. AI ട്യൂട്ടർ എല്ലാ തലങ്ങളിലേക്കും കൃത്യമായി പൊരുത്തപ്പെടുന്നു.\"",
+    "download_pdf": "PDF ഡൗൺലോഡ് ചെയ്യുക",
+    "failed_download_pdf": "PDF ഡൗൺലോഡ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.",
+    "generating_pdf": "PDF തയ്യാറാക്കുന്നു...",
+    "pdf_downloaded": "PDF ഡൗൺലോഡ് ചെയ്തു!"
   }
 };
 

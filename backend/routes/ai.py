@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from database import fetch_data, insert_data, update_data
 from services.groq_service import generate_content
 from services.quiz_service import generate_quiz
+from services.pdf_service import generate_tutor_pdf
+from fastapi.responses import StreamingResponse
 
 router = APIRouter()
 
@@ -29,6 +31,13 @@ class QuizSubmit(BaseModel):
     email: str
     topic: str
     score: int
+
+class PDFDownloadRequest(BaseModel):
+    email: str
+    topic: str
+    language: str
+    level: str
+    content: str
 
 
 # -----------------------------
@@ -268,6 +277,31 @@ def ask_code_helper(data: CodeHelperRequest):
 def get_history(email: str):
     history = fetch_data("history", "email", email)
     return {"history": history}
+
+
+@router.post("/download-pdf")
+def download_pdf(data: PDFDownloadRequest):
+    try:
+        pdf_buffer = generate_tutor_pdf(
+            email=data.email,
+            topic=data.topic,
+            language=data.language,
+            level=data.level,
+            content=data.content
+        )
+        
+        filename = f"AccessTech_Lesson_{data.topic.replace(' ', '_')}.pdf"
+        
+        return StreamingResponse(
+            pdf_buffer,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}"
+            }
+        )
+    except Exception as e:
+        print(f"Error generating PDF: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 
