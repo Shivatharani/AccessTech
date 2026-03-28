@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react"
+import { useState, useContext, useEffect, useCallback } from "react"
 import { AuthContext } from "../context/AuthContext"
 import API from "../services/api"
 import { useNavigate, Link } from "react-router-dom"
@@ -16,36 +16,48 @@ export default function Login() {
   const { login: contextLogin } = useContext(AuthContext)
   const { lastCommand } = useAssistant()
 
-  useEffect(() => {
-    if (lastCommand === "submit") login();
-  }, [lastCommand]);
-
   const [showPassword, setShowPassword] = useState(false)
-  const [form, setForm] = useState({ email: "", password: "", language: "English", level: "Beginner" })
+  const [form, setForm] = useState({ email: "", password: "", level: "Beginner" })
 
-  const login = async () => {
+  const login = useCallback(async () => {
+    const email = form.email.trim().toLowerCase()
+    const password = form.password.trim()
+
+    if (!email || !password) return toast.error("Please enter email and password")
+
+    const tid = toast.loading("Authenticating...")
     try {
-      const res = await API.post("/auth/login", { email: form.email, password: form.password })
-      contextLogin(form.email, res.data.access_token, res.data.language || form.language, res.data.level || form.level)
-      toast.success(t('login_success'))
+      const res = await API.post("/auth/login", { email, password })
+      contextLogin(
+        email,
+        res.data.access_token,
+        res.data.language || "English",
+        res.data.level || form.level
+      )
+      toast.success(t("login_success"), { id: tid })
       nav("/welcome")
     } catch (err) {
-      toast.error(err.response?.data?.detail || t('invalid_credentials'))
+      const msg = err.response?.data?.detail || t("invalid_credentials")
+      toast.error(msg, { id: tid })
     }
-  }
+  }, [form, contextLogin, nav, t])
+
+  useEffect(() => {
+    if (lastCommand === "submit") login()
+  }, [lastCommand, login])
 
   const handleGoogle = async (credentialResponse) => {
     try {
       const res = await API.post("/auth/google-login", { token: credentialResponse.credential })
       if (res.data.access_token) {
         contextLogin(res.data.email, res.data.access_token, res.data.language, res.data.level)
-        toast.success(t('login_success'))
+        toast.success(t("login_success"))
         nav("/welcome")
       } else {
         throw new Error("No access token received")
       }
     } catch {
-      toast.error(t('google_login_failed'))
+      toast.error(t("google_login_failed"))
     }
   }
 
@@ -67,8 +79,10 @@ export default function Login() {
           <div className="rounded-3xl p-8 md:p-10 relative overflow-hidden bg-white dark:bg-gray-900">
             <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-30 bg-green-200 dark:bg-green-900/30" />
 
-            <button onClick={() => nav("/")}
-              className="absolute top-6 left-6 w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:bg-green-50 border border-green-200 text-green-500 dark:border-green-900/40 dark:text-green-500 dark:hover:bg-gray-800">
+            <button
+              onClick={() => nav("/")}
+              className="absolute top-6 left-6 w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:bg-green-50 border border-green-200 text-green-500 dark:border-green-900/40 dark:text-green-500 dark:hover:bg-gray-800"
+            >
               <ArrowLeft size={16} />
             </button>
 
@@ -76,15 +90,23 @@ export default function Login() {
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg mb-4 bg-gradient-to-br from-green-400 to-green-600 dark:from-green-600 dark:to-green-800">
                 <Zap className="w-6 h-6 text-white fill-white" />
               </div>
-              <h2 className="text-2xl font-black tracking-tight text-green-900 dark:text-green-50">{t('welcome')}</h2>
-              <p className="text-sm mt-1 text-green-400 dark:text-green-600">{t('login_continue')}</p>
+              <h2 className="text-2xl font-black tracking-tight text-green-900 dark:text-green-50">
+                {t("welcome")}
+              </h2>
+              <p className="text-sm mt-1 text-green-400 dark:text-green-600">{t("login_continue")}</p>
             </div>
 
-            <form className="space-y-3 relative z-10" onSubmit={(e) => { e.preventDefault(); login(); }}>
+            <form
+              className="space-y-3 relative z-10"
+              onSubmit={(e) => {
+                e.preventDefault()
+                login()
+              }}
+            >
               <input
                 type="email"
                 className="w-full px-4 py-3.5 rounded-xl text-sm font-medium outline-none transition-all border focus:border-green-400 focus:ring-2 focus:ring-green-200 bg-green-50 border-green-200 text-green-800 placeholder-green-400/70 dark:bg-gray-950 dark:border-green-900/50 dark:text-green-100 dark:focus:border-green-600 dark:focus:ring-green-900/50 dark:placeholder-gray-500"
-                placeholder={t('email')}
+                placeholder={t("email")}
                 value={form.email}
                 required
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -93,7 +115,7 @@ export default function Login() {
                 <input
                   type={showPassword ? "text" : "password"}
                   className="w-full px-4 py-3.5 rounded-xl text-sm font-medium outline-none transition-all border focus:border-green-400 focus:ring-2 focus:ring-green-200 pr-12 bg-green-50 border-green-200 text-green-800 placeholder-green-400/70 dark:bg-gray-950 dark:border-green-900/50 dark:text-green-100 dark:focus:border-green-600 dark:focus:ring-green-900/50 dark:placeholder-gray-500"
-                  placeholder={t('password')}
+                  placeholder={t("password")}
                   value={form.password}
                   required
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -101,34 +123,40 @@ export default function Login() {
                 <button
                   type="button"
                   className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors text-green-400 hover:text-green-600 dark:text-green-600 dark:hover:text-green-400"
-                  onClick={() => setShowPassword(!showPassword)}>
+                  onClick={() => setShowPassword(!showPassword)}
+                >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
 
               <div className="relative">
-                <Activity size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-green-400 dark:text-green-600" />
+                <Activity
+                  size={15}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-green-400 dark:text-green-600"
+                />
                 <select
                   className="w-full pl-10 pr-4 py-3.5 rounded-xl text-sm font-medium outline-none transition-all border focus:border-green-400 appearance-none cursor-pointer bg-green-50 border-green-200 text-green-800 dark:bg-gray-950 dark:border-green-900/50 dark:text-green-100 dark:focus:border-green-600 dark:focus:ring-green-900/50"
                   value={form.level}
-                  onChange={(e) => setForm({ ...form, level: e.target.value })}>
-                  <option value="Beginner">{t('beginner')}</option>
-                  <option value="Intermediate">{t('intermediate')}</option>
-                  <option value="Advanced">{t('advanced')}</option>
+                  onChange={(e) => setForm({ ...form, level: e.target.value })}
+                >
+                  <option value="Beginner">{t("beginner")}</option>
+                  <option value="Intermediate">{t("intermediate")}</option>
+                  <option value="Advanced">{t("advanced")}</option>
                 </select>
               </div>
 
               <button
                 type="submit"
-                className="w-full mt-5 py-3.5 text-white font-bold rounded-xl shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] text-sm relative z-10 bg-gradient-to-br from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 dark:from-green-600 dark:to-green-800">
-                {t('login')}
+                className="w-full mt-5 py-3.5 text-white font-bold rounded-xl shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] text-sm relative z-10 bg-gradient-to-br from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 dark:from-green-600 dark:to-green-800"
+              >
+                {t("login")}
               </button>
             </form>
 
             <div className="mt-5 pt-5 border-t border-green-200 dark:border-green-900/40 relative z-10 flex justify-center">
               <GoogleLogin
                 onSuccess={handleGoogle}
-                onError={() => toast.error(t('google_login_failed'))}
+                onError={() => toast.error(t("google_login_failed"))}
                 theme="outline"
                 shape="pill"
                 text="signin_with"
@@ -136,9 +164,12 @@ export default function Login() {
             </div>
 
             <p className="text-center mt-5 text-sm relative z-10 text-green-500 dark:text-green-400">
-              {t('dont_have_account')}
-              <Link to="/signup" className="ml-1.5 font-bold hover:underline text-green-600 dark:text-green-500">
-                {t('signup')}
+              {t("dont_have_account")}
+              <Link
+                to="/signup"
+                className="ml-1.5 font-bold hover:underline text-green-600 dark:text-green-500"
+              >
+                {t("signup")}
               </Link>
             </p>
           </div>

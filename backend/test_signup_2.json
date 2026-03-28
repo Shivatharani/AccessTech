@@ -1,0 +1,8 @@
+{
+  "name": "Test User 2",
+  "email": "test-user-2@example.com",
+  "password": "Password123!",
+  "confirm_password": "Password123!",
+  "language": "English",
+  "level": "Beginner"
+}

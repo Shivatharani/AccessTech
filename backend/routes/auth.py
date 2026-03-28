@@ -32,13 +32,15 @@ class UpdateProfileRequest(BaseModel):
 
 @router.post("/signup")
 def signup(user: SignupRequest):
-
     if user.password != user.confirm_password:
         raise HTTPException(status_code=400, detail="Passwords do not match")
 
     existing = fetch_data("users", "email", user.email)
 
-    if existing:
+    if isinstance(existing, dict) and existing.get("error"):
+        raise HTTPException(status_code=500, detail=f"Database lookup error: {existing.get('message')}")
+
+    if isinstance(existing, list) and len(existing) > 0:
         raise HTTPException(status_code=400, detail="User already exists")
 
     hashed = hash_password(user.password)
@@ -53,21 +55,30 @@ def signup(user: SignupRequest):
         "created_at": datetime.utcnow().isoformat() + "Z"
     })
 
-    if isinstance(res, dict) and "error" in res:
-        raise HTTPException(status_code=500, detail=f"Database error: {res.get('message', 'Unknown error')}")
+    if isinstance(res, dict) and res.get("error"):
+        raise HTTPException(status_code=500, detail=f"Signup failed: {res.get('message', 'Unknown error')}")
 
     return {"message": "Signup successful"}
 
 
 @router.post("/login")
 def login(user: LoginRequest, request: Request):
-
     users = fetch_data("users", "email", user.email)
 
-    if not users:
+    if isinstance(users, dict) and users.get("error"):
+        raise HTTPException(status_code=500, detail=f"Database error during login: {users.get('message')}")
+
+    if not isinstance(users, list) or len(users) == 0:
         raise HTTPException(status_code=404, detail="User not found")
 
     db_user = users[0]
+
+    # Handle users who signed up via Google and don't have a password
+    if not db_user.get("password"):
+        raise HTTPException(
+            status_code=400,
+            detail="This account uses Google Login. Please use 'Sign in with Google'."
+        )
 
     if not verify_password(user.password, db_user["password"]):
         raise HTTPException(status_code=401, detail="Invalid password")
@@ -84,14 +95,13 @@ def login(user: LoginRequest, request: Request):
     return {
         "message": "Login successful",
         "access_token": token,
-        "language": db_user["language"],
-        "level": db_user["level"]
+        "language": db_user.get("language", "English"),
+        "level": db_user.get("level", "Beginner")
     }
 
 
 @router.post("/google-login")
 def google_login(data: GoogleLogin, request: Request):
-
     try:
         idinfo = verify_google_token(data.token)
     except Exception as e:
@@ -102,8 +112,12 @@ def google_login(data: GoogleLogin, request: Request):
 
     users = fetch_data("users", "email", email)
 
-    if not users:
-        insert_data("users", {
+    # Treat a DB error as a 500, not as "user not found"
+    if isinstance(users, dict) and users.get("error"):
+        raise HTTPException(status_code=500, detail=f"Database error: {users.get('message')}")
+
+    if not isinstance(users, list) or len(users) == 0:
+        res = insert_data("users", {
             "name": name,
             "email": email,
             "provider": "google",
@@ -111,6 +125,13 @@ def google_login(data: GoogleLogin, request: Request):
             "level": "Beginner",
             "created_at": datetime.utcnow().isoformat() + "Z"
         })
+        if isinstance(res, dict) and res.get("error"):
+            raise HTTPException(status_code=500, detail=f"Failed to create user: {res.get('message')}")
+
+        # Re-fetch after insert so we return the persisted record
+        users = fetch_data("users", "email", email)
+        if isinstance(users, dict) and users.get("error"):
+            raise HTTPException(status_code=500, detail=f"Database error after insert: {users.get('message')}")
 
     insert_data("login_activity", {
         "email": email,
@@ -120,33 +141,36 @@ def google_login(data: GoogleLogin, request: Request):
     })
 
     token = create_token(email)
-    
-    user_data_list = fetch_data("users", "email", email)
-    user_data = user_data_list[0] if user_data_list else {
-        "language": "English",
-        "level": "Beginner"
-    }
+
+    user_data = users[0] if isinstance(users, list) and len(users) > 0 else {}
 
     return {
         "access_token": token,
         "email": email,
-        "language": user_data["language"],
-        "level": user_data["level"]
+        "language": user_data.get("language", "English"),
+        "level": user_data.get("level", "Beginner")
     }
+
 
 @router.post("/update-profile")
 def update_profile(data: UpdateProfileRequest):
     users = fetch_data("users", "email", data.email)
-    if not users:
+
+    if isinstance(users, dict) and users.get("error"):
+        raise HTTPException(status_code=500, detail=f"Database error: {users.get('message')}")
+
+    if not isinstance(users, list) or len(users) == 0:
         raise HTTPException(status_code=404, detail="User not found")
-    
+
     update_fields = {}
     if data.language:
         update_fields["language"] = data.language
     if data.level:
         update_fields["level"] = data.level
-        
+
     if update_fields:
-        update_data("users", "email", data.email, update_fields)
-        
+        res = update_data("users", "email", data.email, update_fields)
+        if isinstance(res, dict) and res.get("error"):
+            raise HTTPException(status_code=500, detail=f"Update failed: {res.get('message')}")
+
     return {"message": "Profile updated successfully"}
