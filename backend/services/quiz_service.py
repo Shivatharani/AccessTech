@@ -6,10 +6,10 @@ import os
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 
-def generate_quiz(topic, language):
+def generate_quiz(topic, language, count=10):
 
     prompt = f"""
-Generate EXACTLY 10 multiple-choice questions (MCQs) about {topic}. IT IS ABSOLUTELY CRITICAL THAT YOU GENERATE EXACTLY 10 QUESTIONS, NO MORE AND NO LESS.
+Generate EXACTLY {count} multiple-choice questions (MCQs) about {topic}. IT IS ABSOLUTELY CRITICAL THAT YOU GENERATE EXACTLY {count} QUESTIONS, NO MORE AND NO LESS.
 
 CRITICAL INSTRUCTION: EVERY SINGLE QUESTION MUST BE COMPLETELY UNIQUE. DO NOT REPEAT ANY CONCEPT, QUESTION, OR SET OF OPTIONS. Provide a diverse range of sub-topics within {topic}. Ensure options are distinct for each question.
 

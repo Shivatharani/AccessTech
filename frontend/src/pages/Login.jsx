@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import { useAssistant } from "../context/AssistantContext"
 import { LanguageSwitcher } from "../components/LanguageSwitcher"
+import { LevelSwitcher } from "../components/LevelSwitcher"
 
 export default function Login() {
   const nav = useNavigate()
@@ -56,7 +57,8 @@ export default function Login() {
         <div className="absolute bottom-1/4 right-1/4 w-[30vw] h-[30vw] rounded-full opacity-20 blur-[80px] bg-teal-300 dark:bg-teal-700/30" />
       </div>
 
-      <div className="absolute top-6 right-6 z-50">
+      <div className="absolute top-6 right-6 z-50 flex items-center gap-2">
+        <LevelSwitcher />
         <LanguageSwitcher />
       </div>
 

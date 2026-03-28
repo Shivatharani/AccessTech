@@ -3,7 +3,7 @@ import API from "../services/api";
 import { toast } from "sonner";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { ArrowLeft, CheckCircle, XCircle, Trophy, Target, Sparkles } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, Trophy, Target, Sparkles, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 
@@ -12,30 +12,49 @@ export default function Quiz() {
   const nav = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const topic = queryParams.get("topic") || "General";
+  const initialTopic = queryParams.get("topic") || "";
   const lang = queryParams.get("lang") || "English";
+  const count = parseInt(queryParams.get("count") || "10", 10);
   const email = localStorage.getItem("email");
 
+  const [topic, setTopic] = useState(initialTopic);
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [quizFinished, setQuizFinished] = useState(false);
 
-  useEffect(() => { fetchQuiz(); }, []);
+  useEffect(() => { 
+    if (initialTopic) {
+      fetchQuiz(initialTopic);
+    }
+  }, []);
 
-  const fetchQuiz = async () => {
+  const fetchQuiz = async (searchTopic = topic) => {
+    if (!searchTopic.trim()) {
+      toast.error(t('enter_topic') || "Please enter a topic");
+      return;
+    }
+    setTopic(searchTopic);
+    setLoading(true);
+    setQuizFinished(false);
+    setQuestions([]);
+    setCurrentIndex(0);
+    setScore(0);
+    setSelectedOption(null);
+    setShowAnswer(false);
+
     try {
-      const tid = toast.loading(`${t('generating_questions')} ${topic}...`);
-      const res = await API.post("/ai/generate-quiz", { topic, language: lang });
+      const tid = toast.loading(`${t('generating_questions')} ${searchTopic}...`);
+      const res = await API.post("/ai/generate-quiz", { topic: searchTopic, language: lang, count });
       setQuestions(res.data.quiz);
       setLoading(false);
       toast.success(t('ready_begin'), { id: tid });
     } catch (err) {
       toast.error(t('send_error'));
-      nav(-1);
+      setLoading(false);
     }
   };
 
@@ -113,13 +132,32 @@ export default function Quiz() {
               <ArrowLeft size={18} />
             </button>
             <div className="text-center">
-              <h1 className="text-lg font-black tracking-tight text-pink-900 dark:text-pink-50">{topic}</h1>
+              <h1 className="text-lg font-black tracking-tight text-pink-900 dark:text-pink-50">{topic || t('quiz')}</h1>
               <p className="text-xs font-bold uppercase tracking-widest text-pink-400 dark:text-pink-500">{t('mastery')}</p>
             </div>
-            <div className="px-4 py-2 rounded-xl border bg-pink-100 border-pink-300 dark:bg-pink-900/30 dark:border-pink-900/50">
-              <span className="font-black text-sm text-pink-900 dark:text-pink-100">{t('score')}: {score}</span>
-            </div>
+            {questions.length > 0 ? (
+              <div className="px-4 py-2 rounded-xl border bg-pink-100 border-pink-300 dark:bg-pink-900/30 dark:border-pink-900/50">
+                <span className="font-black text-sm text-pink-900 dark:text-pink-100">{t('score')}: {score}</span>
+              </div>
+            ) : <div className="w-[74px]" />}
           </div>
+
+          {/* Search bar when not taking a quiz */ }
+          {!loading && !quizFinished && questions.length === 0 && (
+            <div className="mb-10 bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-sm border border-pink-200 dark:border-pink-900/50 flex flex-col md:flex-row gap-3">
+               <input
+                 className="flex-1 px-5 py-4 rounded-2xl border-2 outline-none transition-all text-base font-medium focus:ring-2 focus:border-pink-400 dark:focus:border-pink-600 bg-pink-50 border-pink-200 text-pink-900 dark:bg-gray-950 dark:border-pink-900/50 dark:text-pink-50 placeholder-pink-400 dark:placeholder-pink-700"
+                 placeholder={t('enter_quiz_topic', 'Enter the topic')}
+                 value={topic}
+                 onChange={e => setTopic(e.target.value)}
+                 onKeyDown={(e) => e.key === 'Enter' && fetchQuiz(topic)}
+               />
+               <button onClick={() => fetchQuiz(topic)}
+                 className="text-white px-8 h-14 rounded-2xl font-bold shadow-lg transition-all text-base whitespace-nowrap bg-gradient-to-br from-pink-400 to-pink-700 hover:from-pink-500 hover:to-pink-800 dark:from-pink-600 dark:to-pink-900 flex items-center gap-2">
+                 <Sparkles size={18} /> {t('generate_quiz', 'Generate Quiz')}
+               </button>
+            </div>
+          )}
 
           {!quizFinished && questions.length > 0 && (
             <div className="mb-6">

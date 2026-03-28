@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
+import { LevelSwitcher } from "../components/LevelSwitcher";
 
 export default function Home() {
   const { t } = useTranslation();
@@ -123,6 +124,7 @@ export default function Home() {
           </span>
         </div>
         <div className="flex items-center gap-3">
+          <LevelSwitcher />
           <LanguageSwitcher />
           <ThemeToggle />
           <button

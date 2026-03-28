@@ -444,6 +444,10 @@ export default function Mentor() {
                     className="flex items-center gap-2 px-7 py-4 rounded-2xl font-black text-sm transition-all hover:scale-105 shadow-xl bg-white text-sky-900 dark:bg-gray-800 dark:text-sky-100">
                     {t('start_learning_tutor')} <ArrowRight size={18} />
                   </button>
+                  <button onClick={() => nav(`/quiz?topic=${encodeURIComponent(goal)}&count=20`)}
+                    className="flex items-center gap-2 px-7 py-4 rounded-2xl font-black text-sm transition-all hover:scale-105 shadow-xl text-white bg-gradient-to-br from-sky-400 to-sky-600 hover:from-sky-500 hover:to-sky-700 dark:from-sky-600 dark:to-sky-800">
+                    {t('take_quiz') || "Take Quiz"} <Target size={18} />
+                  </button>
                 </div>
               </div>
             </div>
