@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
-from database import insert_data, fetch_data
+from database import insert_data, fetch_data, update_data
 from utils.auth_utils import hash_password, verify_password, create_token
 from oauth_google import verify_google_token
 
@@ -43,7 +43,7 @@ def signup(user: SignupRequest):
 
     hashed = hash_password(user.password)
 
-    insert_data("users", {
+    res = insert_data("users", {
         "name": user.name,
         "email": user.email,
         "password": hashed,
@@ -52,6 +52,9 @@ def signup(user: SignupRequest):
         "provider": "manual",
         "created_at": datetime.utcnow().isoformat() + "Z"
     })
+
+    if isinstance(res, dict) and "error" in res:
+        raise HTTPException(status_code=500, detail=f"Database error: {res.get('message', 'Unknown error')}")
 
     return {"message": "Signup successful"}
 
@@ -144,7 +147,6 @@ def update_profile(data: UpdateProfileRequest):
         update_fields["level"] = data.level
         
     if update_fields:
-        from database import update_data
         update_data("users", "email", data.email, update_fields)
         
     return {"message": "Profile updated successfully"}

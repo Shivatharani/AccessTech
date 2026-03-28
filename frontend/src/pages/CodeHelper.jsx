@@ -63,6 +63,23 @@ export default function CodeHelper() {
 
         {/* Sidebar */}
         <aside className={`fixed md:relative z-50 w-72 flex flex-col h-[calc(100vh-64px)] overflow-y-auto transition-transform duration-300 border-r ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} bg-orange-50 border-orange-200 dark:bg-gray-900 dark:border-orange-900/40`}>
+          
+          {/* User Info aligned with Sidebar */}
+          <div className="p-5 border-b border-orange-200 dark:border-orange-900/40 bg-white/50 dark:bg-black/20">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-orange-100 dark:bg-orange-900/30">
+                <Code2 size={24} className="text-orange-500 dark:text-orange-400" />
+              </div>
+              <div className="overflow-hidden">
+                <p className="font-black text-xs truncate text-orange-900 dark:text-orange-50">{email}</p>
+                <div className="flex gap-2 mt-0.5">
+                  <span className="text-[8px] font-black uppercase tracking-tighter px-1.5 py-0.5 rounded bg-orange-200 dark:bg-orange-900 text-orange-700 dark:text-orange-300">{lang}</span>
+                  <span className="text-[8px] font-black uppercase tracking-tighter px-1.5 py-0.5 rounded bg-amber-200 dark:bg-amber-900 text-amber-700 dark:text-amber-300">{lvl}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="p-5 border-b border-orange-200 dark:border-orange-900/40">
             <div className="flex items-center gap-2">
               <HistoryIcon size={16} className="text-orange-500 dark:text-orange-400" />
@@ -126,19 +143,6 @@ export default function CodeHelper() {
                     <h1 className="text-2xl font-black tracking-tighter font-mono text-orange-900 dark:text-orange-50">{t('syntaxsage')}</h1>
                     <p className="text-xs font-mono uppercase tracking-widest text-orange-400 dark:text-orange-600">{t('expert_ai_intelligence')}</p>
                   </div>
-                </div>
-              </div>
-
-              <div className="hidden md:flex items-center gap-3 p-3 rounded-2xl border bg-white border-orange-200 dark:bg-gray-900 dark:border-orange-900/40">
-                <div className="text-right">
-                  <span className="font-bold text-sm block truncate max-w-[150px] text-orange-900 dark:text-orange-50">{email}</span>
-                  <div className="flex gap-2 justify-end mt-0.5">
-                    <span className="text-[9px] uppercase font-mono text-orange-400 dark:text-orange-600">{lang}</span>
-                    <span className="text-[9px] uppercase font-mono text-orange-400 dark:text-orange-600">{lvl}</span>
-                  </div>
-                </div>
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-orange-100 dark:bg-orange-900/30">
-                  <Code2 size={20} className="text-orange-500 dark:text-orange-400" />
                 </div>
               </div>
             </div>

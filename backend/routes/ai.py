@@ -63,10 +63,12 @@ def ask_ai(data: AskRequest):
     )
 
     # store history
+    from datetime import datetime
     insert_data("history", {
         "email": data.email,
         "question": f"Tutor: {data.topic}",
-        "response": ai_response
+        "response": ai_response,
+        "created_at": datetime.utcnow().isoformat() + "Z"
     })
 
     # generate quiz
@@ -130,10 +132,12 @@ def get_quiz(data: QuizRequest):
 @router.post("/submit-quiz")
 def submit_quiz(data: QuizSubmit):
 
+    from datetime import datetime
     insert_data("quiz", {
         "email": data.email,
         "topic": data.topic,
-        "score": data.score
+        "score": data.score,
+        "created_at": datetime.utcnow().isoformat() + "Z"
     })
 
     return {
@@ -170,10 +174,12 @@ def ask_mentor(data: MentorRequest):
         print(f"Error in Mentor AI: {e}")
         return {"error": "Failed to generate mentor response.", "details": str(e)}
 
+    from datetime import datetime
     insert_data("history", {
         "email": data.email,
         "question": f"Mentor: {data.goal}",
-        "response": ai_response
+        "response": ai_response,
+        "created_at": datetime.utcnow().isoformat() + "Z"
     })
 
     return {"response": ai_response}
@@ -208,10 +214,12 @@ def ask_dictionary(data: DictionaryRequest):
         print(f"Error in Dictionary AI: {e}")
         return {"error": "Failed to generate dictionary definition.", "details": str(e)}
 
+    from datetime import datetime
     insert_data("history", {
         "email": data.email,
         "question": f"Dictionary: {data.term}",
-        "response": ai_response
+        "response": ai_response,
+        "created_at": datetime.utcnow().isoformat() + "Z"
     })
 
     return {"response": ai_response}
@@ -262,7 +270,8 @@ def ask_code_helper(data: CodeHelperRequest):
             "response": json.dumps({
                 "explanation": ai_response,
                 "code": data.code_snippet
-            })
+            }),
+            "created_at": datetime.utcnow().isoformat() + "Z"
         })
     except Exception as e:
         print(f"Failed to store history: {e}")

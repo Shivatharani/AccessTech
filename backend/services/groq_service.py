@@ -255,3 +255,26 @@ Format clearly with bullet points.
     )
 
     return chat.choices[0].message.content
+
+def generate_dashboard_insight(stats_summary, language):
+    prompt = f"""
+    You are AccessTech Dashboard AI.
+    Analyze this user's learning stats: {stats_summary}
+    
+    Return ONLY a JSON object:
+    {{
+      "insight": "A 2-sentence summary of strengths/weaknesses in {language}",
+      "recommendations": [
+        "Recommendation 1 in {language}",
+        "Recommendation 2 in {language}",
+        "Recommendation 3 in {language}"
+      ]
+    }}
+    Output JSON ONLY. Use double quotes. Strictly use {language}.
+    """
+    chat = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[{"role": "user", "content": prompt}],
+        response_format={"type": "json_object"}
+    )
+    return chat.choices[0].message.content
