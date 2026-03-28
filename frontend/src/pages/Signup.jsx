@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useTranslation } from "react-i18next"
 import { LanguageSwitcher } from "../components/LanguageSwitcher"
+import { LevelSwitcher } from "../components/LevelSwitcher"
 
 export default function Signup() {
   const nav = useNavigate()
@@ -40,7 +41,8 @@ export default function Signup() {
 
   return (
     <div className="min-h-screen flex relative transition-colors duration-500 bg-teal-50 dark:bg-gray-950">
-      <div className="absolute top-6 right-6 z-50">
+      <div className="absolute top-6 right-6 z-50 flex items-center gap-2">
+        <LevelSwitcher />
         <LanguageSwitcher />
       </div>
 

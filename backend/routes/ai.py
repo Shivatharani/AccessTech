@@ -25,6 +25,7 @@ class AskRequest(BaseModel):
 class QuizRequest(BaseModel):
     topic: str
     language: str
+    count: Optional[int] = 10
 
 
 class QuizSubmit(BaseModel):
@@ -45,6 +46,7 @@ class PDFDownloadRequest(BaseModel):
 # -----------------------------
 @router.post("/ask")
 def ask_ai(data: AskRequest):
+    data.topic = data.topic[0].upper() + data.topic[1:] if data.topic else data.topic
 
     users = fetch_data("users", "email", data.email)
 
@@ -118,7 +120,7 @@ def ask_ai(data: AskRequest):
 # -----------------------------
 @router.post("/generate-quiz")
 def get_quiz(data: QuizRequest):
-    quiz_data = generate_quiz(data.topic, data.language)
+    quiz_data = generate_quiz(data.topic, data.language, data.count)
     
     if not quiz_data:
         raise HTTPException(status_code=500, detail="Failed to generate quiz JSON from AI")
@@ -155,6 +157,7 @@ class MentorRequest(BaseModel):
 
 @router.post("/mentor")
 def ask_mentor(data: MentorRequest):
+    data.goal = data.goal[0].upper() + data.goal[1:] if data.goal else data.goal
     users = fetch_data("users", "email", data.email)
     if not users:
         raise HTTPException(status_code=404, detail="User not found")
@@ -195,6 +198,7 @@ class DictionaryRequest(BaseModel):
 
 @router.post("/dictionary")
 def ask_dictionary(data: DictionaryRequest):
+    data.term = data.term[0].upper() + data.term[1:] if data.term else data.term
     users = fetch_data("users", "email", data.email)
     if not users:
         raise HTTPException(status_code=404, detail="User not found")
@@ -237,6 +241,7 @@ class CodeHelperRequest(BaseModel):
 
 @router.post("/codehelper")
 def ask_code_helper(data: CodeHelperRequest):
+    data.query = data.query[0].upper() + data.query[1:] if data.query else data.query
     users = fetch_data("users", "email", data.email)
     if not users:
         raise HTTPException(status_code=404, detail="User not found")

@@ -5,6 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 import { BookOpen, LogOut, Code2, Map, Sparkles } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { LevelSwitcher } from "./LevelSwitcher";
 
 export default function Navbar() {
 
@@ -38,6 +39,7 @@ export default function Navbar() {
       </div>
         
       <div className="flex items-center shrink-0 space-x-2 md:space-x-3 ml-4">
+        <LevelSwitcher />
         <LanguageSwitcher />
         <ThemeToggle />
         <button onClick={handleLogout} className="flex items-center gap-1 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 px-3 py-1.5 rounded-md transition-colors font-bold">

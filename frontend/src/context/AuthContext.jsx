@@ -78,7 +78,10 @@ export const AuthProvider = ({ children }) => {
 
   const updateSettings = (newLang, newLvl) => {
     if (newLang) setLanguage(newLang);
-    if (newLvl) setLevel(newLvl);
+    if (newLvl) {
+      localStorage.setItem("level", newLvl);
+      setLevel(newLvl);
+    }
   };
 
   return (
