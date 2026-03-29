@@ -45,7 +45,7 @@ Dynamic assessments for any topic.
 - **Styling:** Tailwind CSS & Shadcn UI
 - **State & Routing:** React Router DOM
 - **Visualization:** Recharts (Dynamic Analytics)
-- **Internationalization:** `react-i18next` (English, Tamil, Hindi support)
+- **Internationalization:** `react-i18next` (English, Tamil, Hindi,Telugu,Malayalam support)
 - **Theming:** `next-themes` (Seamless Dark/Light Mode)
 - **Notifications:** Sonner Toast Notifications
 
