@@ -4,8 +4,8 @@ from fpdf import FPDF
 from io import BytesIO
 
 # Font path for Unicode support (Relative to this file for deployment compatibility)
-# Ensure you have Nirmala.ttf in backend/services/assets/fonts/
-FONT_PATH = os.path.join(os.path.dirname(__file__), "assets", "fonts", "Nirmala.ttf")
+# Ensure you have Nirmala.ttc in backend/services/assets/fonts/
+FONT_PATH = os.path.join(os.path.dirname(__file__), "assets", "fonts", "Nirmala.ttc")
 
 class TutorPDF(FPDF):
     def __init__(self, email, topic, language, level):
@@ -15,10 +15,15 @@ class TutorPDF(FPDF):
         self.language = language
         self.level = level
         
+        # Enable complex text shaping for Indic languages (Tamil, Hindi, etc.)
+        # This requires uharfbuzz to be installed.
+        self.set_text_shaping(True)
+        
         # Robust font loading for deployment
         self.font_name = "Arial" # Default fallback
         try:
             if os.path.exists(FONT_PATH):
+                # .ttc is a collection; fpdf2 can handle it. If it fails, fallback.
                 self.add_font("Nirmala", "", FONT_PATH)
                 self.add_font("Nirmala", "B", FONT_PATH)
                 self.font_name = "Nirmala"
