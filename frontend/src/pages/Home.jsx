@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { LevelSwitcher } from "../components/LevelSwitcher";
+import API from "../services/api";
 
 export default function Home() {
   const { t } = useTranslation();
@@ -30,20 +31,15 @@ export default function Home() {
     setIsSubmitting(true);
     setSubmitStatus({ type: '', message: '' });
     try {
-      const response = await fetch('http://localhost:8000/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setSubmitStatus({ type: 'success', message: data.message || t('send_success') });
-        setFormData({ name: '', email: '', message: '' });
-      } else {
-        setSubmitStatus({ type: 'error', message: data.detail || t('send_error') });
-      }
+      const response = await API.post('/contact', formData);
+      setSubmitStatus({ type: 'success', message: response.data.message || t('send_success') });
+      setFormData({ name: '', email: '', message: '' });
     } catch (error) {
-      setSubmitStatus({ type: 'error', message: t('network_error') });
+      if (error.response) {
+        setSubmitStatus({ type: 'error', message: error.response.data.detail || t('send_error') });
+      } else {
+        setSubmitStatus({ type: 'error', message: t('network_error') });
+      }
     } finally {
       setIsSubmitting(false);
     }
