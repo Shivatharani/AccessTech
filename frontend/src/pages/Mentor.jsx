@@ -190,7 +190,7 @@ export default function Mentor() {
                 onKeyDown={(e) => e.key === 'Enter' && askMentor()}
               />
               <button onClick={askMentor}
-                className="text-white px-8 h-14 rounded-2xl font-bold shadow-lg transition-all text-base whitespace-nowrap bg-gradient-to-br from-sky-400 to-sky-600 hover:from-sky-500 hover:to-sky-700 dark:from-sky-600 dark:to-sky-800">
+                className="text-white w-full sm:w-auto px-6 sm:px-8 h-12 sm:h-14 rounded-2xl font-bold shadow-lg transition-all text-sm sm:text-base whitespace-nowrap bg-gradient-to-br from-sky-400 to-sky-600 hover:from-sky-500 hover:to-sky-700 dark:from-sky-600 dark:to-sky-800">
                 {t('map_path')}
               </button>
             </div>
@@ -280,11 +280,11 @@ export default function Mentor() {
                 <h3 className="text-2xl font-black mb-8 flex items-center gap-3 text-sky-900 dark:text-sky-50">
                   <Map className="text-sky-600 dark:text-sky-500" size={28} /> {t('step_by_step_roadmap')}
                 </h3>
-                <div className="relative ml-5 space-y-8 border-l-4 border-sky-100 dark:border-sky-900/50">
+                <div className="relative ml-2 sm:ml-5 space-y-8 border-l-4 border-sky-100 dark:border-sky-900/50">
                   {parsedData.roadmap.map((step, idx) => {
                     const isDone = progress[`step_${idx}`];
                     return (
-                      <div key={idx} className="relative pl-10">
+                      <div key={idx} className="relative pl-6 sm:pl-10">
                         <div className={`absolute -left-[22px] top-1 w-10 h-10 rounded-full border-4 border-white dark:border-gray-900 flex items-center justify-center transition-all duration-300 cursor-pointer shadow-lg ${isDone ? 'bg-green-500 text-white dark:bg-green-600' : 'bg-sky-100 text-sky-600 dark:bg-sky-900 dark:text-sky-400'}`}
                           onClick={() => toggleStepProgress(idx)}>
                           {isDone ? <CheckCircle2 size={18} /> : <span className="font-black text-sm">{idx + 1}</span>}

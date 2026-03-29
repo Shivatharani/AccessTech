@@ -140,16 +140,16 @@ export default function Home() {
         </div>
       </nav>
 
-      <main className="flex-grow relative z-10">
+      <main className="flex-grow relative z-10 w-full">
 
         {/* Hero */}
-        <section className="px-6 lg:px-20 pt-24 pb-20 text-center max-w-6xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase mb-8 border bg-green-100 border-green-300 text-green-800 dark:bg-green-900/30 dark:border-green-800/50 dark:text-green-400">
+        <section className="px-5 sm:px-6 lg:px-20 pt-16 md:pt-24 pb-16 md:pb-20 text-center max-w-6xl mx-auto w-full">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase mb-6 md:mb-8 border bg-green-100 border-green-300 text-green-800 dark:bg-green-900/30 dark:border-green-800/50 dark:text-green-400">
             <span className="w-1.5 h-1.5 rounded-full animate-pulse bg-green-600 dark:bg-green-400" />
             {t('hero_subtitle')}
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-tight mb-8 text-green-900 dark:text-green-50">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter leading-tight mb-6 md:mb-8 text-green-900 dark:text-green-50 px-2">
             {t('welcome').split(' ').map((word, i) => (
               <span key={i} className={`${i % 2 !== 0 ? 'italic text-green-600 dark:text-green-400' : ''}`}>
                 {word}{' '}
@@ -157,11 +157,11 @@ export default function Home() {
             ))}
           </h1>
 
-          <p className="text-xl md:text-2xl mb-12 max-w-3xl mx-auto leading-relaxed font-medium text-green-600 dark:text-green-400/80">
+          <p className="text-lg sm:text-xl md:text-2xl mb-8 md:mb-12 max-w-3xl mx-auto leading-relaxed font-medium text-green-600 dark:text-green-400/80 px-4">
             {t('hero_desc')}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center px-4 w-full">
             <button
               onClick={() => navigate('/signup')}
               className="flex items-center justify-center gap-2 h-14 px-10 rounded-2xl text-white font-bold text-lg shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl bg-gradient-to-br from-green-400 to-green-700 dark:from-green-600 dark:to-green-800">
@@ -178,10 +178,10 @@ export default function Home() {
         </section>
 
         {/* Features */}
-        <section className="py-20 px-6 lg:px-20">
+        <section className="py-16 md:py-20 px-5 sm:px-6 lg:px-20 w-full">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4 text-green-900 dark:text-green-50">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight mb-4 text-green-900 dark:text-green-50">
                 {t('features')}
               </h2>
               <p className="text-lg max-w-xl mx-auto text-green-400 dark:text-green-600">
@@ -216,20 +216,20 @@ export default function Home() {
         </section>
 
         {/* Contact */}
-        <section className="py-20 px-6 lg:px-20">
+        <section className="py-16 md:py-20 px-4 sm:px-6 lg:px-20 w-full">
           <div className="max-w-5xl mx-auto">
             <div className="relative rounded-[2.5rem] overflow-hidden border bg-gradient-to-br from-green-50 to-teal-50 border-green-200 dark:from-green-900/20 dark:to-teal-900/20 dark:border-green-800/40">
               <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute top-0 left-0 w-72 h-72 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 opacity-40 bg-green-300 dark:bg-green-800/30" />
                 <div className="absolute bottom-0 right-0 w-72 h-72 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 opacity-30 bg-teal-300 dark:bg-teal-800/30" />
               </div>
-              <div className="relative z-10 p-10 md:p-14">
-                <div className="grid md:grid-cols-2 gap-12 items-start">
-                  <div>
+              <div className="relative z-10 p-6 sm:p-10 md:p-14">
+                <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
+                  <div className="px-2">
                     <span className="inline-block px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest mb-6 bg-green-200 text-green-800 dark:bg-green-900/40 dark:text-green-400">
                       Get in Touch
                     </span>
-                    <h2 className="text-4xl font-black mb-4 tracking-tight text-green-900 dark:text-green-50">{t('contact')}</h2>
+                    <h2 className="text-3xl lg:text-4xl font-black mb-4 tracking-tight text-green-900 dark:text-green-50">{t('contact')}</h2>
                     <p className="text-lg mb-8 leading-relaxed text-green-600 dark:text-green-400">{t('contact_desc')}</p>
                     <div className="space-y-5">
                       {[

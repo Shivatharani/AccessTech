@@ -124,8 +124,8 @@ export default function Signup() {
       </div>
 
       {/* Right Panel */}
-      <div className="flex-1 flex items-center justify-center p-8 overflow-y-auto">
-        <div className="w-full max-w-[420px] py-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-8 overflow-y-auto">
+        <div className="w-full max-w-[420px] py-6 sm:py-8">
           <button
             onClick={() => nav(-1)}
             className="flex items-center gap-2 mb-8 group transition-colors text-teal-600 dark:text-teal-500 hover:text-teal-800 dark:hover:text-teal-400"

@@ -227,8 +227,8 @@ export default function CodeHelper() {
                 </div>
 
                 {/* Query Bar */}
-                <div className="p-4 border-t border-slate-800 bg-slate-950">
-                  <div className="flex flex-col md:flex-row items-center gap-3 p-2 rounded-2xl border bg-slate-900 border-slate-800 dark:bg-black/50">
+                <div className="p-3 sm:p-4 border-t border-slate-800 bg-slate-950">
+                  <div className="flex flex-col md:flex-row items-center gap-2 sm:gap-3 p-2 rounded-2xl border bg-slate-900 border-slate-800 dark:bg-black/50">
                     <div className="flex-1 flex items-center w-full">
                       <HelpCircle size={18} className="ml-3 flex-shrink-0 text-slate-600 dark:text-slate-500" />
                       <input
@@ -241,7 +241,7 @@ export default function CodeHelper() {
                     </div>
                     <button
                       onClick={askCodeHelper}
-                      className="w-full md:w-auto text-white font-black px-7 py-5 rounded-xl shadow-xl transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2 text-sm uppercase tracking-widest bg-gradient-to-br from-amber-400 to-orange-600 dark:from-orange-600 dark:to-orange-800">
+                      className="w-full md:w-auto text-white font-black px-5 sm:px-7 py-4 sm:py-5 rounded-xl shadow-xl transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-sm uppercase tracking-widest bg-gradient-to-br from-amber-400 to-orange-600 dark:from-orange-600 dark:to-orange-800">
                       <Send size={16} /> {t('analyze')}
                     </button>
                   </div>
@@ -296,8 +296,8 @@ export default function CodeHelper() {
                           {response.line_by_line?.length || 0} {t('lines_analyzed')}
                         </div>
                       </div>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left">
+                      <div className="overflow-x-auto -mx-4 sm:mx-0">
+                        <table className="w-full text-left min-w-[500px]">
                           <thead>
                             <tr className="bg-amber-50 dark:bg-gray-950">
                               {[t('line'), t('code_architecture'), t('cognitive_explanation')].map(h => (

@@ -138,9 +138,9 @@ export default function Dictionary() {
           {/* Search */}
           <div className="w-full max-w-2xl mb-5">
             <div className="rounded-2xl p-2 flex items-center border-2 transition-all shadow-sm bg-white border-teal-200 focus-within:border-teal-400 dark:bg-gray-900 dark:border-teal-900/50 dark:focus-within:border-teal-700">
-              <div className="pl-4 text-teal-400 dark:text-teal-600"><Search size={20} /></div>
+              <div className="pl-4 text-teal-400 dark:text-teal-600"><Search className="w-5 h-5" /></div>
               <input
-                className="flex-1 px-4 py-3 outline-none text-lg font-medium bg-transparent text-teal-900 dark:text-teal-50 placeholder-teal-300 dark:placeholder-teal-700"
+                className="flex-1 px-3 sm:px-4 py-3 outline-none text-base sm:text-lg font-medium bg-transparent text-teal-900 dark:text-teal-50 placeholder-teal-300 dark:placeholder-teal-700 w-full min-w-0"
                 placeholder={t('search_term_placeholder')}
                 value={term}
                 onChange={e => setTerm(e.target.value)}
@@ -170,7 +170,7 @@ export default function Dictionary() {
               <div className="p-7 rounded-3xl text-white shadow-xl bg-gradient-to-br from-teal-400 to-teal-600 dark:from-teal-600 dark:to-teal-800">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
-                    <h2 className="text-3xl font-black mb-2">{response.term}</h2>
+                    <h2 className="text-2xl sm:text-3xl font-black mb-2">{response.term}</h2>
                     <button className="flex items-center gap-2 bg-white/20 border border-white/30 px-3 py-1.5 rounded-xl hover:bg-white/30 transition-all cursor-pointer dark:bg-black/20 dark:border-black/30 dark:hover:bg-black/30"
                       onClick={handleSpeech}>
                       <Volume2 size={16} />

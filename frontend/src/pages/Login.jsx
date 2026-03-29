@@ -77,7 +77,7 @@ export default function Login() {
 
       <div className="relative w-full max-w-md">
         <div className="rounded-3xl p-1 shadow-2xl bg-gradient-to-br from-green-300 to-teal-300 dark:from-green-700/50 dark:to-teal-700/50">
-          <div className="rounded-3xl p-8 md:p-10 relative overflow-hidden bg-white dark:bg-gray-900">
+          <div className="rounded-3xl p-6 sm:p-8 md:p-10 relative overflow-hidden bg-white dark:bg-gray-900">
             <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-30 bg-green-200 dark:bg-green-900/30" />
 
             <button

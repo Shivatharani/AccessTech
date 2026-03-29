@@ -19,14 +19,27 @@ export default function Navbar() {
   }
 
   return (
-    <div className="flex justify-between items-center bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 text-gray-800 dark:text-gray-100 px-6 lg:px-12 py-4 shadow-sm sticky top-0 z-50 transition-colors duration-300">
-      <Link to="/dashboard" className="flex items-center gap-3 text-indigo-700 dark:text-indigo-400 font-extrabold text-2xl tracking-tight hover:opacity-80 transition-opacity">
-        <img src="/logo.png" alt="AccessTech Logo" className="h-10 w-10 object-contain drop-shadow-md" />
-        <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-purple-600 dark:from-indigo-400 dark:to-purple-400 hidden sm:inline-block">AccessTech</span>
-      </Link>
+    <div className="flex flex-col md:flex-row justify-between items-center bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 text-gray-800 dark:text-gray-100 px-4 lg:px-12 py-3 shadow-sm sticky top-0 z-50 transition-colors duration-300 gap-3 md:gap-0">
+      <div className="flex items-center justify-between w-full md:w-auto">
+        <Link to="/dashboard" className="flex items-center gap-2 md:gap-3 text-indigo-700 dark:text-indigo-400 font-extrabold text-xl md:text-2xl tracking-tight hover:opacity-80 transition-opacity">
+          <img src="/logo.png" alt="AccessTech Logo" className="h-8 w-8 md:h-10 md:w-10 object-contain drop-shadow-md" />
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-purple-600 dark:from-indigo-400 dark:to-purple-400 hidden sm:inline-block">AccessTech</span>
+        </Link>
 
-      <div className="flex-1 overflow-hidden ml-4">
-        <div className="flex items-center space-x-4 lg:space-x-5 text-xs lg:text-sm font-medium whitespace-nowrap overflow-x-auto overflow-y-hidden px-2 pb-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        {/* Action icons for mobile on same line as logo */}
+        <div className="flex items-center space-x-2 md:hidden">
+          <LevelSwitcher />
+          <LanguageSwitcher />
+          <ThemeToggle />
+          <button onClick={handleLogout} className="text-red-600 p-1.5 rounded-md">
+            <LogOut size={16} />
+          </button>
+        </div>
+      </div>
+
+      {/* Nav Links - Scrollable on mobile below the logo tier */}
+      <div className="w-full md:flex-1 overflow-hidden md:ml-4">
+        <div className="flex items-center space-x-4 lg:space-x-5 text-xs lg:text-sm font-medium whitespace-nowrap overflow-x-auto overflow-y-hidden pb-2 md:pb-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           <style dangerouslySetInnerHTML={{__html: `::-webkit-scrollbar { display: none; }`}} />
           <Link to="/welcome" className="hover:text-indigo-600 transition-colors uppercase tracking-widest font-black text-[10px] shrink-0">{t('welcome', 'Welcome')}</Link>
           <Link to="/dashboard" className="hover:text-indigo-600 transition-colors shrink-0">{t('dashboard')}</Link>
@@ -38,7 +51,8 @@ export default function Navbar() {
         </div>
       </div>
         
-      <div className="flex items-center shrink-0 space-x-2 md:space-x-3 ml-4">
+      {/* Desktop Actions */}
+      <div className="hidden md:flex items-center shrink-0 space-x-2 md:space-x-3 ml-4">
         <LevelSwitcher />
         <LanguageSwitcher />
         <ThemeToggle />

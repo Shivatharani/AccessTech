@@ -113,13 +113,13 @@ export default function Dashboard() {
         <div className="min-h-screen bg-[#F8FAF9] dark:bg-gray-950 font-sans selection:bg-emerald-100">
             <Navbar />
 
-            <div className="p-6 md:p-10 max-w-[1700px] mx-auto space-y-8 pb-32">
+            <div className="p-4 sm:p-6 md:p-10 max-w-[1700px] mx-auto space-y-6 sm:space-y-8 pb-24 sm:pb-32">
 
                 {/* --- TOP: BRANDED HEADER & AI INSIGHT --- */}
                 <div className="flex flex-col xl:flex-row gap-8 items-stretch">
                     
                     {/* Branded Welcome */}
-                    <div className="flex-1 relative rounded-[2rem] p-10 overflow-hidden border border-emerald-100 bg-white dark:bg-gray-900 dark:border-gray-800 shadow-sm">
+                    <div className="flex-1 relative rounded-3xl sm:rounded-[2rem] p-6 sm:p-10 overflow-hidden border border-emerald-100 bg-white dark:bg-gray-900 dark:border-gray-800 shadow-sm">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 dark:bg-emerald-900/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                         
                         <div className="relative z-10">
@@ -197,7 +197,7 @@ export default function Dashboard() {
                        <h3 className="text-6xl font-black text-gray-900 dark:text-white">{currentStreak}</h3>
                        <p className="text-sm font-black uppercase tracking-widest text-orange-500 mt-2">Active Day Streak</p>
                        
-                       <div className="flex gap-2.5 mt-10">
+                       <div className="flex flex-wrap justify-center gap-2 sm:gap-2.5 mt-8 sm:mt-10">
                             {WEEKDAYS.map((day, i) => (
                                 <div key={day} className="flex flex-col items-center gap-2">
                                     <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-[10px] font-black border transition-all duration-300
@@ -251,7 +251,7 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     
                     {/* Comparative Mastery (Subject Bar) */}
-                    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-[2.5rem] p-10 shadow-sm">
+                    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-3xl sm:rounded-[2.5rem] p-6 sm:p-10 shadow-sm">
                         <h2 className="text-xl font-black tracking-tight text-gray-900 dark:text-white mb-10 flex items-center gap-3">
                              <Layers className="text-fuchsia-500" size={24} /> Subject Proficiency Matrix
                         </h2>
@@ -320,7 +320,7 @@ export default function Dashboard() {
                 {/* --- PHASE 5: RECOMMENDATIONS & SECONDARY --- */}
                 <div className="grid grid-cols-1 gap-8">
                      {/* Recommendation Panel */}
-                     <div className="rounded-[2.5rem] bg-emerald-500 p-10 text-white relative overflow-hidden group">
+                     <div className="rounded-3xl sm:rounded-[2.5rem] bg-emerald-500 p-6 sm:p-10 text-white relative overflow-hidden group">
                         <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
                         <h2 className="text-xl font-black uppercase tracking-widest mb-10 flex items-center gap-3">
                             <Sparkles size={24} /> Smart Growth Protocol
@@ -356,7 +356,7 @@ export default function Dashboard() {
 
                     <div className="space-y-12">
                         {domainProgress.length > 0 ? domainProgress.map((domain, i) => (
-                            <div key={i} className="relative p-8 rounded-[2.5rem] border border-gray-50 bg-[#FCFDFD] dark:bg-gray-800/20 dark:border-gray-800">
+                            <div key={i} className="relative p-6 sm:p-8 rounded-3xl sm:rounded-[2.5rem] border border-gray-50 bg-[#FCFDFD] dark:bg-gray-800/20 dark:border-gray-800">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
                                     <div className="flex items-center gap-5">
                                         <div className="w-16 h-16 rounded-2xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 flex items-center justify-center text-2xl">
@@ -409,7 +409,7 @@ export default function Dashboard() {
                     <h2 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white mb-10 flex items-center gap-3">
                         <LayoutDashboard className="text-emerald-500" size={32} /> Central AI Hub Operations
                     </h2>
-                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-8">
                         {TOOLS.map((tool, i) => (
                             <div key={i} onClick={() => nav(tool.path)}
                                  className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-[2rem] p-8 hover:shadow-2xl hover:-translate-y-3 transition-all cursor-pointer group shadow-sm">

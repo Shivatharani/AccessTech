@@ -361,7 +361,7 @@ export default function Tutor() {
               ) : (
                 messages.map((msg, i) => (
                   <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
-                    <div className={`max-w-[85%] md:max-w-[75%] rounded-3xl p-6 shadow-sm border ${msg.role === 'user'
+                    <div className={`max-w-[92%] md:max-w-[80%] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm border ${msg.role === 'user'
                         ? 'bg-fuchsia-600 text-white border-fuchsia-500 rounded-tr-none'
                         : 'bg-white dark:bg-gray-900 border-fuchsia-100 dark:border-fuchsia-900/30 text-gray-800 dark:text-gray-200 rounded-tl-none'
                       }`}>
@@ -378,7 +378,7 @@ export default function Tutor() {
                           <ReactMarkdown remarkPlugins={[remarkGfm]}>
                             {msg.content}
                           </ReactMarkdown>
-                          <div className="flex items-center gap-3 mt-6 pt-4 border-t border-fuchsia-50 dark:border-fuchsia-900/20">
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-4 sm:mt-6 pt-4 border-t border-fuchsia-50 dark:border-fuchsia-900/20">
                             <button onClick={() => speakResponse(msg.content)}
                               className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-bold text-xs shadow-sm ${isSpeaking
                                   ? 'bg-red-100 text-red-500 animate-pulse'
@@ -432,7 +432,7 @@ export default function Tutor() {
               )}
 
               {showCamera && (
-                <div className="relative mb-4 max-w-xs rounded-2xl overflow-hidden border-2 shadow-2xl border-fuchsia-300 ml-4">
+                <div className="relative mb-4 max-w-xs rounded-2xl overflow-hidden border-2 shadow-2xl border-fuchsia-300 ml-2 sm:ml-4">
                   <video ref={videoRef} autoPlay playsInline className="w-full" />
                   <canvas ref={canvasRef} className="hidden" />
                   <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-2">
@@ -442,8 +442,8 @@ export default function Tutor() {
                 </div>
               )}
 
-              <div className="flex items-center gap-2 bg-white dark:bg-gray-900 p-2 rounded-3xl shadow-xl border border-fuchsia-100 dark:border-fuchsia-900/30">
-                <div className="flex items-center gap-1 pl-2">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 bg-white dark:bg-gray-900 p-2 rounded-3xl shadow-xl border border-fuchsia-100 dark:border-fuchsia-900/30">
+                <div className="flex items-center justify-between sm:justify-start gap-1 px-1 sm:px-0 sm:pl-2">
                   <button onClick={toggleLocalSTT}
                     className={`p-2 rounded-2xl transition-all ${isListening ? 'bg-red-100 text-red-500 animate-pulse' : 'text-fuchsia-400 hover:bg-fuchsia-50'}`}>
                     <Mic size={20} />
@@ -456,19 +456,21 @@ export default function Tutor() {
                     <Camera size={20} />
                   </button>
                 </div>
-                <input
-                  className="flex-1 px-4 py-3 outline-none text-sm md:text-base bg-transparent text-gray-800 dark:text-gray-100 font-semibold"
-                  placeholder="ASK LUMINA TUTOR"
-                  value={topic}
-                  onChange={e => setTopic(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && askAI()}
-                />
-                <button
-                  disabled={loading || (!topic.trim() && !image)}
-                  onClick={() => askAI()}
-                  className="bg-fuchsia-600 text-white p-3 rounded-2xl shadow-lg hover:scale-110 active:scale-95 disabled:opacity-50 disabled:scale-100 transition-all">
-                  <Send size={20} />
-                </button>
+                <div className="flex items-center flex-1 gap-2 bg-fuchsia-50/50 dark:bg-gray-950/50 rounded-2xl pr-1 pl-3 py-1 border border-transparent focus-within:border-fuchsia-200 dark:focus-within:border-fuchsia-900/50">
+                  <input
+                    className="flex-1 w-full py-2 outline-none text-sm md:text-base bg-transparent text-gray-800 dark:text-gray-100 font-semibold placeholder-gray-400"
+                    placeholder="Ask Lumina Tutor..."
+                    value={topic}
+                    onChange={e => setTopic(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && askAI()}
+                  />
+                  <button
+                    disabled={loading || (!topic.trim() && !image)}
+                    onClick={() => askAI()}
+                    className="bg-fuchsia-600 text-white p-2.5 sm:p-3 rounded-xl shadow-md hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 transition-all shrink-0">
+                    <Send size={18} />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
