@@ -1,16 +1,35 @@
-# React + Vite
+# AccessTech Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the frontend client for the **AccessTech** intelligence learning ecosystem. Built with React, Vite, and Tailwind CSS.
 
-Currently, two official plugins are available:
+## Features
+- **Responsive & Accessible UI**: Dark/Light mode support via `next-themes` and High Contrast themes.
+- **Multilingual Support**: Real-time localization in English, Tamil, and Hindi via `react-i18next`.
+- **Dynamic Routing**: Managed by React Router v7.
+- **State Management**: Context-based global accessibility and authentication state.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Installation & Setup
 
-## React Compiler
+1. Install module dependencies:
+```bash
+npm install
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+2. Run the development server locally:
+```bash
+npm run dev
+```
 
-## Expanding the ESLint configuration
+3. Build for production:
+```bash
+npm run build
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Dependencies Highlights
+- **UI Components:** Shadcn UI, Radix UI Primitives, Lucide Icons, React Icons.
+- **Styling:** Tailwind CSS, `tailwind-merge`, `clsx`, `tailwindcss-animate`.
+- **HTTP Client:** Axios hooked to the FastAPI backend.
+- **PDF Generation:** Triggered directly via API calls to backend services, handling multilingual Indic scripts properly.
+
+## Build and Deployment
+Please refer to the root `README.md` for full project deployment instructions on platforms such as Vercel.

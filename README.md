@@ -131,6 +131,21 @@ npm install
 npm run dev
 ```
 
+## 🚀 Deployment
+
+### Frontend (Vercel)
+The frontend is optimized for deployment on Vercel:
+1. Push your code to GitHub.
+2. In Vercel, create a new project and import your repository.
+3. Set the Framework Preset to **Vite**.
+4. The Build Command should be `npm run build` and Output Directory `dist`.
+5. Deploy!
+
+### Backend (Render / Railway / Heroku)
+1. Ensure `requirements.txt` is updated.
+2. Set the `Start Command` to `uvicorn main:app --host 0.0.0.0 --port $PORT`.
+3. Add your `.env` variables in the deployment dashboard.
+
 ---
 
 ## ⚖️ Accessibility Commitment

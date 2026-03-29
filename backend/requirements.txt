@@ -9,17 +9,12 @@ python-dotenv
 groq
 requests
 google-auth
-google-auth-oauthlib
-google-auth-httplib2
-google-api-python-client
 
 # Security & Tokens
 python-jose[cryptography]
 passlib[bcrypt]
-bcrypt==4.0.1
 
 # PDF Generation & Unicode support
 fpdf2
 uharfbuzz
 pillow
-reportlab
