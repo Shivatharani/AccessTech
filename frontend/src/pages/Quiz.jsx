@@ -112,7 +112,7 @@ export default function Quiz() {
           </div>
           <h2 className="text-xl font-black text-pink-900 dark:text-pink-50">{t('brewing_quiz')}</h2>
           <p className="text-sm mt-2 font-medium text-pink-400 dark:text-pink-500">
-            Crafting questions for <span className="font-bold text-pink-700 dark:text-pink-400">{topic}</span>...
+            {t('crafting_questions_for')} <span className="font-bold text-pink-700 dark:text-pink-400">{topic}</span>...
           </p>
         </div>
       </div>
@@ -121,10 +121,10 @@ export default function Quiz() {
 
   const scorePercent = questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
   const getScoreGrade = () => {
-    if (scorePercent >= 90) return { label: 'Excellent!', colorClass: 'text-green-700 dark:text-green-400', gradientClass: 'bg-gradient-to-br from-green-300 to-green-700 dark:from-green-500 dark:to-green-800' };
-    if (scorePercent >= 70) return { label: 'Great Job!', colorClass: 'text-sky-600 dark:text-sky-400', gradientClass: 'bg-gradient-to-br from-sky-300 to-sky-600 dark:from-sky-500 dark:to-sky-800' };
-    if (scorePercent >= 50) return { label: 'Good Effort!', colorClass: 'text-orange-600 dark:text-orange-500', gradientClass: 'bg-gradient-to-br from-amber-300 to-orange-600 dark:from-orange-500 dark:to-orange-800' };
-    return { label: 'Keep Practicing!', colorClass: 'text-pink-700 dark:text-pink-500', gradientClass: 'bg-gradient-to-br from-pink-400 to-pink-700 dark:from-pink-600 dark:to-pink-900' };
+    if (scorePercent >= 90) return { label: t('grade_excellent'), colorClass: 'text-green-700 dark:text-green-400', gradientClass: 'bg-gradient-to-br from-green-300 to-green-700 dark:from-green-500 dark:to-green-800' };
+    if (scorePercent >= 70) return { label: t('grade_great'), colorClass: 'text-sky-600 dark:text-sky-400', gradientClass: 'bg-gradient-to-br from-sky-300 to-sky-600 dark:from-sky-500 dark:to-sky-800' };
+    if (scorePercent >= 50) return { label: t('grade_good'), colorClass: 'text-orange-600 dark:text-orange-500', gradientClass: 'bg-gradient-to-br from-amber-300 to-orange-600 dark:from-orange-500 dark:to-orange-800' };
+    return { label: t('grade_keep_practicing'), colorClass: 'text-pink-700 dark:text-pink-500', gradientClass: 'bg-gradient-to-br from-pink-400 to-pink-700 dark:from-pink-600 dark:to-pink-900' };
   };
   const grade = getScoreGrade();
 
@@ -141,7 +141,7 @@ export default function Quiz() {
               <ArrowLeft size={18} />
             </button>
             <div className="text-center">
-              <h1 className="text-lg font-black tracking-tight text-pink-900 dark:text-pink-50">{topic || t('quiz')}</h1>
+              <h1 className="text-lg font-black tracking-tight text-pink-900 dark:text-pink-50">{topic || t('quiz_title')}</h1>
               <p className="text-xs font-bold uppercase tracking-widest text-pink-400 dark:text-pink-500">{t('mastery')}</p>
             </div>
             {questions.length > 0 ? (
@@ -161,8 +161,8 @@ export default function Quiz() {
                     <Sparkles className="w-10 h-10 text-white" />
                   </div>
                 </div>
-                <h2 className="text-3xl font-black text-pink-900 dark:text-pink-50 mb-2">Quiz Setup</h2>
-                <p className="text-sm font-medium text-pink-400 dark:text-pink-500 uppercase tracking-widest">Configure your mastery challenge</p>
+                <h2 className="text-3xl font-black text-pink-900 dark:text-pink-50 mb-2">{t('quiz_setup')}</h2>
+                <p className="text-sm font-medium text-pink-400 dark:text-pink-500 uppercase tracking-widest">{t('configure_mastery')}</p>
               </div>
 
               <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 md:p-10 shadow-xl border border-pink-100 dark:border-pink-900/50 space-y-8">
@@ -170,18 +170,18 @@ export default function Quiz() {
                 {!initialTopic ? (
                   <div className="space-y-3">
                     <label className="text-xs font-black uppercase tracking-[0.2em] text-pink-500 dark:text-pink-400 ml-1">
-                      Topic to Master
+                      {t('topic_to_master')}
                     </label>
                     <input
                       className="w-full px-6 py-5 rounded-2xl border-2 outline-none transition-all text-lg font-bold focus:ring-4 focus:ring-pink-400/20 focus:border-pink-400 dark:focus:border-pink-600 bg-pink-50/50 border-pink-100 text-pink-900 dark:bg-gray-950 dark:border-pink-900/50 dark:text-pink-50 placeholder-pink-200 dark:placeholder-pink-800"
-                      placeholder="e.g., Python Basics, Human Anatomy..."
+                      placeholder={t('quiz_placeholder')}
                       value={topic}
                       onChange={e => setTopic(e.target.value)}
                     />
                   </div>
                 ) : (
                   <div className="p-6 rounded-3xl border-2 border-dashed border-pink-200 dark:border-pink-900/40 bg-pink-50/20 dark:bg-pink-900/10 text-center space-y-2">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-pink-400">Mastering Topic</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-pink-400">{t('mastering_topic')}</p>
                     <h3 className="text-2xl font-black text-pink-900 dark:text-pink-50">{initialTopic}</h3>
                   </div>
                 )}
@@ -190,7 +190,7 @@ export default function Quiz() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center ml-1">
                     <label className="text-xs font-black uppercase tracking-[0.2em] text-pink-500 dark:text-pink-400">
-                      Question Count
+                      {t('question_count')}
                     </label>
                     <span className="px-4 py-1 rounded-full bg-pink-600 text-white text-sm font-black shadow-lg shadow-pink-600/20">
                       {questionCount}
@@ -207,9 +207,9 @@ export default function Quiz() {
                       className="w-full h-3 bg-pink-200 dark:bg-pink-900/50 rounded-lg appearance-none cursor-pointer accent-pink-600"
                     />
                     <div className="flex justify-between mt-3 px-2 text-[10px] font-black text-pink-300 dark:text-pink-700 uppercase tracking-tighter">
-                      <span>5 Questions</span>
-                      <span>25 Questions</span>
-                      <span>50 Questions</span>
+                      <span>5 {t('questions_plural')}</span>
+                      <span>25 {t('questions_plural')}</span>
+                      <span>50 {t('questions_plural')}</span>
                     </div>
                   </div>
                 </div>
@@ -220,7 +220,7 @@ export default function Quiz() {
                     <Target size={16} />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-500">Language Sync</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-amber-500">{t('language_sync')}</p>
                     <p className="text-sm font-bold text-amber-900 dark:text-amber-100">{lang}</p>
                   </div>
                 </div>
@@ -230,7 +230,7 @@ export default function Quiz() {
                   onClick={() => fetchQuiz(topic)}
                   disabled={!topic.trim()}
                   className="w-full h-20 rounded-3xl text-white font-black text-xl shadow-2xl shadow-pink-600/30 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-3 bg-gradient-to-br from-pink-400 to-pink-700 hover:from-pink-500 hover:to-pink-800 dark:from-pink-600 dark:to-pink-900">
-                  <Sparkles size={24} /> {initialTopic ? `Start Mastery Challenge` : `Generate Mastery Quiz`}
+                  <Sparkles size={24} /> {initialTopic ? t('start_mastery_challenge') : t('generate_mastery_quiz')}
                 </button>
               </div>
             </div>
@@ -271,7 +271,7 @@ export default function Quiz() {
                 </button>
                 <button onClick={() => fetchQuiz(topic)}
                   className="rounded-xl h-11 px-6 font-bold border transition-all hover:bg-pink-50 text-pink-700 border-pink-300 dark:border-pink-900/50 dark:text-pink-400 dark:hover:bg-pink-900/20">
-                  Retry Quiz
+                  {t('retry_quiz')}
                 </button>
               </div>
             </div>
@@ -324,7 +324,7 @@ export default function Quiz() {
               )}
             </div>
           ) : (
-            <div className="text-center p-10 text-gray-500 dark:text-gray-400">No questions available.</div>
+            <div className="text-center p-10 text-gray-500 dark:text-gray-400">{t('no_questions_available')}</div>
           )}
         </div>
       </main>

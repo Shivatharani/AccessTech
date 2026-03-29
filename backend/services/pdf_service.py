@@ -3,8 +3,9 @@ from datetime import datetime
 from fpdf import FPDF
 from io import BytesIO
 
-# Font path for Unicode support
-FONT_PATH = "C:/Windows/Fonts/Nirmala.ttc"
+# Font path for Unicode support (Relative to this file for deployment compatibility)
+# Ensure you have Nirmala.ttf in backend/services/assets/fonts/
+FONT_PATH = os.path.join(os.path.dirname(__file__), "assets", "fonts", "Nirmala.ttf")
 
 class TutorPDF(FPDF):
     def __init__(self, email, topic, language, level):

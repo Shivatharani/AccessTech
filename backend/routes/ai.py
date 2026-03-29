@@ -107,9 +107,10 @@ def ask_ai(data: AskRequest):
     except Exception as e:
         print(f"History Store/Update Error (Silent): {e}")
 
-    # 3. GENERATE QUIZ & UPDATE PROGRESS (Background-ish)
+    # 3. UPDATE PROGRESS (Background-ish)
     try:
-        generate_quiz(data.topic, language)
+        # Note: generate_quiz is removed here to reduce latency. 
+        # Quizzes are generated on-demand in the /generate-quiz endpoint.
         progress = fetch_data("progress", "email", data.email)
         if progress:
             update_data("progress", "email", data.email, {

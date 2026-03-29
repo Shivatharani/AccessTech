@@ -11,7 +11,7 @@ def generate_content(topic, language, level, image=None):
     if image:
         if "," in image: image = image.split(",")[1]
         chat = client.chat.completions.create(
-            model="meta-llama/llama-4-scout-17b-16e-instruct",
+            model="llama-3.2-11b-vision-preview",
             messages=[{"role": "user", "content": [{"type": "text", "text": prompt}, {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image}"}}]}]
         )
     else:
