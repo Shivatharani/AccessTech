@@ -15,50 +15,54 @@ export default function Welcome() {
 
   const features = [
     {
-      title: t('luminatutor'),
+      title: t('luminatutor_title'),
+      subtitle: t('luminatutor_sub'),
       icon: <Sparkles size={28} />,
       desc: t('luminatutor_desc_long'),
       path: "/tutor",
       gradientClasses: "bg-gradient-to-br from-fuchsia-300 to-fuchsia-500 dark:from-fuchsia-600 dark:to-fuchsia-800",
       iconClasses: "bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/50 dark:text-fuchsia-400",
       borderClasses: "border-fuchsia-200 hover:border-fuchsia-300 dark:border-fuchsia-900/50 dark:hover:border-fuchsia-800",
-      badge: "Most Popular",
+      badge: t('most_popular_badge'),
       badgeClasses: "bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-900/50 dark:text-fuchsia-300",
       bgClasses: "bg-fuchsia-50 dark:bg-fuchsia-950/20",
     },
     {
-      title: t('pathpilot'),
+      title: t('pathpilot_title'),
+      subtitle: t('pathpilot_sub'),
       icon: <Map size={28} />,
       desc: t('pathpilot_desc_long'),
       path: "/mentor",
       gradientClasses: "bg-gradient-to-br from-sky-300 to-sky-500 dark:from-sky-600 dark:to-sky-800",
       iconClasses: "bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-400",
       borderClasses: "border-sky-200 hover:border-sky-300 dark:border-sky-900/50 dark:hover:border-sky-800",
-      badge: "Career AI",
+      badge: t('career_ai_badge'),
       badgeClasses: "bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-300",
       bgClasses: "bg-sky-50 dark:bg-sky-950/20",
     },
     {
-      title: t('termcrystal'),
+      title: t('termcrystal_title'),
+      subtitle: t('termcrystal_sub'),
       icon: <BookOpen size={28} />,
       desc: t('termcrystal_desc_long_welcome'),
       path: "/dictionary",
       gradientClasses: "bg-gradient-to-br from-emerald-300 to-emerald-500 dark:from-emerald-600 dark:to-emerald-800",
       iconClasses: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400",
       borderClasses: "border-emerald-200 hover:border-emerald-300 dark:border-emerald-900/50 dark:hover:border-emerald-800",
-      badge: "Dictionary",
+      badge: t('dictionary_badge'),
       badgeClasses: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300",
       bgClasses: "bg-emerald-50 dark:bg-emerald-950/20",
     },
     {
-      title: t('syntaxsage'),
+      title: t('syntaxsage_title'),
+      subtitle: t('syntaxsage_sub'),
       icon: <Code2 size={28} />,
       desc: t('syntaxsage_desc_long'),
       path: "/codehelper",
       gradientClasses: "bg-gradient-to-br from-orange-300 to-orange-500 dark:from-orange-600 dark:to-orange-800",
       iconClasses: "bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-400",
       borderClasses: "border-orange-200 hover:border-orange-300 dark:border-orange-900/50 dark:hover:border-orange-800",
-      badge: "Dev Tool",
+      badge: t('dev_tool_badge'),
       badgeClasses: "bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300",
       bgClasses: "bg-orange-50 dark:bg-orange-950/20",
     }
@@ -80,10 +84,10 @@ export default function Welcome() {
         <div className="text-center mb-20 space-y-6">
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest border bg-green-100 border-green-300 text-green-800 dark:bg-green-900/30 dark:border-green-800/50 dark:text-green-400">
             <Zap size={14} className="fill-current" />
-            Your Personal AI Hub
+            {t('your_personal_ai_hub')}
           </div>
           <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-none text-green-900 dark:text-green-50 uppercase">
-            WELCOME BACK,<br className="md:hidden" />{' '}
+            {t('welcome_back_upper')}<br className="md:hidden" />{' '}
             <span className="bg-gradient-to-br from-green-400 via-teal-500 to-blue-500 bg-clip-text text-transparent">
               {username ? username : "GUEST"}
             </span>
@@ -97,8 +101,8 @@ export default function Welcome() {
         <div className="mb-24">
           <div className="flex items-end justify-between mb-10">
             <div>
-              <h2 className="text-3xl font-black tracking-tight text-green-900 dark:text-green-50">The Mastery Suite</h2>
-              <p className="mt-1 font-medium text-green-500 dark:text-green-400">Four AI-powered tools at your disposal.</p>
+              <h2 className="text-3xl font-black tracking-tight text-green-900 dark:text-green-50">{t('the_mastery_suite')}</h2>
+              <p className="mt-1 font-medium text-green-500 dark:text-green-400">{t('four_ai_powered_tools')}</p>
             </div>
           </div>
 
@@ -117,9 +121,12 @@ export default function Welcome() {
                       {feature.badge}
                     </span>
                   </div>
-                  <h3 className="text-2xl font-black tracking-tight mb-3 uppercase transition-colors text-green-900 dark:text-green-50">
+                  <h3 className="text-2xl font-black tracking-tight mb-1 uppercase transition-colors text-green-900 dark:text-green-50">
                     {feature.title}
                   </h3>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-green-500 mb-3">
+                    {feature.subtitle}
+                  </p>
                   <p className="leading-relaxed font-medium mb-6 text-green-700 dark:text-green-300/80">
                     {feature.desc}
                   </p>

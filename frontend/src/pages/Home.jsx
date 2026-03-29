@@ -53,7 +53,7 @@ export default function Home() {
       gradient: "from-fuchsia-400 to-fuchsia-600 dark:from-fuchsia-600 dark:to-fuchsia-800",
       bgClass: "bg-fuchsia-50 dark:bg-fuchsia-950/20",
       borderClass: "border-fuchsia-200 dark:border-fuchsia-900/40",
-      badge: "AI Tutor",
+      badge: t('ai_tutor_badge'),
       badgeClass: "bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/50 dark:text-fuchsia-400",
       titleClass: "text-fuchsia-900 dark:text-fuchsia-50",
       descClass: "text-fuchsia-700 dark:text-fuchsia-300",
@@ -66,7 +66,7 @@ export default function Home() {
       gradient: "from-sky-400 to-sky-600 dark:from-sky-600 dark:to-sky-800",
       bgClass: "bg-sky-50 dark:bg-sky-950/20",
       borderClass: "border-sky-200 dark:border-sky-900/40",
-      badge: "Career Map",
+      badge: t('career_map_badge'),
       badgeClass: "bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-400",
       titleClass: "text-sky-900 dark:text-sky-50",
       descClass: "text-sky-700 dark:text-sky-300",
@@ -79,7 +79,7 @@ export default function Home() {
       gradient: "from-emerald-400 to-teal-500 dark:from-emerald-600 dark:to-teal-700",
       bgClass: "bg-emerald-50 dark:bg-emerald-950/20",
       borderClass: "border-emerald-200 dark:border-emerald-900/40",
-      badge: "Dictionary",
+      badge: t('dictionary_badge'),
       badgeClass: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400",
       titleClass: "text-emerald-900 dark:text-emerald-50",
       descClass: "text-emerald-700 dark:text-emerald-300",
@@ -92,7 +92,7 @@ export default function Home() {
       gradient: "from-amber-400 to-orange-500 dark:from-amber-600 dark:to-orange-700",
       bgClass: "bg-amber-50 dark:bg-amber-950/20",
       borderClass: "border-amber-200 dark:border-amber-900/40",
-      badge: "Code AI",
+      badge: t('code_ai_badge'),
       badgeClass: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400",
       titleClass: "text-amber-900 dark:text-amber-50",
       descClass: "text-amber-700 dark:text-amber-300",
@@ -105,7 +105,7 @@ export default function Home() {
       gradient: "from-indigo-400 to-indigo-600 dark:from-indigo-600 dark:to-indigo-800",
       bgClass: "bg-indigo-50 dark:bg-indigo-950/20",
       borderClass: "border-indigo-200 dark:border-indigo-900/40",
-      badge: "Assessment",
+      badge: t('assessment_badge'),
       badgeClass: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400",
       titleClass: "text-indigo-900 dark:text-indigo-50",
       descClass: "text-indigo-700 dark:text-indigo-300",
@@ -118,7 +118,7 @@ export default function Home() {
       gradient: "from-rose-400 to-rose-600 dark:from-rose-600 dark:to-rose-800",
       bgClass: "bg-rose-50 dark:bg-rose-950/20",
       borderClass: "border-rose-200 dark:border-rose-900/40",
-      badge: "Analytics",
+      badge: t('analytics_badge'),
       badgeClass: "bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-400",
       titleClass: "text-rose-900 dark:text-rose-50",
       descClass: "text-rose-700 dark:text-rose-300",
@@ -207,7 +207,7 @@ export default function Home() {
                 {t('features')}
               </h2>
               <p className="text-lg max-w-xl mx-auto text-green-400 dark:text-green-600">
-                Four intelligent tools, one unified learning experience.
+                {t('four_tools_desc')}
               </p>
             </div>
 
@@ -225,7 +225,7 @@ export default function Home() {
                         : <f.IconComp className="w-6 h-6 text-white" />}
                     </div>
                     <h3 className={`text-lg font-black mb-2 tracking-tight ${f.titleClass}`}>
-                      {t(f.key)}
+                      {t(f.key + '_title')} – {t(f.key + '_sub')}
                     </h3>
                     <p className={`text-sm leading-relaxed ${f.descClass}`}>
                       {t(f.descKey)}
@@ -249,7 +249,7 @@ export default function Home() {
                 <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
                   <div className="px-2">
                     <span className="inline-block px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest mb-6 bg-green-200 text-green-800 dark:bg-green-900/40 dark:text-green-400">
-                      Get in Touch
+                      {t('get_in_touch')}
                     </span>
                     <h2 className="text-3xl lg:text-4xl font-black mb-4 tracking-tight text-green-900 dark:text-green-50">{t('contact')}</h2>
                     <p className="text-lg mb-8 leading-relaxed text-green-600 dark:text-green-400">{t('contact_desc')}</p>

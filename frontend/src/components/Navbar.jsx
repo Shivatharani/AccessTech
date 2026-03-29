@@ -42,12 +42,12 @@ export default function Navbar() {
         <div className="flex items-center space-x-4 lg:space-x-5 text-xs lg:text-sm font-medium whitespace-nowrap overflow-x-auto overflow-y-hidden pb-2 md:pb-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           <style dangerouslySetInnerHTML={{__html: `::-webkit-scrollbar { display: none; }`}} />
           <Link to="/welcome" className="hover:text-indigo-600 transition-colors uppercase tracking-widest font-black text-[10px] shrink-0">{t('welcome', 'Welcome')}</Link>
-          <Link to="/dashboard" className="hover:text-indigo-600 transition-colors shrink-0">{t('dashboard')}</Link>
-          <Link to="/tutor" className="flex items-center gap-1 hover:text-indigo-600 transition-colors shrink-0"><span className="text-xl">✨</span> <span>{t('luminatutor')}</span></Link>
-          <Link to="/mentor" className="flex items-center gap-1 hover:text-sky-600 transition-colors shrink-0"><Map size={16} className="text-sky-500" /> <span>{t('pathpilot')}</span></Link>
-          <Link to="/dictionary" className="flex items-center gap-1 hover:text-emerald-600 transition-colors shrink-0"><Sparkles size={16} className="text-emerald-500" /> <span>{t('termcrystal')}</span></Link>
-          <Link to="/codehelper" className="flex items-center gap-1 hover:text-amber-600 transition-colors shrink-0"><Code2 size={16} className="text-amber-500" /> <span>{t('syntaxsage')}</span></Link>
-          <Link to="/quiz" className="flex items-center gap-1 hover:text-purple-600 transition-colors shrink-0"><BookOpen size={16} className="text-purple-500" /> <span>{t('quiz', 'Quiz')}</span></Link>
+          <Link to="/dashboard" className="hover:text-indigo-600 transition-colors shrink-0">{t('dashboard_title')}</Link>
+          <Link to="/tutor" className="flex items-center gap-1 hover:text-indigo-600 transition-colors shrink-0"><span className="text-xl">✨</span> <span>{t('luminatutor_title')}</span></Link>
+          <Link to="/mentor" className="flex items-center gap-1 hover:text-sky-600 transition-colors shrink-0"><Map size={16} className="text-sky-500" /> <span>{t('pathpilot_title')}</span></Link>
+          <Link to="/dictionary" className="flex items-center gap-1 hover:text-emerald-600 transition-colors shrink-0"><Sparkles size={16} className="text-emerald-500" /> <span>{t('termcrystal_title')}</span></Link>
+          <Link to="/codehelper" className="flex items-center gap-1 hover:text-amber-600 transition-colors shrink-0"><Code2 size={16} className="text-amber-500" /> <span>{t('syntaxsage_title')}</span></Link>
+          <Link to="/quiz" className="flex items-center gap-1 hover:text-purple-600 transition-colors shrink-0"><BookOpen size={16} className="text-purple-500" /> <span>{t('quiz_title', 'SkillCheck')}</span></Link>
         </div>
       </div>
         

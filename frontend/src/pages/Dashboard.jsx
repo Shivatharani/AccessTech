@@ -96,11 +96,11 @@ export default function Dashboard() {
     };
 
     const TOOLS = [
-        { title: t('luminatutor'), path: "/tutor", icon: "✨", color: "emerald", desc: t('tutor_desc') },
-        { title: t('pathpilot'), path: "/mentor", icon: <Map className="w-5 h-5"/>, color: "sky", desc: t('pathpilot_desc') },
-        { title: t('termcrystal'), path: "/dictionary", icon: <Sparkles className="w-5 h-5"/>, color: "emerald", desc: t('termcrystal_desc') },
-        { title: t('syntaxsage'), path: "/codehelper", icon: <Code2 className="w-5 h-5"/>, color: "orange", desc: t('syntaxsage_desc') },
-        { title: t('quiz'), path: "/quiz", icon: <Target className="w-5 h-5"/>, color: "pink", desc: t('quiz_desc') }
+        { title: `${t('luminatutor_title')} – ${t('luminatutor_sub')}`, path: "/tutor", icon: "✨", color: "emerald", desc: t('tutor_desc') },
+        { title: `${t('pathpilot_title')} – ${t('pathpilot_sub')}`, path: "/mentor", icon: <Map className="w-5 h-5"/>, color: "sky", desc: t('pathpilot_desc') },
+        { title: `${t('termcrystal_title')} – ${t('termcrystal_sub')}`, path: "/dictionary", icon: <Sparkles className="w-5 h-5"/>, color: "emerald", desc: t('termcrystal_desc') },
+        { title: `${t('syntaxsage_title')} – ${t('syntaxsage_sub')}`, path: "/codehelper", icon: <Code2 className="w-5 h-5"/>, color: "orange", desc: t('syntaxsage_desc') },
+        { title: `${t('quiz_title')} – ${t('quiz_sub')}`, path: "/quiz", icon: <Target className="w-5 h-5"/>, color: "pink", desc: t('quiz_desc') }
     ];
 
     if (loading) return (
@@ -124,7 +124,7 @@ export default function Dashboard() {
                         
                         <div className="relative z-10">
                             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 border bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-900/30 dark:border-emerald-800">
-                                <ShieldCheck size={14} /> AI LEARNING COMMAND CENTER
+                                <ShieldCheck size={14} /> {t('learning_command_center')}
                             </div>
                             <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4 text-emerald-600 dark:text-emerald-400">
                                 {username}
@@ -141,7 +141,7 @@ export default function Dashboard() {
                                 </span>
                             </div>
                             <p className="mt-6 text-lg font-medium text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed">
-                                Your intelligence hub is active. You've achieved <span className="text-emerald-600 font-bold">{stats.career_progress_total}%</span> of your targeted career growth.
+                                {t('intelligence_hub_active')} {t('achieved_prefix')} <span className="text-emerald-600 font-bold">{stats.career_progress_total}%</span> {t('of_targeted_growth')}
                             </p>
                         </div>
                     </div>
@@ -152,7 +152,7 @@ export default function Dashboard() {
                              <Zap size={64} strokeWidth={1} />
                         </div>
                         <h2 className="text-sm font-black uppercase tracking-widest text-orange-600 mb-4 flex items-center gap-2">
-                             <Sparkles size={16} /> Learning Intelligence Node
+                             <Sparkles size={16} /> {t('learning_intelligence_node')}
                         </h2>
                         <div className="relative z-10">
                             <p className="text-base font-bold text-gray-800 dark:text-orange-200 leading-relaxed italic">
@@ -165,10 +165,10 @@ export default function Dashboard() {
                 {/* --- PHASE 2: SUMMARY METRIC CARDS --- */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[
-                        { label: "Total Questions", value: stats.total_questions, Icon: BookOpen, color: "emerald" },
-                        { label: "Career Progress", value: `${stats.career_progress_total}%`, Icon: Target, color: "sky" },
-                        { label: "Concepts Learned", value: stats.concepts_learned, Icon: Brain, color: "orange" },
-                        { label: "Code Analyses", value: stats.code_analyses, Icon: Code2, color: "fuchsia" },
+                        { label: t('total_questions'), value: stats.total_questions, Icon: BookOpen, color: "emerald" },
+                        { label: t('career_progress'), value: `${stats.career_progress_total}%`, Icon: Target, color: "sky" },
+                        { label: t('concepts_learned'), value: stats.concepts_learned, Icon: Brain, color: "orange" },
+                        { label: t('code_analyses'), value: stats.code_analyses, Icon: Code2, color: "fuchsia" },
                     ].map((card, i) => (
                         <div key={i} className="bg-white dark:bg-gray-900 p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-lg transition-all group overflow-hidden relative">
                              <div className={`absolute top-0 right-0 w-24 h-24 opacity-5 group-hover:opacity-10 transition-opacity -translate-y-1/2 translate-x-1/2 rounded-full bg-current text-${card.color}-500`} />
@@ -213,14 +213,14 @@ export default function Dashboard() {
                     {/* Skill Radar Analysis */}
                     <div className="lg:col-span-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-[2.5rem] p-10 shadow-sm">
                         <h2 className="text-sm font-black uppercase tracking-widest text-emerald-500 mb-8 flex items-center gap-2">
-                            <Zap size={18} /> Intelligence Radar
+                            <Zap size={18} /> {t('intelligence_radar')}
                         </h2>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
                                 <RadarChart data={skillRadar}>
                                     <PolarGrid stroke="#e5e7eb" className="dark:stroke-gray-800" />
                                     <PolarAngleAxis dataKey="subject" tick={{fontSize: 9, fontWeight: 900, fill: '#94a3b8'}} />
-                                    <Radar name="Proficiency" dataKey="A" stroke="#10b981" fill="#10b981" fillOpacity={0.6} />
+                                    <Radar name={t('proficiency')} dataKey="A" stroke="#10b981" fill="#10b981" fillOpacity={0.6} />
                                     <Tooltip />
                                 </RadarChart>
                             </ResponsiveContainer>
@@ -230,7 +230,7 @@ export default function Dashboard() {
                     {/* Timeline */}
                     <div className="lg:col-span-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-[2rem] p-8 shadow-sm">
                         <h2 className="text-lg font-black tracking-tight text-gray-900 dark:text-white mb-8 flex items-center gap-2">
-                            <Activity className="text-sky-500" size={20} /> Learning Journey
+                            <Activity className="text-sky-500" size={20} /> {t('learning_journey_title')}
                         </h2>
                         <div className="space-y-6 relative ml-2">
                             <div className="absolute left-[3px] top-2 bottom-2 w-[1.5px] bg-gray-50 dark:bg-gray-800" />

@@ -2,6 +2,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
+import socket
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -41,17 +42,28 @@ def send_contact_email(name, email, message):
         Message:
         {message}
         """
-        msg.attach(MIMEText(body, 'plain'))
-
-        # Connect to server and send email. 
-        # Using source_address=('0.0.0.0', 0) explicitly forces IPv4.
-        # This prevents the [Errno 101] Network is unreachable crash on Render where IPv6 is configured improperly.
-        server = smtplib.SMTP(smtp_server, smtp_port, timeout=10, source_address=('0.0.0.0', 0))
-        server.starttls()
-        server.login(smtp_user, smtp_password)
-        text = msg.as_string()
-        server.sendmail(smtp_user, receiver_email, text)
-        server.quit()
+        # Use a localized monkeypatch for getaddrinfo to strictly force IPv4 resolution.
+        # This completely avoids IPv6 AAAA records which cause Render to crash with Errno 101 or -9.
+        _orig_getaddrinfo = socket.getaddrinfo
+        
+        def _ipv4_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
+            return _orig_getaddrinfo(host, port, socket.AF_INET, type, proto, flags)
+            
+        socket.getaddrinfo = _ipv4_getaddrinfo
+        
+        try:
+            if smtp_port == 465:
+                server = smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=15)
+            else:
+                server = smtplib.SMTP(smtp_server, smtp_port, timeout=15)
+                server.starttls()
+            server.login(smtp_user, smtp_password)
+            text = msg.as_string()
+            server.sendmail(smtp_user, receiver_email, text)
+            server.quit()
+        finally:
+            # Always restore the original resolver function to avoid polluting global state
+            socket.getaddrinfo = _orig_getaddrinfo
         
         print(f"Email sent successfully to {receiver_email}")
         return True

@@ -4,6 +4,51 @@ import { initReactI18next } from 'react-i18next';
 // English translations
 const en = {
   translation: {
+    "luminatutor_title": "LearnLift AI",
+    "luminatutor_sub": "AI Learning Assistant",
+    "pathpilot_title": "PathSync",
+    "pathpilot_sub": "Learning Navigator",
+    "termcrystal_title": "TermSync",
+    "termcrystal_sub": "Technical Dictionary",
+    "syntaxsage_title": "CodeLift AI",
+    "syntaxsage_sub": "Coding Assistant",
+    "quiz_title": "SkillCheck",
+    "quiz_sub": "Knowledge Assessment System",
+    "dashboard_title": "ProgressHub",
+    "dashboard_sub": "Learning Analytics Dashboard",
+    "learning_command_center": "AI LEARNING COMMAND CENTER",
+    "intelligence_hub_active": "Your intelligence hub is active.",
+    "achieved_prefix": "You've achieved",
+    "of_targeted_growth": "of your targeted career growth.",
+    "learning_intelligence_node": "Learning Intelligence Node",
+    "journey_unique_insight": "Your journey is unique. Continue exploring to generate deep learning intelligence.",
+    "career_progress": "Career Progress",
+    "concepts_learned": "Concepts Learned",
+    "code_analyses": "Code Analyses",
+    "active_day_streak": "Active Day Streak",
+    "intelligence_radar": "Intelligence Radar",
+    "learning_journey_title": "Learning Journey",
+    "proficiency": "Proficiency",
+    "progress_visualization": "Progress Visualization",
+    "ai_tutor_badge": "AI Tutor",
+    "career_map_badge": "Career Map",
+    "dictionary_badge": "Dictionary",
+    "code_ai_badge": "Code AI",
+    "assessment_badge": "Assessment",
+    "analytics_badge": "Analytics",
+    "four_tools_desc": "Four intelligent tools, one unified learning experience.",
+    "get_in_touch": "Get in Touch",
+    "your_personal_ai_hub": "Your Personal AI Hub",
+    "welcome_back_upper": "WELCOME BACK,",
+    "the_mastery_suite": "The Mastery Suite",
+    "four_ai_powered_tools": "Four AI-powered tools at your disposal.",
+    "most_popular_badge": "Most Popular",
+    "career_ai_badge": "Career AI",
+    "dev_tool_badge": "Dev Tool",
+
+
+
+
     // General
     "welcome": "Welcome to AccessTech",
     "login": "Login",
@@ -21,7 +66,7 @@ const en = {
     "dont_have_account": "Don't have an account?",
     "already_have_account": "Already have an account?",
     "home": "Home",
-    "dashboard": "ProgressHub",
+
     "tutor": "AI Tutor",
     "logout": "Logout",
     "total_questions": "Total Questions",
@@ -38,12 +83,9 @@ const en = {
     "hero_subtitle": "Revolutionary AI Learning Experience",
     "hero_desc": "A single platform integrating multilingual support, adaptive intelligence, and an engaging ecosystem to maximize your potential.",
     "get_started": "Get Started",
-    "quiz": "SkillCheck",
+
     "score": "Score",
-    "luminatutor": "LearnLift AI",
-    "pathpilot": "PathSync",
-    "termcrystal": "TermSync",
-    "syntaxsage": "CodeLift AI",
+
 
     // Tool Descriptions (Home & Dashboard)
     "tutor_desc": "Illuminates any topic in your native language with tailored explanations.",
@@ -365,6 +407,54 @@ const en = {
 // Tamil translations
 const ta = {
   translation: {
+    "luminatutor_title": "லெர்ன்லிஃப்ட் AI (LearnLift AI)",
+    "luminatutor_sub": "AI கற்றல் உதவியாளர்",
+    "pathpilot_title": "பாத்ஸின்க் (PathSync)",
+    "pathpilot_sub": "கற்றல் வழிசெலுத்தி",
+    "termcrystal_title": "டெர்ம்ஸின்க் (TermSync)",
+    "termcrystal_sub": "தொழில்நுட்ப அகராதி",
+    "syntaxsage_title": "கோட்லிஃப்ட் AI (CodeLift AI)",
+    "syntaxsage_sub": "குறியீட்டு உதவியாளர்",
+    "quiz_title": "ஸ்கில்செக் (SkillCheck)",
+    "quiz_sub": "அறிவு மதிப்பீட்டு முறை",
+    "dashboard_title": "ப்ரோக்ரஸ்ஹப் (ProgressHub)",
+    "dashboard_sub": "கற்றல் பகுப்பாய்வு டாஷ்போர்டு",
+    "learning_command_center": "AI கற்றல் கட்டளை மையம்",
+    "intelligence_hub_active": "உங்கள் நுண்ணறிவு மையம் செயலில் உள்ளது.",
+    "achieved_prefix": "நீங்கள்",
+    "of_targeted_growth": "இலக்கு வைக்கப்பட்ட தொழில் வளர்ச்சியை அடைந்துள்ளீர்கள்.",
+    "learning_intelligence_node": "கற்றல் நுண்ணறிவு முனை",
+    "journey_unique_insight": "உங்கள் பயணம் தனித்துவமானது. ஆழமான கற்றல் நுண்ணறிவை உருவாக்க தொடர்ந்து ஆராயுங்கள்.",
+    "career_progress": "தொழில் முன்னேற்றம்",
+    "concepts_learned": "கற்றுக்கொண்ட கருத்துக்கள்",
+    "code_analyses": "குறியீடு ஆய்வுகள்",
+    "active_day_streak": "செயலில் உள்ள நாள் தொடர்",
+    "intelligence_radar": "நுண்ணறிவு ரேடார்",
+    "learning_journey_title": "கற்றல் பயணம்",
+    "proficiency": "திறமை",
+    "progress_visualization": "முன்னேற்றக் காட்சிப்படுத்தல்",
+    "ai_tutor_badge": "AI ஆசிரியர்",
+    "career_map_badge": "வாழ்க்கைப்பாதை",
+    "dictionary_badge": "அகராதி",
+    "code_ai_badge": "குறியீடு AI",
+    "assessment_badge": "மதிப்பீடு",
+    "analytics_badge": "பகுப்பாய்வு",
+    "four_tools_desc": "நான்கு அறிவார்ந்த கருவிகள், ஒரு ஒருங்கிணைந்த கற்றல் அனுபவம்.",
+    "get_in_touch": "தொடர்பு கொள்ள",
+    "your_personal_ai_hub": "உங்கள் தனிப்பட்ட AI மையம்",
+    "welcome_back_upper": "மீண்டும் வருக,",
+    "the_mastery_suite": "தேர்ச்சி தொகுப்பு",
+    "four_ai_powered_tools": "உங்கள் வசம் நான்கு AI-இயங்கும் கருவிகள்.",
+    "most_popular_badge": "மிகவும் பிரபலம்",
+    "career_ai_badge": "வாழ்க்கைப்பாதை AI",
+    "dev_tool_badge": "மேம்பாட்டாளர் கருவி",
+
+
+
+
+
+
+
     // General
     "welcome": "AccessTech-க்கு நல்வரவு",
     "login": "உள்நுழைக",
@@ -382,7 +472,7 @@ const ta = {
     "dont_have_account": "கணக்கு இல்லையா?",
     "already_have_account": "ஏற்கனவே கணக்கு உள்ளதா?",
     "home": "முகப்பு",
-    "dashboard": "ProgressHub",
+
     "tutor": "AI ஆசிரியர்",
     "logout": "வெளியேறு",
     "total_questions": "மொத்த கேள்விகள்",
@@ -424,12 +514,9 @@ const ta = {
     "hero_subtitle": "புரட்சிகரமான AI கற்றல் அனுபவம்",
     "hero_desc": "உங்கள் திறனை அதிகப்படுத்த பன்மொழி ஆதரவு, தகவமைப்பு நுண்ணறிவு மற்றும் ஈர்க்கக்கூடிய சுற்றுச்சூழல் ஆகியவற்றை ஒருங்கிணைக்கும் ஒரே தளம்.",
     "get_started": "தொடங்குங்கள்",
-    "quiz": "SkillCheck",
+
     "score": "மதிப்பெண்",
-    "luminatutor": "LearnLift AI",
-    "pathpilot": "PathSync",
-    "termcrystal": "TermSync",
-    "syntaxsage": "CodeLift AI",
+
     "login_continue": "தொடர உள்நுழையவும்",
     "create_account": "கணக்கை உருவாக்கு",
     "join_today": "இன்றே AccessTech இல் இணையுங்கள்",
@@ -726,6 +813,54 @@ const ta = {
 // Hindi translations
 const hi = {
   translation: {
+    "luminatutor_title": "लर्नलिफ्ट AI (LearnLift AI)",
+    "luminatutor_sub": "AI शिक्षण सहायक",
+    "pathpilot_title": "पाथसिंक (PathSync)",
+    "pathpilot_sub": "शिक्षण पथ प्रदर्शक",
+    "termcrystal_title": "टर्मसिंक (TermSync)",
+    "termcrystal_sub": "तकनीकी शब्दकोश",
+    "syntaxsage_title": "कोडलिफ्ट AI (CodeLift AI)",
+    "syntaxsage_sub": "कोडिंग सहायक",
+    "quiz_title": "स्किलचेक (SkillCheck)",
+    "quiz_sub": "ज्ञान मूल्यांकन प्रणाली",
+    "dashboard_title": "प्रोग्रेसहब (ProgressHub)",
+    "dashboard_sub": "शिक्षण विश्लेषण डैशबोर्ड",
+    "learning_command_center": "AI शिक्षण कमांड सेंटर",
+    "intelligence_hub_active": "आपका इंटेलिजेंस हब सक्रिय है।",
+    "achieved_prefix": "आपने",
+    "of_targeted_growth": "अपने लक्षित करियर विकास का लाभ उठाया है।",
+    "learning_intelligence_node": "शिक्षण इंटेलिजेंस नोड",
+    "journey_unique_insight": "आपकी यात्रा अद्वितीय है। गहन शिक्षण बुद्धिमत्ता उत्पन्न करने के लिए अन्वेषण जारी रखें।",
+    "career_progress": "करियर प्रगति",
+    "concepts_learned": "सीखे गए विचार",
+    "code_analyses": "कोड विश्लेषण",
+    "active_day_streak": "सक्रिय दिन स्ट्रीक",
+    "intelligence_radar": "इंटेलिजेंस रडार",
+    "learning_journey_title": "शिक्षण यात्रा",
+    "proficiency": "प्रवीणता",
+    "progress_visualization": "प्रगति विज़ुअलाइज़ेशन",
+    "ai_tutor_badge": "AI शिक्षक",
+    "career_map_badge": "करियर मैप",
+    "dictionary_badge": "शब्दकोश",
+    "code_ai_badge": "कोड AI",
+    "assessment_badge": "मूल्यांकन",
+    "analytics_badge": "विश्लेषण",
+    "four_tools_desc": "चार बुद्धिमान उपकरण, एक एकीकृत शिक्षण अनुभव।",
+    "get_in_touch": "संपर्क करें",
+    "your_personal_ai_hub": "आपका व्यक्तिगत AI हब",
+    "welcome_back_upper": "वापसी पर आपका स्वागत है,",
+    "the_mastery_suite": "मास्टरी सूट",
+    "four_ai_powered_tools": "आपके पास चार AI-संचालित उपकरण।",
+    "most_popular_badge": "सबसे लोकप्रिय",
+    "career_ai_badge": "करियर AI",
+    "dev_tool_badge": "डेव टूल",
+
+
+
+
+
+
+
     // General
     "welcome": "AccessTech में आपका स्वागत है",
     "login": "लॉग इन करें",
@@ -743,7 +878,7 @@ const hi = {
     "dont_have_account": "खाता नहीं है?",
     "already_have_account": "पहले से खाता है?",
     "home": "होम",
-    "dashboard": "ProgressHub",
+
     "tutor": "AI शिक्षक",
     "logout": "लॉग आउट",
     "total_questions": "कुल प्रश्न",
@@ -760,12 +895,9 @@ const hi = {
     "hero_subtitle": "क्रांतिकारी AI सीखने का अनुभव",
     "hero_desc": "आपकी क्षमता को अधिकतम करने के लिए बहुभाषी समर्थन और अनुकूली बुद्धि को एकीकृत करने वाला एक मंच।",
     "get_started": "शुरू करें",
-    "quiz": "SkillCheck",
+
     "score": "स्कोर",
-    "luminatutor": "LearnLift AI",
-    "pathpilot": "PathSync",
-    "termcrystal": "TermSync",
-    "syntaxsage": "CodeLift AI",
+
 
     // Tool Descriptions
     "tutor_desc": "आपकी मातृभाषा में अनुकूलित स्पष्टीकरण के साथ किसी भी विषय को स्पष्ट करता है।",
@@ -1076,6 +1208,54 @@ const hi = {
 };
 const te = {
   translation: {
+    "luminatutor_title": "లెర్న్‌లిఫ్ట్ AI (LearnLift AI)",
+    "luminatutor_sub": "AI లెర్నింగ్ అసిస్టెంట్",
+    "pathpilot_title": "పాత్‌సింక్ (PathSync)",
+    "pathpilot_sub": "లెర్నింగ్ నావిగేటర్",
+    "termcrystal_title": "టర్మ్‌సింక్ (TermSync)",
+    "termcrystal_sub": "సాంకేతిక నిఘంటువు",
+    "syntaxsage_title": "కోడ్‌లిఫ్ట్ AI (CodeLift AI)",
+    "syntaxsage_sub": "కోడింగ్ అసిస్టెంట్",
+    "quiz_title": "స్కిల్‌చెక్ (SkillCheck)",
+    "quiz_sub": "నాలెడ్జ్ అసెస్‌మెంట్ సిస్టమ్",
+    "dashboard_title": "ప్రోగ్రెస్ హబ్ (ProgressHub)",
+    "dashboard_sub": "లెర్నింగ్ అనలిటిక్స్ డాష్‌బోర్డ్",
+    "learning_command_center": "AI లెర్నింగ్ కమాండ్ సెంటర్",
+    "intelligence_hub_active": "మీ ఇంటెలిజెన్స్ హబ్ సక్రియంగా ఉంది.",
+    "achieved_prefix": "మీరు",
+    "of_targeted_growth": "మీ లక్ష్య కెరీర్ వృద్ధిని సాధించారు.",
+    "learning_intelligence_node": "లెర్నింగ్ ఇంటెలిజెన్స్ నోడ్",
+    "journey_unique_insight": "మీ ప్రయాణం ప్రత్యేకమైనది. లోతైన అభ్యాస మేధస్సును రూపొందించడానికి అన్వేషించడం కొనసాగించండి.",
+    "career_progress": "కెరీర్ పురోగతి",
+    "concepts_learned": "నేర్చుకున్న భావనలు",
+    "code_analyses": "కోడ్ విశ్లేషణలు",
+    "active_day_streak": "యాక్టివ్ డే స్ట్రీక్",
+    "intelligence_radar": "ఇంటెలిజెన్స్ రాడార్",
+    "learning_journey_title": "లెర్నింగ్ జర్నీ",
+    "proficiency": "ప్రావీణ్యం",
+    "progress_visualization": "పురోగతి విజువలైజేషన్",
+    "ai_tutor_badge": "AI శిక్షకుడు",
+    "career_map_badge": "కెరీర్ పటం",
+    "dictionary_badge": "నిఘంటువు",
+    "code_ai_badge": "కోడ్ AI",
+    "assessment_badge": "అంచనా",
+    "analytics_badge": "విశ్లేషణ",
+    "four_tools_desc": "నాలుగు తెలివైన సాధనాలు, ఒకే సమగ్ర లెర్నింగ్ అనుభవం.",
+    "get_in_touch": "సంప్రదించండి",
+    "your_personal_ai_hub": "మీ వ్యక్తిగత AI హబ్",
+    "welcome_back_upper": "తిరిగి స్వాగతం,",
+    "the_mastery_suite": "మాస్టరీ సూట్",
+    "four_ai_powered_tools": "మీ వద్ద నాలుగు AI-ఆధారిత సాధనాలు.",
+    "most_popular_badge": "అత్యంత ప్రజాదరణ పొందినది",
+    "career_ai_badge": "కెరీర్ AI",
+    "dev_tool_badge": "దేవ్ టూల్",
+
+
+
+
+
+
+
     // General
     "welcome": "AccessTech కు స్వాగతం",
     "login": "లాగిన్ చేయండి",
@@ -1093,7 +1273,7 @@ const te = {
     "dont_have_account": "ఖాతా లేదా?",
     "already_have_account": "ఇప్పటికే ఖాతా ఉందా?",
     "home": "హోమ్",
-    "dashboard": "డాష్‌బోర్డ్",
+
     "tutor": "AI ట్యూటర్",
     "logout": "లాగ్ అవుట్",
     "total_questions": "మొత్తం ప్రశ్నలు",
@@ -1110,12 +1290,9 @@ const te = {
     "hero_subtitle": "విప్లవాత్మక AI అభ్యాస అనుభవం",
     "hero_desc": "మీ సామర్థ్యాన్ని పెంచుకోవడానికి బహుభాషా మద్దతు, అనుకూల తెలివి మరియు ఆకర్షణీయమైన వాతావరణాన్ని ఏకీకృతం చేసే ఒకే వేదిక.",
     "get_started": "ప్రారంభించండి",
-    "quiz": "SkillCheck",
+
     "score": "స్కోర్",
-    "luminatutor": "LearnLift AI",
-    "pathpilot": "పాత్ పైలట్",
-    "termcrystal": "TermSync",
-    "syntaxsage": "CodeLift AI",
+
  
     // Tool Descriptions
     "tutor_desc": "అనుకూలీకరించిన వివరణలతో మీ మాతృభాషలో ఏ అంశాన్నైనా వివరిస్తుంది.",
@@ -1367,6 +1544,54 @@ const te = {
 // Malayalam translations
 const ml = {
   translation: {
+    "luminatutor_title": "ലേൺലിഫ്റ്റ് AI (LearnLift AI)",
+    "luminatutor_sub": "AI ലേണിംഗ് അസിസ്റ്റന്റ്",
+    "pathpilot_title": "പാത്സെങ്ക് (PathSync)",
+    "pathpilot_sub": "ലേണിംഗ് നാവിഗേറ്റർ",
+    "termcrystal_title": "ടേംസെങ്ക് (TermSync)",
+    "termcrystal_sub": "സാങ്കേതിക നിഘണ്ടു",
+    "syntaxsage_title": "കോഡ്ലിഫ്റ്റ് AI (CodeLift AI)",
+    "syntaxsage_sub": "കോഡിംഗ് അസിസ്റ്റന്റ്",
+    "quiz_title": "സ്കിൽചെക്ക് (SkillCheck)",
+    "quiz_sub": "നോളജ് അസസ്മെന്റ് സിസ്റ്റം",
+    "dashboard_title": "പ്രോഗ്രസ് ഹബ് (ProgressHub)",
+    "dashboard_sub": "ലേണിംഗ് അനലിറ്റിക്സ് ഡാഷ്‌ബോർഡ്",
+    "learning_command_center": "AI ലേണിംഗ് കമാൻഡ് സെന്റർ",
+    "intelligence_hub_active": "നിങ്ങളുടെ ഇന്റലിജൻസ് ഹബ് സജീവമാണ്.",
+    "achieved_prefix": "നിങ്ങൾ",
+    "of_targeted_growth": "നിങ്ങളുടെ കരിയർ വളർച്ച കൈവരിച്ചു.",
+    "learning_intelligence_node": "ലേണിംഗ് ഇന്റലിജൻസ് നോഡ്",
+    "journey_unique_insight": "നിങ്ങളുടെ യാത്ര സവിശേഷമാണ്. ആഴത്തിലുള്ള പഠന ബുദ്ധി സൃഷ്ടിക്കാൻ പര്യവേക്ഷണം തുടരുക.",
+    "career_progress": "കരിയർ പുരോഗതി",
+    "concepts_learned": "പഠിച്ച ആശയങ്ങൾ",
+    "code_analyses": "കോഡ് വിശകലനങ്ങൾ",
+    "active_day_streak": "സജീവ ദിന സ്‌ട്രീക്ക്",
+    "intelligence_radar": "ഇന്റലിജൻസ് റഡാർ",
+    "learning_journey_title": "പഠന യാത്ര",
+    "proficiency": "നൈപുണ്യം",
+    "progress_visualization": "പുരോഗതി വിഷ്വലൈസേഷൻ",
+    "ai_tutor_badge": "AI ട്യൂട്ടർ",
+    "career_map_badge": "കരിയർ മാപ്പ്",
+    "dictionary_badge": "നിഘണ്ടു",
+    "code_ai_badge": "കോഡ് AI",
+    "assessment_badge": "മൂല്യനിർണ്ണയം",
+    "analytics_badge": "അനലിറ്റിക്സ്",
+    "four_tools_desc": "നാല് ബുദ്ധിപരമായ ഉപകരണങ്ങൾ, ഒരു ഏകീകൃത പഠന അനുഭവം.",
+    "get_in_touch": "ബന്ധപ്പെടുക",
+    "your_personal_ai_hub": "നിങ്ങളുടെ വ്യക്തിഗത AI ഹബ്",
+    "welcome_back_upper": "വീണ്ടും സ്വാഗതം,",
+    "the_mastery_suite": "മാസ്റ്ററി സ്യൂട്ട്",
+    "four_ai_powered_tools": "നിങ്ങളുടെ കൈവശം നാല് AI-അധിഷ്ഠിത ഉപകരണങ്ങൾ.",
+    "most_popular_badge": "ഏറ്റവും പ്രശസ്തം",
+    "career_ai_badge": "കരിയർ AI",
+    "dev_tool_badge": "ദേവ് ടൂൾ",
+
+
+
+
+
+
+
     // General
     "welcome": "AccessTech-ലേക്ക് സ്വാഗതം",
     "login": "ലോഗിൻ ചെയ്യുക",
@@ -1384,7 +1609,7 @@ const ml = {
     "dont_have_account": "അക്കൗണ്ട് ഇല്ലേ?",
     "already_have_account": "ഇതിനകം അക്കൗണ്ട് ഉണ്ടോ?",
     "home": "ഹോം",
-    "dashboard": "ProgressHub",
+
     "tutor": "AI ട്യൂട്ടർ",
     "logout": "ലോഗ് ഔട്ട്",
     "total_questions": "മൊത്തം ചോദ്യങ്ങൾ",
@@ -1401,12 +1626,9 @@ const ml = {
     "hero_subtitle": "വിപ്ലവകരമായ AI പഠന അനുഭവം",
     "hero_desc": "നിങ്ങളുടെ കഴിവ് പരമാവധിയാക്കാൻ ബഹുഭാഷാ പിന്തുണ, അനുരൂപ ബുദ്ധി, ആകർഷകമായ ആവാസവ്യവസ്ഥ എന്നിവ ഏകീകരിക്കുന്ന ഒരൊറ്റ പ്ലാറ്റ്‌ഫോം.",
     "get_started": "ആരംഭിക്കുക",
-    "quiz": "SkillCheck",
+
     "score": "സ്കോർ",
-    "luminatutor": "LearnLift AI",
-    "pathpilot": "PathSync",
-    "termcrystal": "TermSync",
-    "syntaxsage": "സിന്റാക്സ് സേജ്",
+
  
     // Tool Descriptions
     "tutor_desc": "അനുകൂലിത വിശദീകരണങ്ങൾ ഉപയോഗിച്ച് നിങ്ങളുടെ മാതൃഭാഷയിൽ ഏത് വിഷയവും വ്യക്തമാക്കുന്നു.",

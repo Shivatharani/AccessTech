@@ -31,10 +31,10 @@ Wise, line-by-line code wisdom for developers.
 - **Vulnerability Detection:** Identifies potential bugs and security gaps.
 - **Optimization Log:** Suggests architectural improvements and algorithmic efficiencies.
 
-### 5. Interactive Knowledge Mastery (SkillCheck)
+### 5. SkillCheck (Interactive Knowledge Mastery)
 Dynamic assessments for any topic.
 - **AI-Generated Quizzes:** Instantly creates 10-question MCQ quizzes based on any subject.
-- **Score Analytics:** Tracks your performance and identifies areas for improvement.
+- **ProgressHub Integration:** Records results instantly for behavioral and skill intelligence analysis.
 
 ---
 
