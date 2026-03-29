@@ -343,7 +343,7 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between mb-10">
                         <div>
                             <h2 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white flex items-center gap-3">
-                                <Map className="text-sky-500" size={32} /> PathPilot Progress Visualization
+                                <Map className="text-sky-500" size={32} /> PathSync Progress Visualization
                             </h2>
                             <p className="text-sm font-medium text-gray-400 mt-2 uppercase tracking-widest font-black">Domain-Specific Growth Tracking</p>
                         </div>
@@ -398,7 +398,7 @@ export default function Dashboard() {
                         )) : (
                             <div className="h-48 rounded-[2rem] border-2 border-dashed border-gray-100 dark:border-gray-800 flex flex-col items-center justify-center">
                                 <Rocket className="text-gray-200 mb-4" size={48} />
-                                <p className="text-sm font-bold text-gray-300 uppercase tracking-widest">Awaiting First PathPilot Protocol...</p>
+                                <p className="text-sm font-bold text-gray-300 uppercase tracking-widest">Awaiting First PathSync Protocol...</p>
                             </div>
                         )}
                     </div>

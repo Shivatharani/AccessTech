@@ -165,7 +165,7 @@ export default function Welcome() {
                 <LayoutDashboard size={32} />
               </div>
               <h2 className="text-4xl font-black tracking-tight text-green-900 dark:text-green-50">
-                Omni-Dashboard
+                Omni-ProgressHub
               </h2>
               <p className="text-lg font-medium leading-relaxed text-green-600 dark:text-green-400">
                 {t('dashboard_intro_desc')}
@@ -192,7 +192,7 @@ export default function Welcome() {
               <div className="rounded-3xl overflow-hidden aspect-video relative group border border-green-200 bg-green-50 dark:border-green-900/50 dark:bg-gray-900">
                 <img
                   src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800"
-                  alt="Dashboard Preview"
+                  alt="ProgressHub Preview"
                   className="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity duration-700 dark:opacity-30 dark:group-hover:opacity-50"
                 />
                 <div className="absolute inset-0 flex items-center justify-center">

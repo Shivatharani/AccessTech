@@ -27,7 +27,7 @@ export default function Mentor() {
   useEffect(() => { if (email !== "User") fetchHistory(); }, [email]);
   useEffect(() => {
     if (goal) {
-      const savedProgress = localStorage.getItem(`pathpilot_progress_${email}_${goal}`);
+      const savedProgress = localStorage.getItem(`pathsync_progress_${email}_${goal}`);
       if (savedProgress) { try { setProgress(JSON.parse(savedProgress)); } catch (e) { console.error(e); } }
       else setProgress({});
     }
@@ -36,7 +36,7 @@ export default function Mentor() {
   const toggleProgress = (key) => {
     const newProg = { ...progress, [key]: !progress[key] };
     setProgress(newProg);
-    localStorage.setItem(`pathpilot_progress_${email}_${goal}`, JSON.stringify(newProg));
+    localStorage.setItem(`pathsync_progress_${email}_${goal}`, JSON.stringify(newProg));
   };
 
   const toggleStepProgress = (idx) => {
@@ -56,7 +56,7 @@ export default function Mentor() {
       parsedData.projects.forEach((_, i) => newProg[`proj_${i}`] = !isMastered);
     }
     setProgress(newProg);
-    localStorage.setItem(`pathpilot_progress_${email}_${goal}`, JSON.stringify(newProg));
+    localStorage.setItem(`pathsync_progress_${email}_${goal}`, JSON.stringify(newProg));
     if (!isMastered) toast.success(t('domain_mastered'));
   };
 

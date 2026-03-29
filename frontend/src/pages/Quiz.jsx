@@ -260,7 +260,7 @@ export default function Quiz() {
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <button onClick={() => nav(from === 'mentor' ? '/mentor' : '/tutor')}
                   className="text-white font-bold rounded-xl shadow-lg h-11 px-6 bg-gradient-to-br from-pink-400 to-pink-700 hover:from-pink-500 hover:to-pink-800 dark:from-pink-600 dark:to-pink-900 transition-all">
-                  {from === 'mentor' ? t('return_to_mentor') || 'Return to PathPilot' : t('return_to_tutor')}
+                  {from === 'mentor' ? t('return_to_mentor') || 'Return to PathSync' : t('return_to_tutor')}
                 </button>
                 <button onClick={() => fetchQuiz(topic)}
                   className="rounded-xl h-11 px-6 font-bold border transition-all hover:bg-pink-50 text-pink-700 border-pink-300 dark:border-pink-900/50 dark:text-pink-400 dark:hover:bg-pink-900/20">

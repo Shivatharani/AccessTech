@@ -130,7 +130,7 @@ export default function Dictionary() {
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               <h1 className="text-2xl font-black tracking-tight text-teal-900 dark:text-teal-50">
-                {t('termcrystal') || "TermCrystal"}
+                {t('termcrystal') || "TermSync"}
               </h1>
             </div>
           </div>

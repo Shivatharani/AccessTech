@@ -7,8 +7,6 @@ import { Eye, EyeOff, Activity, ArrowLeft, Zap } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import { useAssistant } from "../context/AssistantContext"
-import { LanguageSwitcher } from "../components/LanguageSwitcher"
-import { LevelSwitcher } from "../components/LevelSwitcher"
 
 export default function Login() {
   const nav = useNavigate()
@@ -17,7 +15,7 @@ export default function Login() {
   const { lastCommand } = useAssistant()
 
   const [showPassword, setShowPassword] = useState(false)
-  const [form, setForm] = useState({ email: "", password: "", level: "Beginner" })
+  const [form, setForm] = useState({ email: "", password: "" })
 
   const login = useCallback(async () => {
     const email = form.email.trim().toLowerCase()
@@ -32,7 +30,7 @@ export default function Login() {
         email,
         res.data.access_token,
         res.data.language || "English",
-        res.data.level || form.level,
+        res.data.level || "Beginner",
         res.data.name
       )
       toast.success(t("login_success"), { id: tid })
@@ -70,12 +68,7 @@ export default function Login() {
         <div className="absolute bottom-1/4 right-1/4 w-[30vw] h-[30vw] rounded-full opacity-20 blur-[80px] bg-teal-300 dark:bg-teal-700/30" />
       </div>
 
-      <div className="absolute top-6 right-6 z-50 flex items-center gap-2">
-        <LevelSwitcher />
-        <LanguageSwitcher />
-      </div>
-
-      <div className="relative w-full max-w-md">
+      <div className="relative w-full max-w-md mt-10">
         <div className="rounded-3xl p-1 shadow-2xl bg-gradient-to-br from-green-300 to-teal-300 dark:from-green-700/50 dark:to-teal-700/50">
           <div className="rounded-3xl p-6 sm:p-8 md:p-10 relative overflow-hidden bg-white dark:bg-gray-900">
             <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-3xl opacity-30 bg-green-200 dark:bg-green-900/30" />
@@ -130,21 +123,6 @@ export default function Login() {
                 </button>
               </div>
 
-              <div className="relative">
-                <Activity
-                  size={15}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-green-400 dark:text-green-600"
-                />
-                <select
-                  className="w-full pl-10 pr-4 py-3.5 rounded-xl text-sm font-medium outline-none transition-all border focus:border-green-400 appearance-none cursor-pointer bg-green-50 border-green-200 text-green-800 dark:bg-gray-950 dark:border-green-900/50 dark:text-green-100 dark:focus:border-green-600 dark:focus:ring-green-900/50"
-                  value={form.level}
-                  onChange={(e) => setForm({ ...form, level: e.target.value })}
-                >
-                  <option value="Beginner">{t("beginner")}</option>
-                  <option value="Intermediate">{t("intermediate")}</option>
-                  <option value="Advanced">{t("advanced")}</option>
-                </select>
-              </div>
 
               <button
                 type="submit"

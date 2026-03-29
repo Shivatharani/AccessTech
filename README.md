@@ -8,30 +8,30 @@ Whether you're looking for a personal tutor, a career mentor, a technical dictio
 
 ## 🚀 Core Modules
 
-### 1. Lumina Tutor (AI Teacher)
+### 1. LearnLift AI (AI Teacher)
 Your 24/7 personal instructor.
 - **Adaptive Lessons:** Explanations that adjust based on your level (Beginner, Intermediate, Advanced).
 - **Multimodal Input:** Type your questions or upload/capture images of textbooks for instant analysis.
 - **Voice Support:** Interactive learning with integrated speech recognition and text-to-speech.
 
-### 2. PathPilot (Career Mentor)
+### 2. PathSync (Career Mentor)
 Your navigation co-pilot for professional growth.
 - **Career Roadmaps:** Generates step-by-step paths to your dream career.
 - **Skill Identification:** Identifies critical technical and soft skills required for specific roles.
 - **Milestone Tracking:** Interactive roadmaps that track your progress from Apprentice to Master.
 
-### 3. TermCrystal (Adaptive Dictionary)
+### 3. TermSync (Adaptive Dictionary)
 Crystallizing complex concepts into clear definitions.
 - **Dynamic Complexity:** Definitions that scale—from simple analogies for children to technical precision for experts.
 - **Contextual Learning:** Includes "The Big Idea," "Real-Life Examples," and "Why It Matters."
 
-### 4. SyntaxSage (Code Intelligence)
+### 4. CodeLift AI (Code Intelligence)
 Wise, line-by-line code wisdom for developers.
 - **Logical Breakdown:** Deep analysis of code snippets with logical explanations.
 - **Vulnerability Detection:** Identifies potential bugs and security gaps.
 - **Optimization Log:** Suggests architectural improvements and algorithmic efficiencies.
 
-### 5. Interactive Knowledge Mastery (Quizzes)
+### 5. Interactive Knowledge Mastery (SkillCheck)
 Dynamic assessments for any topic.
 - **AI-Generated Quizzes:** Instantly creates 10-question MCQ quizzes based on any subject.
 - **Score Analytics:** Tracks your performance and identifies areas for improvement.
@@ -59,8 +59,8 @@ Dynamic assessments for any topic.
 
 ---
 
-## 📊 Omni-Dashboard & Analytics
-The AccessTech dashboard is designed as an AI-powered Learning Command Center that unifies insights from all core modules—Lumina Tutor, PathPilot, TermCrystal, and SyntaxSage—into a single intelligent interface. It features top-level summary cards displaying total questions, career progress, concepts learned, and code analyses, along with an AI-generated insight highlighting user strengths and weaknesses. The dashboard includes advanced visualizations such as a unified activity heatmap (module-wise engagement), module usage distribution (donut chart), quiz performance trends (area chart), skill analysis (radar chart), and a learning journey timeline showing career progression. Additionally, it incorporates a comparative performance bar chart to analyze strengths across different subjects and a weekly consistency tracker to monitor learning habits over time. A smart recommendation panel suggests personalized next steps based on user performance and engagement patterns. The design follows a clean, professional UI with light pale colors, ensuring accessibility and clarity, transforming the dashboard into a personalized AI-driven learning intelligence hub.
+## 📊 Omni-ProgressHub & Analytics
+The AccessTech ProgressHub is designed as an AI-powered Learning Command Center that unifies insights from all core modules—LearnLift AI, PathSync, TermSync, and CodeLift AI—into a single intelligent interface. It features top-level summary cards displaying total questions, career progress, concepts learned, and code analyses, along with an AI-generated insight highlighting user strengths and weaknesses. The ProgressHub includes advanced visualizations such as a unified activity heatmap (module-wise engagement), module usage distribution (donut chart), quiz performance trends (area chart), skill analysis (radar chart), and a learning journey timeline showing career progression. Additionally, it incorporates a comparative performance bar chart to analyze strengths across different subjects and a weekly consistency tracker to monitor learning habits over time. A smart recommendation panel suggests personalized next steps based on user performance and engagement patterns. The design follows a clean, professional UI with light pale colors, ensuring accessibility and clarity, transforming the ProgressHub into a personalized AI-driven learning intelligence hub.
 
 ---
 
@@ -78,9 +78,9 @@ The AccessTech dashboard is designed as an AI-powered Learning Command Center th
 | Endpoint | Method | Description |
 | :--- | :--- | :--- |
 | `/ai/ask` | POST | High-level tutoring with multimodal (image) support. |
-| `/ai/mentor` | POST | Generate personalized career roadmaps (PathPilot). |
-| `/ai/dictionary` | POST | Fetch adaptive technical definitions (TermCrystal). |
-| `/ai/codehelper` | POST | Analyze code snippets line-by-line (SyntaxSage). |
+| `/ai/mentor` | POST | Generate personalized career roadmaps (PathSync). |
+| `/ai/dictionary` | POST | Fetch adaptive technical definitions (TermSync). |
+| `/ai/codehelper` | POST | Analyze code snippets line-by-line (CodeLift AI). |
 | `/ai/generate-quiz` | POST | Create dynamic 10-question JSON quizzes. |
 | `/ai/submit-quiz` | POST | Record quiz scores for analytics. |
 | `/ai/download-pdf` | POST | Generate professional lesson PDFs with Indic script support. |

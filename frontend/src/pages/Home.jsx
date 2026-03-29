@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Globe, Brain, Zap, Mail, Phone, MapPin, Loader2 } from 'lucide-react';
+import { BookOpen, Globe, Brain, Zap, Mail, Phone, MapPin, Loader2, Target, LayoutDashboard } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "../components/ThemeToggle";
@@ -101,6 +101,32 @@ export default function Home() {
       titleClass: "text-amber-900 dark:text-amber-50",
       descClass: "text-amber-700 dark:text-amber-300",
     },
+    {
+      icon: null,
+      IconComp: Target,
+      key: 'quiz',
+      descKey: 'quiz_desc',
+      gradient: "from-indigo-400 to-indigo-600 dark:from-indigo-600 dark:to-indigo-800",
+      bgClass: "bg-indigo-50 dark:bg-indigo-950/20",
+      borderClass: "border-indigo-200 dark:border-indigo-900/40",
+      badge: "Assessment",
+      badgeClass: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400",
+      titleClass: "text-indigo-900 dark:text-indigo-50",
+      descClass: "text-indigo-700 dark:text-indigo-300",
+    },
+    {
+      icon: null,
+      IconComp: LayoutDashboard,
+      key: 'dashboard',
+      descKey: 'dashboard_intro_desc',
+      gradient: "from-rose-400 to-rose-600 dark:from-rose-600 dark:to-rose-800",
+      bgClass: "bg-rose-50 dark:bg-rose-950/20",
+      borderClass: "border-rose-200 dark:border-rose-900/40",
+      badge: "Analytics",
+      badgeClass: "bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-400",
+      titleClass: "text-rose-900 dark:text-rose-50",
+      descClass: "text-rose-700 dark:text-rose-300",
+    },
   ];
 
   return (
@@ -189,7 +215,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
               {features.map((f) => (
                 <div key={f.key}
                   className={`relative group rounded-3xl p-7 border transition-all duration-500 overflow-hidden cursor-default ${f.bgClass} ${f.borderClass} hover:shadow-xl hover:-translate-y-2 dark:hover:bg-gray-900`}>

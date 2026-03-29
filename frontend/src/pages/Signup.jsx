@@ -5,9 +5,8 @@ import { Eye, EyeOff, ArrowLeft, Sparkles, Globe, Activity } from "lucide-react"
 import { toast } from "sonner"
 import { useAssistant } from "../context/AssistantContext"
 import { useTranslation } from "react-i18next"
-import { LanguageSwitcher } from "../components/LanguageSwitcher"
-import { LevelSwitcher } from "../components/LevelSwitcher"
-
+import { AuthContext } from "../context/AuthContext"
+import { useContext } from "react"
 export default function Signup() {
   const nav = useNavigate()
   const { t } = useTranslation()
@@ -15,13 +14,13 @@ export default function Signup() {
 
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const { login: contextLogin } = useContext(AuthContext);
+
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
     confirm_password: "",
-    language: "English",
-    level: "Beginner",
   })
 
   const signup = useCallback(async () => {
@@ -40,16 +39,27 @@ export default function Signup() {
         email,
         password,
         confirm_password: confirm,
-        language: form.language,
-        level: form.level,
+        language: "English",
+        level: "Beginner",
       })
+      
+      // Auto-login after signup
+      const res = await API.post("/auth/login", { email, password })
+      contextLogin(
+        email,
+        res.data.access_token,
+        res.data.language || "English",
+        res.data.level || "Beginner",
+        res.data.name || name
+      )
+      
       toast.success(t("signup_success"), { id: tid })
-      nav("/login")
+      nav("/welcome")
     } catch (err) {
       const msg = err.response?.data?.detail || t("signup_failed")
       toast.error(msg, { id: tid })
     }
-  }, [form, nav, t])
+  }, [form, contextLogin, nav, t])
 
   useEffect(() => {
     if (lastCommand === "submit") signup()
@@ -57,11 +67,6 @@ export default function Signup() {
 
   return (
     <div className="min-h-screen flex relative transition-colors duration-500 bg-teal-50 dark:bg-gray-950">
-      <div className="absolute top-6 right-6 z-50 flex items-center gap-2">
-        <LevelSwitcher />
-        <LanguageSwitcher />
-      </div>
-
       {/* Left decorative panel */}
       <div className="hidden lg:flex flex-col justify-between w-[45%] p-12 relative overflow-hidden bg-gradient-to-br from-teal-400 via-teal-500 to-teal-700 dark:from-teal-700 dark:via-teal-800 dark:to-teal-950 border-r border-teal-600 dark:border-teal-900">
         <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full opacity-10 blur-3xl bg-white dark:opacity-5" />
@@ -205,53 +210,6 @@ export default function Signup() {
               </div>
             ))}
 
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                {
-                  label: t("language") || "Language",
-                  key: "language",
-                  Icon: Globe,
-                  options: [
-                    { val: "English", label: t("english") },
-                    { val: "Tamil", label: t("tamil") },
-                    { val: "Hindi", label: t("hindi") },
-                  ],
-                },
-                {
-                  label: t("level") || "Level",
-                  key: "level",
-                  Icon: Activity,
-                  options: [
-                    { val: "Beginner", label: t("beginner") },
-                    { val: "Intermediate", label: t("intermediate") },
-                    { val: "Advanced", label: t("advanced") },
-                  ],
-                },
-              ].map(({ label, key, Icon, options }) => (
-                <div key={key}>
-                  <label className="block text-xs font-black uppercase tracking-widest mb-2 text-teal-400 dark:text-teal-600">
-                    {label}
-                  </label>
-                  <div className="relative">
-                    <Icon
-                      size={14}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-teal-400 dark:text-teal-600"
-                    />
-                    <select
-                      className="w-full pl-8 pr-3 h-11 rounded-xl border outline-none appearance-none cursor-pointer font-medium text-sm transition-all focus:ring-2 focus:ring-teal-300 dark:focus:ring-teal-700 bg-teal-50 border-teal-100 text-teal-900 dark:bg-gray-950 dark:border-teal-900/50 dark:text-teal-100"
-                      value={form[key]}
-                      onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                    >
-                      {options.map((o) => (
-                        <option key={o.val} value={o.val}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              ))}
-            </div>
 
             <button
               type="submit"
