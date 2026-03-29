@@ -14,31 +14,43 @@ class TutorPDF(FPDF):
         self.topic = topic
         self.language = language
         self.level = level
-        self.add_font("Nirmala", "", FONT_PATH)
-        self.add_font("Nirmala", "B", FONT_PATH)
+        
+        # Robust font loading for deployment
+        self.font_name = "Arial" # Default fallback
+        try:
+            if os.path.exists(FONT_PATH):
+                self.add_font("Nirmala", "", FONT_PATH)
+                self.add_font("Nirmala", "B", FONT_PATH)
+                self.font_name = "Nirmala"
+                print(f"PDF Debug: Successfully loaded Nirmala font from {FONT_PATH}")
+            else:
+                print(f"PDF Warning: Nirmala font NOT FOUND at {FONT_PATH}. Falling back to Arial.")
+        except Exception as e:
+            print(f"PDF Error during font loading: {e}. Using Arial.")
+            
         self.set_auto_page_break(auto=True, margin=15)
 
     def header(self):
         # Header: AccessTech Document (Left) & User Info (Right)
-        self.set_font("Nirmala", "B", 24)
+        self.set_font(self.font_name, "B", 24)
         self.set_text_color(0, 0, 0)
         
         # Left side
         self.cell(100, 10, "AccessTech Document", ln=0, align="L")
         
         # Right side info
-        self.set_font("Nirmala", "", 10)
+        self.set_font(self.font_name, "", 10)
         today = datetime.now().strftime("%m/%d/%Y")
         self.cell(90, 5, f"User: {self.email}", ln=1, align="R")
         
         # Subtitle
         self.set_xy(10, 20)
-        self.set_font("Nirmala", "", 12)
-        self.cell(100, 10, "Lumina Tutor AI Lesson", ln=0, align="L")
+        self.set_font(self.font_name, "", 12)
+        self.cell(100, 10, "LearnLift AI Lesson", ln=0, align="L")
         
         # Date
         self.set_xy(10, 25)
-        self.set_font("Nirmala", "", 10)
+        self.set_font(self.font_name, "", 10)
         self.cell(190, 5, f"Date: {today}", ln=1, align="R")
         
         self.ln(5)
@@ -62,13 +74,13 @@ class TutorPDF(FPDF):
         
         # Inner content of the box
         self.set_xy(box_x + 15, box_y + 8)
-        self.set_font("Nirmala", "B", 18)
+        self.set_font(self.font_name, "B", 18)
         self.set_text_color(0, 0, 0)
         self.cell(0, 10, f"Topic: {self.topic}", ln=1)
         
         # Badges for Language and Level
         self.set_xy(box_x + 15, box_y + 20)
-        self.set_font("Nirmala", "B", 10)
+        self.set_font(self.font_name, "B", 10)
         
         # Badge background color (#E5E7EB)
         self.set_fill_color(229, 231, 235)
@@ -111,10 +123,10 @@ def generate_tutor_pdf(email, topic, language, level, content):
         for part in parts:
             if part.startswith('**') and part.endswith('**'):
                 bold_text = part[2:-2]
-                pdf.set_font("Nirmala", "B", 12)
+                pdf.set_font(pdf.font_name, "B", 12)
                 pdf.write(8, bold_text)
             else:
-                pdf.set_font("Nirmala", "", 12)
+                pdf.set_font(pdf.font_name, "", 12)
                 pdf.write(8, part)
         pdf.ln(10)
 

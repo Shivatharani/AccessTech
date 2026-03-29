@@ -129,9 +129,10 @@ export default function Dictionary() {
               <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg bg-gradient-to-br from-teal-400 to-teal-600 dark:from-teal-600 dark:to-teal-800">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <h1 className="text-2xl font-black tracking-tight text-teal-900 dark:text-teal-50">
-                {t('termcrystal') || "TermSync"}
-              </h1>
+              <div>
+                <h1 className="text-2xl font-black tracking-tight text-teal-900 dark:text-teal-50">{t('termcrystal_title')}</h1>
+                <p className="text-[10px] font-bold text-teal-400 uppercase tracking-widest">{t('termcrystal_sub')}</p>
+              </div>
             </div>
           </div>
 

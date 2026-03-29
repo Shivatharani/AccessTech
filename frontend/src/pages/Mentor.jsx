@@ -172,7 +172,7 @@ export default function Mentor() {
               <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg bg-gradient-to-br from-sky-300 to-sky-600 dark:from-sky-600 dark:to-sky-800">
                 <Map className="w-5 h-5 text-white" />
               </div>
-              <h1 className="text-2xl font-black tracking-tight text-sky-900 dark:text-sky-50">{t('pathpilot')}</h1>
+              <h1 className="text-2xl font-black tracking-tight text-sky-900 dark:text-sky-50">{t('pathpilot_title')}</h1>
             </div>
           </div>
 
@@ -305,7 +305,7 @@ export default function Mentor() {
                             </button>
                             <button onClick={() => nav(`/tutor?topic=${encodeURIComponent(`Explain ${step.phase} in the context of my goal: ${goal}`)}`)}
                               className="flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl border transition-all bg-sky-100/50 text-sky-600 border-sky-200 hover:bg-sky-100 dark:bg-sky-900/20 dark:text-sky-400 dark:border-sky-900/30">
-                              <Sparkles size={16} /> Explain in Tutor
+                              <Sparkles size={16} /> {t('explain_in_tutor') || "Explain in Tutor"}
                             </button>
                           </div>
                         </div>

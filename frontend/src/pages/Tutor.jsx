@@ -375,8 +375,8 @@ export default function Tutor() {
                 <Sparkles size={18} className="text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-black tracking-tight text-fuchsia-900 dark:text-fuchsia-50">{t('luminatutor')}</h1>
-                <p className="text-[10px] font-bold text-fuchsia-400 uppercase tracking-widest">{t('ai_powered_teacher')}</p>
+                <h1 className="text-lg font-black tracking-tight text-fuchsia-900 dark:text-fuchsia-100">{t('luminatutor_title')}</h1>
+                <p className="text-[10px] font-bold text-fuchsia-400 uppercase tracking-widest">{t('luminatutor_sub')}</p>
               </div>
             </div>
           </header>
@@ -407,7 +407,7 @@ export default function Tutor() {
                       }`}>
                       <div className="flex items-center gap-2 mb-3 text-[10px] font-black uppercase tracking-widest opacity-80">
                         {msg.role === 'user' ? <User size={12} /> : <Sparkles size={12} />}
-                        {msg.role === 'user' ? t('you') : t('luminatutor')}
+                        {msg.role === 'user' ? t('you') : t('luminatutor_title')}
                       </div>
 
                       {msg.role === 'assistant' ? (
@@ -425,17 +425,17 @@ export default function Tutor() {
                                   : 'bg-fuchsia-100/50 dark:bg-fuchsia-900/20 text-fuchsia-600 hover:scale-105'
                                 }`}>
                               {isSpeaking ? <MicOff size={14} /> : <Volume2 size={14} />}
-                              {isSpeaking ? "Speaker ON" : "Speaker OFF"}
+                              {isSpeaking ? t('speaker_on') || "Speaker ON" : t('speaker_off') || "Speaker OFF"}
                             </button>
                             <button onClick={() => handleDownloadPDF(msg.content, "Lesson")}
                               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-100/50 dark:bg-blue-900/20 text-blue-600 hover:scale-105 transition-all font-bold text-xs shadow-sm">
                               <FileDown size={14} />
-                              PDF Download
+                              {t('download_pdf')}
                             </button>
                             <button onClick={() => nav(`/quiz?topic=${encodeURIComponent(sessionTopic || topic || "Lesson")}&from=tutor`)}
                               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-pink-100/50 dark:bg-pink-900/20 text-pink-600 hover:scale-105 transition-all font-bold text-xs shadow-sm">
                               <Target size={14} />
-                              Take Quiz
+                              {t('take_quiz')}
                             </button>
                           </div>
                         </div>
