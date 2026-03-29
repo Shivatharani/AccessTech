@@ -1,8 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
-
+from typing import Optional, Any
+import json
+from datetime import datetime
 from database import fetch_data, insert_data, update_data
-from services.groq_service import generate_content
+from services.groq_service import generate_content, generate_chat_tutor_response
 from services.quiz_service import generate_quiz
 from services.pdf_service import generate_tutor_pdf
 from fastapi.responses import StreamingResponse
@@ -13,7 +15,6 @@ router = APIRouter()
 # -----------------------------
 # Request Models
 # -----------------------------
-from typing import Optional
 
 class AskRequest(BaseModel):
     email: str
@@ -22,6 +23,7 @@ class AskRequest(BaseModel):
     language: Optional[str] = None
     level: Optional[str] = None
     history: Optional[list] = None # List of role/content dicts
+    history_id: Optional[Any] = None # Support both int and string IDs
 
 class QuizRequest(BaseModel):
     topic: str
@@ -56,56 +58,80 @@ def ask_ai(data: AskRequest):
     language = data.language or user.get("language", "English")
     level = data.level or user.get("level", "Beginner")
 
-    if data.history:
-        # Continuous Chat Mode
-        from services.groq_service import generate_chat_tutor_response
-        ai_response = generate_chat_tutor_response(
-            messages=data.history,
-            language=language,
-            level=level
-        )
-    else:
-        # Legacy/Single-Shot Mode
-        ai_response = generate_content(
-            topic=data.topic,
-            language=language,
-            level=level,
-            image=data.image
-        )
+    # 1. GENERATE AI RESPONSE (Priority)
+    try:
+        if data.history:
+            # Continuous Chat Mode
+            ai_response = generate_chat_tutor_response(
+                messages=data.history,
+                language=language,
+                level=level
+            )
+        else:
+            # Legacy/Single-Shot Mode
+            ai_response = generate_content(
+                topic=data.topic,
+                language=language,
+                level=level,
+                image=data.image
+            )
+    except Exception as e:
+        print(f"LuminaTutor AI Generation Error: {e}")
+        raise HTTPException(status_code=500, detail="AI generation failed.")
 
-    # store history in DB
-    from datetime import datetime
-    insert_data("history", {
-        "email": data.email,
-        "question": f"Tutor: {data.topic}",
-        "response": ai_response,
-        "created_at": datetime.utcnow().isoformat() + "Z"
-    })
+    # 2. STORE/UPDATE HISTORY (Sync but isolated)
+    final_history_id = data.history_id
+    try:
+        import json
+        from datetime import datetime
+        
+        # Clean history (exclude system messages)
+        clean_history = [m for m in data.history if m.get("role") != "system"] if data.history else []
+        full_thread = clean_history + [{"role": "assistant", "content": ai_response}]
+        
+        history_entry = {
+            "email": data.email,
+            "response": json.dumps(full_thread),
+            "created_at": datetime.utcnow().isoformat() + "Z"
+        }
+        
+        if not data.history_id:
+            history_entry["question"] = f"Tutor: {data.topic}"
 
-    # generate quiz
-    generate_quiz(data.topic, language)
+        if data.history_id:
+            update_data("history", "id", data.history_id, history_entry)
+        else:
+            new_history = insert_data("history", history_entry)
+            if isinstance(new_history, list) and len(new_history) > 0:
+                final_history_id = new_history[0].get("id")
+    except Exception as e:
+        print(f"History Store/Update Error (Silent): {e}")
 
-    # -----------------------------
-    # Update Progress Table
-    # -----------------------------
-    progress = fetch_data("progress", "email", data.email)
-    if progress:
-        update_data("progress", "email", data.email, {
-            "total_questions": progress[0]["total_questions"] + 1,
-            "last_topic": data.topic,
-            "current_level": level
-        })
-    else:
-        insert_data("progress", {
-            "email": data.email, "total_questions": 1, "quiz_attempts": 0,
-            "average_score": 0, "current_level": level, "last_topic": data.topic
-        })
+    # 3. GENERATE QUIZ & UPDATE PROGRESS (Background-ish)
+    try:
+        generate_quiz(data.topic, language)
+        progress = fetch_data("progress", "email", data.email)
+        if progress:
+            update_data("progress", "email", data.email, {
+                "total_questions": progress[0]["total_questions"] + 1,
+                "last_topic": data.topic,
+                "current_level": level
+            })
+        else:
+            insert_data("progress", {
+                "email": data.email, "total_questions": 1, "quiz_attempts": 0,
+                "average_score": 0, "current_level": level, "last_topic": data.topic
+            })
+    except Exception as e:
+        print(f"Progress Update Error (Silent): {e}")
 
+    # 4. RETURN RESPONSE
     return {
         "topic": data.topic,
         "language": language,
         "level": level,
-        "response": ai_response
+        "response": str(ai_response) if ai_response else "I'm sorry, I couldn't generate a response. Please try again.",
+        "history_id": final_history_id
     }
 
 # -----------------------------

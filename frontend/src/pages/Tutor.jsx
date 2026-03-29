@@ -28,6 +28,8 @@ export default function Tutor() {
   const [showCamera, setShowCamera] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
+  const [currentChatId, setCurrentChatId] = useState(null)
+  const [sessionTopic, setSessionTopic] = useState("")
 
   const fileInputRef = useRef(null)
   const videoRef = useRef(null)
@@ -147,14 +149,22 @@ export default function Tutor() {
       const langCode = getLangCode();
       const voices = window.speechSynthesis.getVoices();
 
-      // Multi-Browser Targeted Search
-      let selected = voices.find(v => v.lang.replace('_', '-').toLowerCase() === langCode.toLowerCase()) ||
-        voices.find(v => v.name.toLowerCase().includes(language.toLowerCase())) ||
-        voices.find(v => v.lang.includes("-IN") || v.lang.includes("_IN"));
+      // Language Prefix (e.g. 'ta', 'hi', 'te', 'ml')
+      const langPrefix = langCode.split('-')[0].toLowerCase();
 
-      if (selected) utterance.voice = selected;
-      utterance.lang = langCode;
+      // Better Multi-Tiered Specific Selection
+      let selected =  voices.find(v => v.lang.replace('_', '-').toLowerCase() === langCode.toLowerCase()) ||
+                      voices.find(v => v.lang.toLowerCase().includes(langPrefix)) ||
+                      voices.find(v => v.name.toLowerCase().includes(language.toLowerCase()));
 
+      if (selected) {
+        utterance.voice = selected;
+        utterance.lang = selected.lang; // Use the exact voice lang
+      } else {
+        utterance.lang = langCode;
+      }
+
+      utterance.rate = 0.9; // Slightly slower for clarity
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
       utterance.onerror = () => setIsSpeaking(false);
@@ -172,13 +182,22 @@ export default function Tutor() {
 
   const askAI = async (overrideTopic = null, overrideHistory = null) => {
     const currentTopic = overrideTopic || topic;
-    if (!currentTopic) return;
+    const currentImage = image;
+    
+    // Basic validation
+    if (!currentTopic && !currentImage) return;
 
-    const currentHistory = overrideHistory || [...messages, { role: 'user', content: currentTopic }];
+    const newMessage = { role: 'user', content: currentTopic, image: currentImage };
+    const currentHistory = overrideHistory || [...messages, newMessage];
 
     if (!overrideHistory) {
       setMessages(currentHistory);
+      // Store the very first topic of the session for the Quiz
+      if (messages.length === 0) {
+        setSessionTopic(currentTopic);
+      }
       setTopic("");
+      setImage(null);
     }
 
     setLoading(true);
@@ -186,17 +205,32 @@ export default function Tutor() {
       const res = await API.post("/ai/ask", {
         email: email || "User",
         topic: currentTopic,
-        image: image || null,
+        image: currentImage || null,
         language,
         level,
-        history: currentHistory
+        history: currentHistory,
+        history_id: currentChatId
       });
-
+      
+      if (!res.data.response) {
+        throw new Error("Empty response from AI");
+      }
+      
+      if (res.data.history_id) {
+        setCurrentChatId(res.data.history_id);
+      }
+      
       const aiMessage = { role: 'assistant', content: res.data.response };
-      setMessages(prev => [...prev, aiMessage]);
-      setImage(null);
-    } catch {
-      toast.error(t('failed_generate_lesson'));
+      setMessages(prev => {
+        // Prevent accidental duplicates if the request was somehow retried
+        const isDuplicate = prev.length > 0 && 
+                            prev[prev.length - 1].role === 'assistant' && 
+                            prev[prev.length - 1].content === aiMessage.content;
+        return isDuplicate ? prev : [...prev, aiMessage];
+      });
+    } catch (err) {
+      console.error("LuminaTutor Error:", err);
+      toast.error(t('failed_generate_lesson') || "Failed to generate lesson. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -251,7 +285,7 @@ export default function Tutor() {
           </div>
 
           <div className="p-4">
-            <button onClick={() => { setMessages([]); setTopic(""); setSidebarOpen(false); }}
+            <button onClick={() => { setMessages([]); setTopic(""); setCurrentChatId(null); setSessionTopic(""); setSidebarOpen(false); }}
               className="w-full flex items-center justify-center gap-2 text-white py-3 rounded-xl font-bold text-sm shadow-lg bg-gradient-to-br from-fuchsia-400 to-fuchsia-600 hover:scale-[1.02] active:scale-[0.98] transition-all">
               <Plus size={16} /> {t('new_chat')}
             </button>
@@ -302,10 +336,16 @@ export default function Tutor() {
 
                         // Injection with a small delay to force repaint
                         setTimeout(() => {
-                          setMessages([
-                            { role: 'user', content: displayQuestion },
-                            { role: 'assistant', content: finalResponse }
-                          ]);
+                          if (Array.isArray(parsedObj)) {
+                            setMessages(parsedObj);
+                          } else {
+                            setMessages([
+                              { role: 'user', content: displayQuestion },
+                              { role: 'assistant', content: finalResponse }
+                            ]);
+                          }
+                          setCurrentChatId(item.id);
+                          setSessionTopic(displayQuestion);
                         }, 50);
                       }}>
                       <p className="text-sm font-semibold line-clamp-2 text-fuchsia-900 dark:text-fuchsia-100">{displayQuestion}</p>
@@ -392,7 +432,7 @@ export default function Tutor() {
                               <FileDown size={14} />
                               PDF Download
                             </button>
-                            <button onClick={() => nav(`/quiz?topic=${encodeURIComponent(topic || "Lesson")}&from=tutor`)}
+                            <button onClick={() => nav(`/quiz?topic=${encodeURIComponent(sessionTopic || topic || "Lesson")}&from=tutor`)}
                               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-pink-100/50 dark:bg-pink-900/20 text-pink-600 hover:scale-105 transition-all font-bold text-xs shadow-sm">
                               <Target size={14} />
                               Take Quiz
@@ -400,7 +440,14 @@ export default function Tutor() {
                           </div>
                         </div>
                       ) : (
-                        <p className="text-sm md:text-base font-bold leading-tight">{msg.content}</p>
+                        <div className="space-y-3">
+                          {msg.image && (
+                            <div className="mb-3 max-w-sm rounded-2xl overflow-hidden shadow-md border border-fuchsia-400/30">
+                              <img src={msg.image} alt="User Upload" className="w-full h-auto object-cover max-h-64" />
+                            </div>
+                          )}
+                          <p className="text-sm md:text-base font-bold leading-tight">{msg.content}</p>
+                        </div>
                       )}
                     </div>
                   </div>

@@ -166,18 +166,25 @@ export default function Quiz() {
               </div>
 
               <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 md:p-10 shadow-xl border border-pink-100 dark:border-pink-900/50 space-y-8">
-                {/* Topic Input */}
-                <div className="space-y-3">
-                  <label className="text-xs font-black uppercase tracking-[0.2em] text-pink-500 dark:text-pink-400 ml-1">
-                    Topic to Master
-                  </label>
-                  <input
-                    className="w-full px-6 py-5 rounded-2xl border-2 outline-none transition-all text-lg font-bold focus:ring-4 focus:ring-pink-400/20 focus:border-pink-400 dark:focus:border-pink-600 bg-pink-50/50 border-pink-100 text-pink-900 dark:bg-gray-950 dark:border-pink-900/50 dark:text-pink-50 placeholder-pink-200 dark:placeholder-pink-800"
-                    placeholder="e.g., Python Basics, Human Anatomy..."
-                    value={topic}
-                    onChange={e => setTopic(e.target.value)}
-                  />
-                </div>
+                {/* Topic Input - Conditional */}
+                {!initialTopic ? (
+                  <div className="space-y-3">
+                    <label className="text-xs font-black uppercase tracking-[0.2em] text-pink-500 dark:text-pink-400 ml-1">
+                      Topic to Master
+                    </label>
+                    <input
+                      className="w-full px-6 py-5 rounded-2xl border-2 outline-none transition-all text-lg font-bold focus:ring-4 focus:ring-pink-400/20 focus:border-pink-400 dark:focus:border-pink-600 bg-pink-50/50 border-pink-100 text-pink-900 dark:bg-gray-950 dark:border-pink-900/50 dark:text-pink-50 placeholder-pink-200 dark:placeholder-pink-800"
+                      placeholder="e.g., Python Basics, Human Anatomy..."
+                      value={topic}
+                      onChange={e => setTopic(e.target.value)}
+                    />
+                  </div>
+                ) : (
+                  <div className="p-6 rounded-3xl border-2 border-dashed border-pink-200 dark:border-pink-900/40 bg-pink-50/20 dark:bg-pink-900/10 text-center space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-pink-400">Mastering Topic</p>
+                    <h3 className="text-2xl font-black text-pink-900 dark:text-pink-50">{initialTopic}</h3>
+                  </div>
+                )}
 
                 {/* Question Count */}
                 <div className="space-y-4">
@@ -223,7 +230,7 @@ export default function Quiz() {
                   onClick={() => fetchQuiz(topic)}
                   disabled={!topic.trim()}
                   className="w-full h-20 rounded-3xl text-white font-black text-xl shadow-2xl shadow-pink-600/30 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-3 bg-gradient-to-br from-pink-400 to-pink-700 hover:from-pink-500 hover:to-pink-800 dark:from-pink-600 dark:to-pink-900">
-                  <Sparkles size={24} /> Generate Mastery Quiz
+                  <Sparkles size={24} /> {initialTopic ? `Start Mastery Challenge` : `Generate Mastery Quiz`}
                 </button>
               </div>
             </div>

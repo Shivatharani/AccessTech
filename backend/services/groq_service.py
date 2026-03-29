@@ -41,13 +41,22 @@ FORMATTING RULES (ESSENTIAL):
 
 OUTPUT: ALWAYS respond ONLY in {language}. Keep the tone encouraging and human-centric."""
 
-    # Prepend system prompt if not present
-    if not messages or messages[0].get("role") != "system":
-        messages.insert(0, {"role": "system", "content": system_prompt})
-
+    # Prepend system prompt and ensure all messages are clean dicts
+    api_messages = [{"role": "system", "content": system_prompt}]
+    
+    for m in messages:
+        role = m.get("role")
+        content = m.get("content")
+        if role and content:
+            api_messages.append({"role": role, "content": content})
+    
+    # Simple image support in current message context (if any)
+    # Note: Groq's text-only models don't support base64 images, 
+    # so we rely on the topic prompt for that.
+    
     chat = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
-        messages=messages
+        model="llama-3.3-70b-versatile",
+        messages=api_messages
     )
     return chat.choices[0].message.content
 
