@@ -43,8 +43,10 @@ def send_contact_email(name, email, message):
         """
         msg.attach(MIMEText(body, 'plain'))
 
-        # Connect to server and send email
-        server = smtplib.SMTP(smtp_server, smtp_port, timeout=10)
+        # Connect to server and send email. 
+        # Using source_address=('0.0.0.0', 0) explicitly forces IPv4.
+        # This prevents the [Errno 101] Network is unreachable crash on Render where IPv6 is configured improperly.
+        server = smtplib.SMTP(smtp_server, smtp_port, timeout=10, source_address=('0.0.0.0', 0))
         server.starttls()
         server.login(smtp_user, smtp_password)
         text = msg.as_string()
