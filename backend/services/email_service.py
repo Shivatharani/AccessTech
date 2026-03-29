@@ -44,7 +44,7 @@ def send_contact_email(name, email, message):
         msg.attach(MIMEText(body, 'plain'))
 
         # Connect to server and send email
-        server = smtplib.SMTP(smtp_server, smtp_port)
+        server = smtplib.SMTP(smtp_server, smtp_port, timeout=10)
         server.starttls()
         server.login(smtp_user, smtp_password)
         text = msg.as_string()
