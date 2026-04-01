@@ -1,60 +1,54 @@
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import os
-import socket
-from dotenv import load_dotenv
-
-load_dotenv()
+import requests
 
 def send_contact_email(name, email, message):
     """
-    Standard SMTP connection for Gmail.
-    No custom socket overrides.
+    Sends a contact form email using the Resend Web API.
+    Bypasses SMTP port blocking on Render.
     """
-    smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
-    smtp_port = int(os.getenv("SMTP_PORT", 587))
-    smtp_user = os.getenv("SMTP_USERNAME")
-    smtp_password = os.getenv("SMTP_PASSWORD")
+    api_key = os.getenv("RESEND_API_KEY")
     receiver_email = os.getenv("CONTACT_RECEIVER_EMAIL")
 
-    if not all([smtp_server, smtp_user, smtp_password, receiver_email]):
-        print(f"SMTP CONFIG ERROR: Missing fields. User: {smtp_user}, Server: {smtp_server}")
+    if not api_key:
+        print("ERROR: RESEND_API_KEY is missing from environment variables.")
+        return False
+    
+    if not receiver_email:
+        print("ERROR: CONTACT_RECEIVER_EMAIL is missing from environment variables.")
         return False
 
+    url = "https://api.resend.com/emails"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    # Resend allows 'onboarding@resend.dev' for testing without domain verification
+    # You can later update this to your own domain (e.g. 'noreply@accesstech.com')
+    sender_email = "onboarding@resend.dev"
+    
+    data = {
+        "from": f"AccessTech Contact <{sender_email}>",
+        "to": [receiver_email],
+        "subject": f"Contact Form: {name}",
+        "reply_to": email,
+        "text": f"New message from AccessTech Contact Form:\n\nName: {name}\nEmail: {email}\nMessage:\n{message}"
+    }
+    
     try:
-        body = f"New message from AccessTech:\n\nName: {name}\nEmail: {email}\nMessage:\n{message}"
-        msg = MIMEText(body)
-        msg['Subject'] = f"Contact Form: {name}"
-        msg['From'] = smtp_user
-        msg['To'] = receiver_email
-        msg['Reply-To'] = email
-
-        print(f"DEBUG: Attempting connection to {smtp_server}:{smtp_port} (standard smtplib)...")
+        print(f"DEBUG: Calling Resend API to send mail to {receiver_email}...")
+        response = requests.post(url, headers=headers, json=data, timeout=10)
         
-        server = None
-        if smtp_port == 465:
-            server = smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=30)
+        if response.status_code in [200, 201]:
+            print("DEBUG: Email sent successfully via Resend API!")
+            return True
         else:
-            server = smtplib.SMTP(smtp_server, smtp_port, timeout=30)
-            server.set_debuglevel(1) # Full wire-log
-            server.ehlo()
-            server.starttls()
-            server.ehlo()
-
-        print(f"DEBUG: Logging in as {smtp_user}...")
-        server.login(smtp_user, smtp_password.strip())
-        
-        print("DEBUG: Sending mail...")
-        server.sendmail(smtp_user, receiver_email, msg.as_string())
-        server.quit()
-        
-        print("DEBUG: SUCCESS!")
-        return True
-
+            print(f"RESEND ERROR: {response.status_code} - {response.text}")
+            return False
+            
     except Exception as e:
-        print(f"SMTP ERROR: {type(e).__name__}: {str(e)}")
+        print(f"RESEND API EXCEPTION: {e}")
         return False
+
 
 
 
