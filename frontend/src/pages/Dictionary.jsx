@@ -1,10 +1,10 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import API from "../services/api";
 import Navbar from "../components/Navbar";
 import { useTranslation } from "react-i18next";
 import {
   History as HistoryIcon, Clock, Menu, X, ArrowLeft, Book, Sparkles, Search,
-  Volume2, MapPin, Lightbulb, Briefcase, Link, Target, GraduationCap, Award, Crown, Plus
+  Volume2, MapPin, Lightbulb, Briefcase, Link, Target, GraduationCap, Award, Crown, Plus, Mic, MicOff
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -21,9 +21,54 @@ export default function Dictionary() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [level, setLevel] = useState(lvl || "Beginner");
   const [language, setLanguage] = useState(lang || "English");
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const currentlySpeakingTextRef = useRef(null);
 
   useEffect(() => { if (lvl) setLevel(lvl); if (lang) setLanguage(lang); }, [lang, lvl]);
   useEffect(() => { if (email !== "User") fetchHistory(); }, [email, response]);
+
+  const toggleLocalSTT = () => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { toast.error(t('speech_not_supported')); return; }
+
+    if (isListening) {
+      if (window.recognitionInstance) window.recognitionInstance.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const recognition = new SR();
+    window.recognitionInstance = recognition;
+    const langCode = language === "Tamil" ? "ta-IN" : language === "Hindi" ? "hi-IN" : language === "Malayalam" ? "ml-IN" : language === "Telugu" ? "te-IN" : "en-US";
+    
+    recognition.lang = langCode;
+    recognition.interimResults = true;
+    recognition.continuous = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      toast.info(t('listening'));
+    };
+
+    recognition.onresult = (e) => {
+      const transcript = Array.from(e.results)
+        .map(result => result[0])
+        .map(result => result.transcript)
+        .join('');
+      setTerm(transcript);
+    };
+
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
+
+    try {
+      recognition.start();
+    } catch (e) {
+      console.error(e);
+      setIsListening(false);
+    }
+  };
 
   const fetchHistory = async () => {
     try {
@@ -51,10 +96,88 @@ export default function Dictionary() {
   };
 
   const handleSpeech = () => {
-    if (!response?.term) return;
-    const utterance = new SpeechSynthesisUtterance(response.term);
-    utterance.lang = language === 'Tamil' ? 'ta-IN' : language === 'Hindi' ? 'hi-IN' : 'en-US';
-    window.speechSynthesis.speak(utterance);
+    if (!response?.term || !window.speechSynthesis) return;
+
+    const textToSpeak = response.term.replace(/[*#_`~]/g, "").trim();
+
+    // Toggle off if clicking the EXACT SAME text that's already speaking
+    if (isSpeaking && currentlySpeakingTextRef.current === textToSpeak) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      currentlySpeakingTextRef.current = null;
+      return;
+    }
+
+    // Cancel any current speech to prepare for the new one
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
+
+    const startSpeaking = () => {
+      // Small pause for cancel() to finish internally
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      const langCode = language === "Tamil" ? "ta-IN" : language === "Hindi" ? "hi-IN" : language === "Malayalam" ? "ml-IN" : language === "Telugu" ? "te-IN" : "en-US";
+      const voices = window.speechSynthesis.getVoices();
+
+      // Prioritize high-quality voices with language matching
+      let selected = voices.find(v => v.lang.replace('_', '-').toLowerCase() === langCode.toLowerCase()) ||
+                     voices.find(v => v.name.toLowerCase().includes(language.toLowerCase())) ||
+                     voices.find(v => v.lang.toLowerCase().startsWith(langCode.split('-')[0]));
+
+      // Specifically prioritize "Natural" or "Google" voices if multiple Hindi ones exist
+      if (language === "Hindi") {
+        const hindiVoices = voices.filter(v => (v.lang.includes("hi") || v.name.toLowerCase().includes("hindi")));
+        const bestHindi = hindiVoices.find(v => v.name.toLowerCase().includes("natural")) || 
+                          hindiVoices.find(v => v.name.toLowerCase().includes("google")) ||
+                          hindiVoices[0];
+        if (bestHindi) selected = bestHindi;
+      }
+      
+      // Specifically prioritize "Natural" or "Google" voices for Tamil
+      if (language === "Tamil") {
+        const tamilVoices = voices.filter(v => (v.lang.includes("ta") || v.name.toLowerCase().includes("tamil")));
+        const bestTamil = tamilVoices.find(v => v.name.toLowerCase().includes("natural")) || 
+                          tamilVoices.find(v => v.name.toLowerCase().includes("google")) ||
+                          tamilVoices[0];
+        if (bestTamil) selected = bestTamil;
+      }
+
+      if (selected) utterance.voice = selected;
+      utterance.lang = langCode;
+      utterance.pitch = 1;
+      utterance.rate = 1;
+
+      utterance.onstart = () => {
+        setIsSpeaking(true);
+        currentlySpeakingTextRef.current = textToSpeak;
+      };
+      
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        currentlySpeakingTextRef.current = null;
+      };
+      
+      utterance.onerror = (e) => {
+        console.error("SpeechSynthesis error:", e);
+        setIsSpeaking(false);
+        currentlySpeakingTextRef.current = null;
+      };
+
+      window.speechSynthesis.speak(utterance);
+    };
+
+    // Chrome/Edge Async Voice Loading Fix
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        // Only run once if possible to avoid multiple triggers
+        if (currentlySpeakingTextRef.current !== textToSpeak) startSpeaking();
+      };
+    } else {
+      // Small delay helps with rapid switching on some browsers
+      setTimeout(startSpeaking, 50);
+    }
   };
 
   const levelOptions = [
@@ -69,7 +192,6 @@ export default function Dictionary() {
       <div className="flex flex-1 overflow-hidden relative">
         {sidebarOpen && <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden" onClick={() => setSidebarOpen(false)} />}
 
-        {/* Sidebar */}
         <aside className={`fixed md:relative z-50 w-72 flex flex-col h-[calc(100vh-64px)] overflow-y-auto transition-transform duration-300 border-r ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} bg-teal-50 border-teal-200 dark:bg-gray-900 dark:border-teal-900/40`}>
           <div className="p-5 border-b border-teal-200 dark:border-teal-900/40">
             <div className="flex items-center gap-3">
@@ -135,7 +257,6 @@ export default function Dictionary() {
             </div>
           </div>
 
-          {/* Search */}
           <div className="w-full max-w-2xl mb-5">
             <div className="rounded-2xl p-2 flex items-center border-2 transition-all shadow-sm bg-white border-teal-200 focus-within:border-teal-400 dark:bg-gray-900 dark:border-teal-900/50 dark:focus-within:border-teal-700">
               <div className="pl-4 text-teal-400 dark:text-teal-600"><Search className="w-5 h-5" /></div>
@@ -146,6 +267,12 @@ export default function Dictionary() {
                 onChange={e => setTerm(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && askDictionary()}
               />
+              <button
+                onClick={toggleLocalSTT}
+                className={`p-3 rounded-xl transition-all mr-2 ${isListening ? 'bg-red-100 text-red-500 animate-pulse' : 'hover:bg-teal-50 text-teal-400'}`}
+              >
+                {isListening ? <MicOff size={20} /> : <Mic size={20} />}
+              </button>
               <button onClick={askDictionary}
                 className="text-white px-7 h-12 rounded-xl font-bold shadow-lg text-base bg-gradient-to-br from-teal-400 to-teal-600 hover:from-teal-500 hover:to-teal-700 dark:from-teal-600 dark:to-teal-800 dark:hover:from-teal-500 dark:hover:to-teal-700 transition-all">
                 {t('define')}
@@ -171,9 +298,10 @@ export default function Dictionary() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
                     <h2 className="text-2xl sm:text-3xl font-black mb-2">{response.term}</h2>
-                    <button className="flex items-center gap-2 bg-white/20 border border-white/30 px-3 py-1.5 rounded-xl hover:bg-white/30 transition-all cursor-pointer dark:bg-black/20 dark:border-black/30 dark:hover:bg-black/30"
+                    <button 
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all cursor-pointer shadow-sm ${isSpeaking && currentlySpeakingTextRef.current === response.term.replace(/[*#_`~]/g, "").trim() ? 'bg-red-100 border-red-200 text-red-500 animate-pulse' : 'bg-white/20 border-white/30 text-white hover:bg-white/30 dark:bg-black/20 dark:border-black/30 dark:hover:bg-black/30'}`}
                       onClick={handleSpeech}>
-                      <Volume2 size={16} />
+                      {isSpeaking && currentlySpeakingTextRef.current === response.term.replace(/[*#_`~]/g, "").trim() ? <MicOff size={16} /> : <Volume2 size={16} />}
                       <span className="text-sm font-medium">{response.pronunciation}</span>
                     </button>
                   </div>

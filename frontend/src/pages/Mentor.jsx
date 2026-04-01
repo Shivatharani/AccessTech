@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import API from "../services/api";
 import Navbar from "../components/Navbar";
 import { useTranslation } from "react-i18next";
@@ -6,7 +6,7 @@ import {
   User, History as HistoryIcon, Clock, Menu, X, ArrowLeft, Map, Target, TrendingUp,
   Star, Code, ThumbsUp, ChevronRight, CheckCircle2, PlayCircle, BookOpen, ExternalLink,
   Award, Sparkles, Brain, Rocket, Lightbulb, Shield, Medal, Trophy, Crown, CheckSquare,
-  Square, Plus, Briefcase, Circle, ArrowRight
+  Square, Plus, Briefcase, Circle, ArrowRight, Mic, MicOff, Volume2
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,103 @@ export default function Mentor() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [progress, setProgress] = useState({});
   const { user: email, username, language: lang, level: lvl } = useContext(AuthContext);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const currentlySpeakingTextRef = useRef(null);
+
+  const getLangCode = () => {
+    switch (lang) {
+      case "Tamil": return "ta-IN";
+      case "Hindi": return "hi-IN";
+      case "Malayalam": return "ml-IN";
+      case "Telugu": return "te-IN";
+      default: return "en-US";
+    }
+  };
+
+  const toggleLocalSTT = () => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { toast.error(t('speech_not_supported')); return; }
+    if (isListening) {
+      if (window.recognitionInstance) window.recognitionInstance.stop();
+      setIsListening(false);
+      return;
+    }
+    const recognition = new SR();
+    window.recognitionInstance = recognition;
+    recognition.lang = getLangCode();
+    recognition.interimResults = true;
+    recognition.onstart = () => { setIsListening(true); toast.info(t('listening')); };
+    recognition.onresult = (e) => setGoal(e.results[0][0].transcript);
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
+    recognition.start();
+  };
+
+  const speakText = (text) => {
+    if (!text || !window.speechSynthesis) return;
+    
+    const cleanText = text.replace(/[*#_`~]/g, "").trim();
+
+    // Toggle off if clicking the EXACT SAME text that's already speaking
+    if (isSpeaking && currentlySpeakingTextRef.current === cleanText) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      currentlySpeakingTextRef.current = null;
+      return;
+    }
+
+    // Cancel any current speech to prepare for the new one (even if it's different text)
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
+
+    const startSpeech = () => {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      const langCode = getLangCode();
+      const voices = window.speechSynthesis.getVoices();
+      
+      let selected = voices.find(v => v.lang.replace('_', '-').toLowerCase() === langCode.toLowerCase()) ||
+                     voices.find(v => v.name.toLowerCase().includes(lang.toLowerCase())) ||
+                     voices.find(v => v.lang.toLowerCase().startsWith(langCode.split('-')[0]));
+
+      // Specifically prioritize "Natural" or "Google" voices if multiple Hindi ones exist
+      if (lang === "Hindi") {
+        const hindiVoices = voices.filter(v => v.lang.includes("hi") || v.name.toLowerCase().includes("hindi"));
+        const bestHindi = hindiVoices.find(v => v.name.toLowerCase().includes("natural")) || 
+                          hindiVoices.find(v => v.name.toLowerCase().includes("google")) ||
+                          hindiVoices[0];
+        if (bestHindi) selected = bestHindi;
+      }
+
+      if (selected) utterance.voice = selected;
+      utterance.lang = langCode;
+
+      utterance.onstart = () => {
+        setIsSpeaking(true);
+        currentlySpeakingTextRef.current = cleanText;
+      };
+      
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        currentlySpeakingTextRef.current = null;
+      };
+      
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+        currentlySpeakingTextRef.current = null;
+      };
+
+      window.speechSynthesis.speak(utterance);
+    };
+
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.onvoiceschanged = startSpeech;
+    } else {
+      setTimeout(startSpeech, 50);
+    }
+  };
 
   useEffect(() => { if (email !== "User") fetchHistory(); }, [email]);
   useEffect(() => {
@@ -189,6 +286,12 @@ export default function Mentor() {
                 onChange={e => setGoal(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && askMentor()}
               />
+              <button
+                onClick={toggleLocalSTT}
+                className={`p-4 rounded-2xl border-2 transition-all ${isListening ? 'bg-red-100 text-red-500 animate-pulse border-red-200' : 'hover:bg-sky-100 text-sky-400 bg-sky-50 border-sky-200'}`}
+              >
+                {isListening ? <MicOff size={24} /> : <Mic size={24} />}
+              </button>
               <button onClick={askMentor}
                 className="text-white w-full sm:w-auto px-6 sm:px-8 h-12 sm:h-14 rounded-2xl font-bold shadow-lg transition-all text-sm sm:text-base whitespace-nowrap bg-gradient-to-br from-sky-400 to-sky-600 hover:from-sky-500 hover:to-sky-700 dark:from-sky-600 dark:to-sky-800">
                 {t('map_path')}
@@ -277,9 +380,16 @@ export default function Mentor() {
 
               {/* Roadmap */}
               <div className="p-8 rounded-3xl border shadow-sm bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-800">
-                <h3 className="text-2xl font-black mb-8 flex items-center gap-3 text-sky-900 dark:text-sky-50">
-                  <Map className="text-sky-600 dark:text-sky-500" size={28} /> {t('step_by_step_roadmap')}
-                </h3>
+                <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
+                  <div className="flex items-center gap-3">
+                    <Map className="text-sky-600 dark:text-sky-500" size={28} />
+                    <h3 className="text-2xl font-black text-sky-900 dark:text-sky-50">{t('step_by_step_roadmap')}</h3>
+                  </div>
+                  <button onClick={() => speakText(`${parsedData.overview.role}. ${parsedData.overview.daily_tasks}. ${parsedData.motivation}`)}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all shadow-sm border ${isSpeaking ? 'bg-red-100 text-red-500 animate-pulse border-red-200' : 'bg-sky-100 text-sky-600 hover:bg-sky-200 border-sky-200'}`}>
+                    <Volume2 size={18} /> {isSpeaking ? t('stop') : t('read_aloud')}
+                  </button>
+                </div>
                 <div className="relative ml-2 sm:ml-5 space-y-8 border-l-4 border-sky-100 dark:border-sky-900/50">
                   {parsedData.roadmap.map((step, idx) => {
                     const isDone = progress[`step_${idx}`];

@@ -33,6 +33,7 @@ export default function Tutor() {
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const chatEndRef = useRef(null)
+  const currentlySpeakingTextRef = useRef(null)
 
   // Initial setup from URL or assistant context
   useEffect(() => {
@@ -120,44 +121,115 @@ export default function Tutor() {
   const toggleLocalSTT = () => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) { toast.error(t('speech_not_supported')); return; }
-    if (isListening) { setIsListening(false); return; }
+
+    // Logic to toggle OFF if already listening
+    if (isListening) {
+      if (window.recognitionInstance) {
+        window.recognitionInstance.stop();
+      }
+      setIsListening(false);
+      return;
+    }
+
     const recognition = new SR();
-    recognition.lang = getLangCode(); recognition.interimResults = true;
-    recognition.onstart = () => { setIsListening(true); toast.info(t('listening')); };
-    recognition.onresult = (e) => setTopic(e.results[0][0].transcript);
-    recognition.onerror = () => setIsListening(false);
-    recognition.onend = () => setIsListening(false);
-    recognition.start();
+    window.recognitionInstance = recognition; // Store globally for toggle control
+    const langCode = getLangCode();
+    
+    recognition.lang = langCode;
+    recognition.interimResults = true;
+    recognition.continuous = false; // Usually better for single input
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      toast.info(t('listening'));
+    };
+
+    recognition.onresult = (e) => {
+      const transcript = Array.from(e.results)
+        .map(result => result[0])
+        .map(result => result.transcript)
+        .join('');
+      setTopic(transcript);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("STT Error:", event.error);
+      setIsListening(false);
+      toast.error(t('error_recognizing'));
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    try {
+      recognition.start();
+    } catch (e) {
+      console.error("Recognition start failed:", e);
+      setIsListening(false);
+    }
   };
 
   const speakResponse = (text) => {
     if (!text || !window.speechSynthesis) return;
 
-    // Toggle off if already speaking
-    if (isSpeaking) {
+    const cleanText = text.replace(/[*#_`~]/g, "").trim();
+
+    // Toggle off if clicking the EXACT SAME text that's already speaking
+    if (isSpeaking && currentlySpeakingTextRef.current === cleanText) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
+      currentlySpeakingTextRef.current = null;
       return;
     }
 
-    const startSpeech = () => {
+    // If another text was already speaking, cancel it and continue to play the new one
+    if (window.speechSynthesis.speaking) {
       window.speechSynthesis.cancel();
-      const cleanText = text.replace(/[*#_`~]/g, "").trim();
+    }
+
+    const startSpeech = () => {
+      // Small pause for cancel() to finish internally
+      window.speechSynthesis.cancel();
+      
       const utterance = new SpeechSynthesisUtterance(cleanText);
       const langCode = getLangCode();
       const voices = window.speechSynthesis.getVoices();
 
-      // Multi-Browser Targeted Search
+      // Flexible voice selection logic
       let selected = voices.find(v => v.lang.replace('_', '-').toLowerCase() === langCode.toLowerCase()) ||
-        voices.find(v => v.name.toLowerCase().includes(language.toLowerCase())) ||
-        voices.find(v => v.lang.includes("-IN") || v.lang.includes("_IN"));
+                     voices.find(v => v.name.toLowerCase().includes(language.toLowerCase())) ||
+                     voices.find(v => v.lang.toLowerCase().startsWith(langCode.split('-')[0]));
+      
+      // Specifically prioritize "Natural" or "Google" voices if multiple Hindi ones exist
+      if (language === "Hindi") {
+        const hindiVoices = voices.filter(v => v.lang.includes("hi") || v.name.toLowerCase().includes("hindi"));
+        const bestHindi = hindiVoices.find(v => v.name.toLowerCase().includes("natural")) || 
+                          hindiVoices.find(v => v.name.toLowerCase().includes("google")) ||
+                          hindiVoices[0];
+        if (bestHindi) selected = bestHindi;
+      }
 
       if (selected) utterance.voice = selected;
       utterance.lang = langCode;
+      utterance.pitch = 1;
+      utterance.rate = 1;
 
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
+      utterance.onstart = () => {
+        setIsSpeaking(true);
+        currentlySpeakingTextRef.current = cleanText;
+      };
+      
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        currentlySpeakingTextRef.current = null;
+      };
+      
+      utterance.onerror = (e) => {
+        console.error("SpeechSynthesis error:", e);
+        setIsSpeaking(false);
+        currentlySpeakingTextRef.current = null;
+      };
 
       window.speechSynthesis.speak(utterance);
     };
@@ -166,7 +238,8 @@ export default function Tutor() {
     if (window.speechSynthesis.getVoices().length === 0) {
       window.speechSynthesis.onvoiceschanged = startSpeech;
     } else {
-      startSpeech();
+      // Small delay helps with rapid switching on some browsers
+      setTimeout(startSpeech, 50);
     }
   };
 

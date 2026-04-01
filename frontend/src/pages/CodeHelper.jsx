@@ -1,11 +1,11 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import API from "../services/api";
 import Navbar from "../components/Navbar";
 import { useTranslation } from "react-i18next";
 import {
   History as HistoryIcon, Clock, Menu, X, ArrowLeft, Code2, Terminal, HelpCircle,
   FileText, Brain, Search, Beaker, AlertTriangle, RefreshCcw, CheckCircle2,
-  Copy, Plus, Send, Sparkles
+  Copy, Plus, Send, Sparkles, Mic, MicOff, Volume2
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,104 @@ export default function CodeHelper() {
   const [history, setHistory] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user: email, username, language: lang, level: lvl } = useContext(AuthContext);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const currentlySpeakingTextRef = useRef(null);
   const MODES = ["Python", "Java", "C", "General", "JavaScript", "HTML/CSS"];
+
+  const getLangCode = () => {
+    switch (lang) {
+      case "Tamil": return "ta-IN";
+      case "Hindi": return "hi-IN";
+      case "Malayalam": return "ml-IN";
+      case "Telugu": return "te-IN";
+      default: return "en-US";
+    }
+  };
+
+  const toggleLocalSTT = () => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { toast.error(t('speech_not_supported')); return; }
+    if (isListening) {
+      if (window.recognitionInstance) window.recognitionInstance.stop();
+      setIsListening(false);
+      return;
+    }
+    const recognition = new SR();
+    window.recognitionInstance = recognition;
+    recognition.lang = getLangCode();
+    recognition.interimResults = true;
+    recognition.onstart = () => { setIsListening(true); toast.info(t('listening')); };
+    recognition.onresult = (e) => setQuery(e.results[0][0].transcript);
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
+    recognition.start();
+  };
+
+  const speakText = (text) => {
+    if (!text || !window.speechSynthesis) return;
+    
+    const cleanText = text.replace(/[*#_`~]/g, "").trim();
+
+    // Toggle off if clicking the EXACT SAME text that's already speaking
+    if (isSpeaking && currentlySpeakingTextRef.current === cleanText) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      currentlySpeakingTextRef.current = null;
+      return;
+    }
+
+    // Cancel any current speech to prepare for the new one (even if it's different text)
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
+
+    const startSpeech = () => {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      const langCode = getLangCode();
+      const voices = window.speechSynthesis.getVoices();
+      
+      let selected = voices.find(v => v.lang.replace('_', '-').toLowerCase() === langCode.toLowerCase()) ||
+                     voices.find(v => v.name.toLowerCase().includes(lang.toLowerCase())) ||
+                     voices.find(v => v.lang.toLowerCase().startsWith(langCode.split('-')[0]));
+
+      // Specifically prioritize "Natural" or "Google" voices if multiple Hindi ones exist
+      if (lang === "Hindi") {
+        const hindiVoices = voices.filter(v => v.lang.includes("hi") || v.name.toLowerCase().includes("hindi"));
+        const bestHindi = hindiVoices.find(v => v.name.toLowerCase().includes("natural")) || 
+                          hindiVoices.find(v => v.name.toLowerCase().includes("google")) ||
+                          hindiVoices[0];
+        if (bestHindi) selected = bestHindi;
+      }
+
+      if (selected) utterance.voice = selected;
+      utterance.lang = langCode;
+
+      utterance.onstart = () => {
+        setIsSpeaking(true);
+        currentlySpeakingTextRef.current = cleanText;
+      };
+      
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        currentlySpeakingTextRef.current = null;
+      };
+      
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+        currentlySpeakingTextRef.current = null;
+      };
+
+      window.speechSynthesis.speak(utterance);
+    };
+
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.onvoiceschanged = startSpeech;
+    } else {
+      setTimeout(startSpeech, 50);
+    }
+  };
 
   useEffect(() => { if (email !== "User") fetchHistory(); }, [email, response]);
 
@@ -238,6 +335,12 @@ export default function CodeHelper() {
                         onChange={e => setQuery(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && askCodeHelper()}
                       />
+                      <button
+                        onClick={toggleLocalSTT}
+                        className={`p-3 rounded-xl transition-all mr-2 ${isListening ? 'bg-red-100 text-red-500 animate-pulse' : 'hover:bg-slate-800 text-slate-500'}`}
+                      >
+                        {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+                      </button>
                     </div>
                     <button
                       onClick={askCodeHelper}
@@ -265,10 +368,16 @@ export default function CodeHelper() {
                         <Code2 size={18} className="text-orange-500 dark:text-orange-400" />
                         <span className="text-xs font-mono font-black uppercase tracking-widest text-orange-900 dark:text-orange-50">{t('sage_analysis_report')}</span>
                       </div>
-                      <button onClick={() => nav(`/tutor?topic=${encodeURIComponent(`Explain this ${mode} code in detail: \n\n${codeSnippet}`)}`)}
-                        className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg transition-all bg-orange-200 text-orange-700 hover:bg-orange-300 dark:bg-orange-800 dark:text-orange-200 dark:hover:bg-orange-700 shadow-sm border border-orange-300 dark:border-orange-600">
-                        <Sparkles size={12} /> Explain in Tutor
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => speakText(`${response.summary}. ${response.intelligence}`)}
+                          className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg transition-all shadow-sm border ${isSpeaking ? 'bg-red-100 text-red-500 animate-pulse border-red-200' : 'bg-orange-100 text-orange-600 hover:bg-orange-200 border-orange-200'}`}>
+                          <Volume2 size={12} /> {isSpeaking ? t('stop') : t('read_aloud')}
+                        </button>
+                        <button onClick={() => nav(`/tutor?topic=${encodeURIComponent(`Explain this ${mode} code in detail: \n\n${codeSnippet}`)}`)}
+                          className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg transition-all bg-orange-200 text-orange-700 hover:bg-orange-300 dark:bg-orange-800 dark:text-orange-200 dark:hover:bg-orange-700 shadow-sm border border-orange-300 dark:border-orange-600">
+                          <Sparkles size={12} /> Explain in Tutor
+                        </button>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
