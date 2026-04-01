@@ -73,7 +73,7 @@ export default function Tutor() {
       // Only include history starting with 'Tutor: '
       const tutorHistory = res.data.history
         .filter(h => h.question && h.question.startsWith('Tutor: '))
-        .reverse();
+        .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
       setHistory(tutorHistory);
     } catch { console.error("Failed to fetch history") }
   }

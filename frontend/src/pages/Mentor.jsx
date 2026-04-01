@@ -63,7 +63,7 @@ export default function Mentor() {
   const fetchHistory = async () => {
     try {
       const res = await API.get(`/ai/history?email=${email}`);
-      setHistory(res.data.history.filter(h => h.question.startsWith('Mentor: ')).reverse());
+      setHistory(res.data.history.filter(h => h.question && h.question.startsWith('Mentor: ')).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)));
     } catch (err) { console.error("Failed to fetch history", err); }
   };
 
