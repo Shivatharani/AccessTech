@@ -21,7 +21,7 @@ def send_contact_email(name, email, message):
         print("Error: SMTP credentials or receiver email not configured.")
         return False
 
-    # Ensure they are strings to satisfy type checkers
+    # Ensure they are strings
     smtp_server = str(smtp_server)
     smtp_user = str(smtp_user)
     smtp_password = str(smtp_password)
@@ -29,11 +29,6 @@ def send_contact_email(name, email, message):
 
     try:
         # Create the email content
-        msg = MIMEMultipart()
-        msg['From'] = smtp_user
-        msg['To'] = receiver_email
-        msg['Subject'] = f"New Contact Form Submission from {name}"
-
         body = f"""
         New message from AccessTech Contact Form:
         
@@ -42,31 +37,44 @@ def send_contact_email(name, email, message):
         Message:
         {message}
         """
-        # Use a localized monkeypatch for getaddrinfo to strictly force IPv4 resolution.
-        # This completely avoids IPv6 AAAA records which cause Render to crash with Errno 101 or -9.
-        _orig_getaddrinfo = socket.getaddrinfo
         
+        msg = MIMEText(body)
+        msg['Subject'] = f"New Contact Form Submission from {name}"
+        msg['From'] = smtp_user
+        msg['To'] = receiver_email
+        msg['Reply-To'] = email
+
+        # Use a localized monkeypatch for getaddrinfo to strictly force IPv4 resolution.
+        _orig_getaddrinfo = socket.getaddrinfo
         def _ipv4_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
             return _orig_getaddrinfo(host, port, socket.AF_INET, type, proto, flags)
             
         socket.getaddrinfo = _ipv4_getaddrinfo
         
         try:
+            print(f"Connecting to SMTP server {smtp_server}:{smtp_port}...")
             if smtp_port == 465:
                 server = smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=15)
             else:
                 server = smtplib.SMTP(smtp_server, smtp_port, timeout=15)
+                print("Starting TLS...")
                 server.starttls()
+            
+            print(f"Attempting login for {smtp_user}...")
             server.login(smtp_user, smtp_password)
-            text = msg.as_string()
-            server.sendmail(smtp_user, receiver_email, text)
+            
+            print("Sending email...")
+            server.sendmail(smtp_user, receiver_email, msg.as_string())
             server.quit()
         finally:
-            # Always restore the original resolver function to avoid polluting global state
             socket.getaddrinfo = _orig_getaddrinfo
         
         print(f"Email sent successfully to {receiver_email}")
         return True
     except Exception as e:
         print(f"Error sending email: {e}")
+        # Log more detail if it's an SMTP error
+        if isinstance(e, smtplib.SMTPException):
+            print(f"SMTP Detail: {type(e).__name__}: {str(e)}")
         return False
+
