@@ -28,6 +28,8 @@ export default function Tutor() {
   const [showCamera, setShowCamera] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
+  const [currentChatId, setCurrentChatId] = useState(null)
+  const [sessionTopic, setSessionTopic] = useState("")
 
   const fileInputRef = useRef(null)
   const videoRef = useRef(null)
@@ -39,13 +41,13 @@ export default function Tutor() {
   useEffect(() => {
     const urlTopic = searchParams.get("topic");
     const targetTopic = urlTopic || activeTopic;
-    
+
     // Only auto-initialize if it hasn't been done yet in this mounting cycle
     if (targetTopic && messages.length === 0 && !loading) {
       const initialMessage = { role: 'user', content: targetTopic };
       setMessages([initialMessage]);
       setTopic(""); // Clear immediately for ChatGPT flow
-      
+
       // Small delay to ensure state is ready if needed, then ask AI
       setTimeout(() => {
         askAI(targetTopic, [initialMessage]);
@@ -72,7 +74,7 @@ export default function Tutor() {
       // Only include history starting with 'Tutor: '
       const tutorHistory = res.data.history
         .filter(h => h.question && h.question.startsWith('Tutor: '))
-        .reverse();
+        .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
       setHistory(tutorHistory);
     } catch { console.error("Failed to fetch history") }
   }
@@ -134,7 +136,7 @@ export default function Tutor() {
     const recognition = new SR();
     window.recognitionInstance = recognition; // Store globally for toggle control
     const langCode = getLangCode();
-    
+
     recognition.lang = langCode;
     recognition.interimResults = true;
     recognition.continuous = false; // Usually better for single input
@@ -191,45 +193,22 @@ export default function Tutor() {
     const startSpeech = () => {
       // Small pause for cancel() to finish internally
       window.speechSynthesis.cancel();
-      
+
       const utterance = new SpeechSynthesisUtterance(cleanText);
       const langCode = getLangCode();
       const voices = window.speechSynthesis.getVoices();
 
-      // Flexible voice selection logic
+      // Multi-Browser Targeted Search
       let selected = voices.find(v => v.lang.replace('_', '-').toLowerCase() === langCode.toLowerCase()) ||
-                     voices.find(v => v.name.toLowerCase().includes(language.toLowerCase())) ||
-                     voices.find(v => v.lang.toLowerCase().startsWith(langCode.split('-')[0]));
-      
-      // Specifically prioritize "Natural" or "Google" voices if multiple Hindi ones exist
-      if (language === "Hindi") {
-        const hindiVoices = voices.filter(v => v.lang.includes("hi") || v.name.toLowerCase().includes("hindi"));
-        const bestHindi = hindiVoices.find(v => v.name.toLowerCase().includes("natural")) || 
-                          hindiVoices.find(v => v.name.toLowerCase().includes("google")) ||
-                          hindiVoices[0];
-        if (bestHindi) selected = bestHindi;
-      }
+        voices.find(v => v.name.toLowerCase().includes(language.toLowerCase())) ||
+        voices.find(v => v.lang.includes("-IN") || v.lang.includes("_IN"));
 
       if (selected) utterance.voice = selected;
       utterance.lang = langCode;
-      utterance.pitch = 1;
-      utterance.rate = 1;
 
-      utterance.onstart = () => {
-        setIsSpeaking(true);
-        currentlySpeakingTextRef.current = cleanText;
-      };
-      
-      utterance.onend = () => {
-        setIsSpeaking(false);
-        currentlySpeakingTextRef.current = null;
-      };
-      
-      utterance.onerror = (e) => {
-        console.error("SpeechSynthesis error:", e);
-        setIsSpeaking(false);
-        currentlySpeakingTextRef.current = null;
-      };
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
 
       window.speechSynthesis.speak(utterance);
     };
@@ -245,13 +224,22 @@ export default function Tutor() {
 
   const askAI = async (overrideTopic = null, overrideHistory = null) => {
     const currentTopic = overrideTopic || topic;
-    if (!currentTopic) return;
+    const currentImage = image;
 
-    const currentHistory = overrideHistory || [...messages, { role: 'user', content: currentTopic }];
+    // Basic validation
+    if (!currentTopic && !currentImage) return;
+
+    const newMessage = { role: 'user', content: currentTopic, image: currentImage };
+    const currentHistory = overrideHistory || [...messages, newMessage];
 
     if (!overrideHistory) {
       setMessages(currentHistory);
+      // Store the very first topic of the session for the Quiz
+      if (messages.length === 0) {
+        setSessionTopic(currentTopic);
+      }
       setTopic("");
+      setImage(null);
     }
 
     setLoading(true);
@@ -259,17 +247,32 @@ export default function Tutor() {
       const res = await API.post("/ai/ask", {
         email: email || "User",
         topic: currentTopic,
-        image: image || null,
+        image: currentImage || null,
         language,
         level,
-        history: currentHistory
+        history: currentHistory,
+        history_id: currentChatId
       });
 
+      if (!res.data.response) {
+        throw new Error("Empty response from AI");
+      }
+
+      if (res.data.history_id) {
+        setCurrentChatId(res.data.history_id);
+      }
+
       const aiMessage = { role: 'assistant', content: res.data.response };
-      setMessages(prev => [...prev, aiMessage]);
-      setImage(null);
-    } catch {
-      toast.error(t('failed_generate_lesson'));
+      setMessages(prev => {
+        // Prevent accidental duplicates if the request was somehow retried
+        const isDuplicate = prev.length > 0 &&
+          prev[prev.length - 1].role === 'assistant' &&
+          prev[prev.length - 1].content === aiMessage.content;
+        return isDuplicate ? prev : [...prev, aiMessage];
+      });
+    } catch (err) {
+      console.error("LuminaTutor Error:", err);
+      toast.error(t('failed_generate_lesson') || "Failed to generate lesson. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -324,7 +327,7 @@ export default function Tutor() {
           </div>
 
           <div className="p-4">
-            <button onClick={() => { setMessages([]); setTopic(""); setSidebarOpen(false); }}
+            <button onClick={() => { setMessages([]); setTopic(""); setCurrentChatId(null); setSessionTopic(""); setSidebarOpen(false); }}
               className="w-full flex items-center justify-center gap-2 text-white py-3 rounded-xl font-bold text-sm shadow-lg bg-gradient-to-br from-fuchsia-400 to-fuchsia-600 hover:scale-[1.02] active:scale-[0.98] transition-all">
               <Plus size={16} /> {t('new_chat')}
             </button>
@@ -340,7 +343,7 @@ export default function Tutor() {
               <div className="space-y-2">
                 {history.map((item, idx) => {
                   const displayQuestion = item.question ? item.question.replace('Tutor: ', '') : "Chat";
-                  
+
                   // Universal Brute-Force Parser for deeply nested stringification
                   const parseRobustly = (content) => {
                     if (!content) return "";
@@ -364,8 +367,8 @@ export default function Tutor() {
                       onClick={() => {
                         const parsedObj = parseRobustly(item.response);
                         // CRITICAL: React will crash if we pass an object to ReactMarkdown
-                        const finalResponse = typeof parsedObj === 'string' 
-                          ? parsedObj 
+                        const finalResponse = typeof parsedObj === 'string'
+                          ? parsedObj
                           : JSON.stringify(parsedObj, null, 2);
 
                         // Force a clean React state cycle by briefly clearing messages
@@ -375,10 +378,16 @@ export default function Tutor() {
 
                         // Injection with a small delay to force repaint
                         setTimeout(() => {
-                          setMessages([
-                            { role: 'user', content: displayQuestion },
-                            { role: 'assistant', content: finalResponse }
-                          ]);
+                          if (Array.isArray(parsedObj)) {
+                            setMessages(parsedObj);
+                          } else {
+                            setMessages([
+                              { role: 'user', content: displayQuestion },
+                              { role: 'assistant', content: finalResponse }
+                            ]);
+                          }
+                          setCurrentChatId(item.id);
+                          setSessionTopic(displayQuestion);
                         }, 50);
                       }}>
                       <p className="text-sm font-semibold line-clamp-2 text-fuchsia-900 dark:text-fuchsia-100">{displayQuestion}</p>
@@ -408,8 +417,8 @@ export default function Tutor() {
                 <Sparkles size={18} className="text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-black tracking-tight text-fuchsia-900 dark:text-fuchsia-50">{t('luminatutor')}</h1>
-                <p className="text-[10px] font-bold text-fuchsia-400 uppercase tracking-widest">{t('ai_powered_teacher')}</p>
+                <h1 className="text-lg font-black tracking-tight text-fuchsia-900 dark:text-fuchsia-100">{t('luminatutor_title')}</h1>
+                <p className="text-[10px] font-bold text-fuchsia-400 uppercase tracking-widest">{t('luminatutor_sub')}</p>
               </div>
             </div>
           </header>
@@ -435,12 +444,12 @@ export default function Tutor() {
                 messages.map((msg, i) => (
                   <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
                     <div className={`max-w-[92%] md:max-w-[80%] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm border ${msg.role === 'user'
-                        ? 'bg-fuchsia-600 text-white border-fuchsia-500 rounded-tr-none'
-                        : 'bg-white dark:bg-gray-900 border-fuchsia-100 dark:border-fuchsia-900/30 text-gray-800 dark:text-gray-200 rounded-tl-none'
+                      ? 'bg-fuchsia-600 text-white border-fuchsia-500 rounded-tr-none'
+                      : 'bg-white dark:bg-gray-900 border-fuchsia-100 dark:border-fuchsia-900/30 text-gray-800 dark:text-gray-200 rounded-tl-none'
                       }`}>
                       <div className="flex items-center gap-2 mb-3 text-[10px] font-black uppercase tracking-widest opacity-80">
                         {msg.role === 'user' ? <User size={12} /> : <Sparkles size={12} />}
-                        {msg.role === 'user' ? t('you') : t('luminatutor')}
+                        {msg.role === 'user' ? t('you') : t('luminatutor_title')}
                       </div>
 
                       {msg.role === 'assistant' ? (
@@ -454,26 +463,33 @@ export default function Tutor() {
                           <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-4 sm:mt-6 pt-4 border-t border-fuchsia-50 dark:border-fuchsia-900/20">
                             <button onClick={() => speakResponse(msg.content)}
                               className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-bold text-xs shadow-sm ${isSpeaking
-                                  ? 'bg-red-100 text-red-500 animate-pulse'
-                                  : 'bg-fuchsia-100/50 dark:bg-fuchsia-900/20 text-fuchsia-600 hover:scale-105'
+                                ? 'bg-red-100 text-red-500 animate-pulse'
+                                : 'bg-fuchsia-100/50 dark:bg-fuchsia-900/20 text-fuchsia-600 hover:scale-105'
                                 }`}>
                               {isSpeaking ? <MicOff size={14} /> : <Volume2 size={14} />}
-                              {isSpeaking ? "Speaker ON" : "Speaker OFF"}
+                              {isSpeaking ? t('speaker_on') || "Speaker ON" : t('speaker_off') || "Speaker OFF"}
                             </button>
                             <button onClick={() => handleDownloadPDF(msg.content, "Lesson")}
                               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-100/50 dark:bg-blue-900/20 text-blue-600 hover:scale-105 transition-all font-bold text-xs shadow-sm">
                               <FileDown size={14} />
-                              PDF Download
+                              {t('download_pdf')}
                             </button>
-                            <button onClick={() => nav(`/quiz?topic=${encodeURIComponent(topic || "Lesson")}&from=tutor`)}
+                            <button onClick={() => nav(`/quiz?topic=${encodeURIComponent(sessionTopic || topic || "Lesson")}&from=tutor`)}
                               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-pink-100/50 dark:bg-pink-900/20 text-pink-600 hover:scale-105 transition-all font-bold text-xs shadow-sm">
                               <Target size={14} />
-                              Take Quiz
+                              {t('take_quiz')}
                             </button>
                           </div>
                         </div>
                       ) : (
-                        <p className="text-sm md:text-base font-bold leading-tight">{msg.content}</p>
+                        <div className="space-y-3">
+                          {msg.image && (
+                            <div className="mb-3 max-w-sm rounded-2xl overflow-hidden shadow-md border border-fuchsia-400/30">
+                              <img src={msg.image} alt="User Upload" className="w-full h-auto object-cover max-h-64" />
+                            </div>
+                          )}
+                          <p className="text-sm md:text-base font-bold leading-tight">{msg.content}</p>
+                        </div>
                       )}
                     </div>
                   </div>

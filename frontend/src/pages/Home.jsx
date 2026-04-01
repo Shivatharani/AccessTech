@@ -35,14 +35,12 @@ export default function Home() {
       setSubmitStatus({ type: 'success', message: response.data.message || t('send_success') });
       setFormData({ name: '', email: '', message: '' });
     } catch (error) {
-      if (error.response) {
-        setSubmitStatus({ type: 'error', message: error.response.data.detail || t('send_error') });
-      } else {
-        setSubmitStatus({ type: 'error', message: t('network_error') });
-      }
+      const errorMsg = error.response?.data?.detail || error.response?.data?.message || t('send_error');
+      setSubmitStatus({ type: 'error', message: errorMsg });
     } finally {
       setIsSubmitting(false);
     }
+
   };
 
   const features = [

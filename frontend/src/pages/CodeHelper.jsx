@@ -126,7 +126,7 @@ export default function CodeHelper() {
   const fetchHistory = async () => {
     try {
       const res = await API.get(`/ai/history?email=${email}`);
-      setHistory(res.data.history.filter(h => h.question.startsWith('Code (')).reverse());
+      setHistory(res.data.history.filter(h => h.question && h.question.startsWith('Code (')).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)));
     } catch { console.error("Failed to fetch history"); }
   };
 
@@ -276,8 +276,8 @@ export default function CodeHelper() {
                     <Terminal className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-black tracking-tighter font-mono text-orange-900 dark:text-orange-50">{t('syntaxsage')}</h1>
-                    <p className="text-xs font-mono uppercase tracking-widest text-orange-400 dark:text-orange-600">{t('expert_ai_intelligence')}</p>
+                    <h1 className="text-2xl font-black tracking-tighter font-mono text-orange-900 dark:text-orange-50">{t('syntaxsage_title')}</h1>
+                    <p className="text-xs font-mono uppercase tracking-widest text-orange-400 dark:text-orange-600">{t('syntaxsage_sub')}</p>
                   </div>
                 </div>
               </div>

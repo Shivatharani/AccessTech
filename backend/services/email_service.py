@@ -1,72 +1,56 @@
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import requests
 import os
-import socket
-from dotenv import load_dotenv
-
-load_dotenv()
 
 def send_contact_email(name, email, message):
     """
-    Sends a contact form email using SMTP.
+    Sends a contact form email using the Resend Web API.
+    Bypasses SMTP port blocking on Render.
     """
-    smtp_server = os.getenv("SMTP_SERVER")
-    smtp_port = int(os.getenv("SMTP_PORT", 587))
-    smtp_user = os.getenv("SMTP_USERNAME")
-    smtp_password = os.getenv("SMTP_PASSWORD")
+    api_key = os.getenv("RESEND_API_KEY")
     receiver_email = os.getenv("CONTACT_RECEIVER_EMAIL")
 
-    if not all([smtp_server, smtp_user, smtp_password, receiver_email]):
-        print("Error: SMTP credentials or receiver email not configured.")
+    if not api_key:
+        print("ERROR: RESEND_API_KEY is missing from environment variables.")
+        return False
+    
+    if not receiver_email:
+        print("ERROR: CONTACT_RECEIVER_EMAIL is missing from environment variables.")
         return False
 
-    # Ensure they are strings to satisfy type checkers
-    smtp_server = str(smtp_server)
-    smtp_user = str(smtp_user)
-    smtp_password = str(smtp_password)
-    receiver_email = str(receiver_email)
-
+    url = "https://api.resend.com/emails"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    # Resend allows 'onboarding@resend.dev' for testing without domain verification
+    # You can later update this to your own domain (e.g. 'noreply@accesstech.com')
+    sender_email = "onboarding@resend.dev"
+    
+    data = {
+        "from": f"AccessTech Contact <{sender_email}>",
+        "to": [receiver_email],
+        "subject": f"Contact Form: {name}",
+        "reply_to": email,
+        "text": f"New message from AccessTech Contact Form:\n\nName: {name}\nEmail: {email}\nMessage:\n{message}"
+    }
+    
     try:
-        # Create the email content
-        msg = MIMEMultipart()
-        msg['From'] = smtp_user
-        msg['To'] = receiver_email
-        msg['Subject'] = f"New Contact Form Submission from {name}"
-
-        body = f"""
-        New message from AccessTech Contact Form:
+        print(f"DEBUG: Calling Resend API to send mail to {receiver_email}...")
+        response = requests.post(url, headers=headers, json=data, timeout=10)
         
-        Name: {name}
-        Email: {email}
-        Message:
-        {message}
-        """
-        # Use a localized monkeypatch for getaddrinfo to strictly force IPv4 resolution.
-        # This completely avoids IPv6 AAAA records which cause Render to crash with Errno 101 or -9.
-        _orig_getaddrinfo = socket.getaddrinfo
-        
-        def _ipv4_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
-            return _orig_getaddrinfo(host, port, socket.AF_INET, type, proto, flags)
+        if response.status_code in [200, 201]:
+            print("DEBUG: Email sent successfully via Resend API!")
+            return True
+        else:
+            print(f"RESEND ERROR: {response.status_code} - {response.text}")
+            return False
             
-        socket.getaddrinfo = _ipv4_getaddrinfo
-        
-        try:
-            if smtp_port == 465:
-                server = smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=15)
-            else:
-                server = smtplib.SMTP(smtp_server, smtp_port, timeout=15)
-                server.starttls()
-            server.login(smtp_user, smtp_password)
-            text = msg.as_string()
-            server.sendmail(smtp_user, receiver_email, text)
-            server.quit()
-        finally:
-            # Always restore the original resolver function to avoid polluting global state
-            socket.getaddrinfo = _orig_getaddrinfo
-        
-        print(f"Email sent successfully to {receiver_email}")
-        return True
     except Exception as e:
-        print(f"Error sending email: {e}")
+        print(f"RESEND API EXCEPTION: {e}")
         return False
+
+
+
+
+
